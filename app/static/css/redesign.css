@@ -59,7 +59,7 @@
 .logo, .vt-logo {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
+  gap: 8px !important;
   text-decoration: none !important;
   font-family: 'Inter', sans-serif !important;
   font-size: 1.25rem !important;
@@ -73,6 +73,13 @@
   width: auto !important;
   display: block !important;
   object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+
+/* Ajuste para mobile menu */
+.mobile-menu-header .logo img,
+.mobile-menu-header .vt-logo img {
+  height: 36px !important;
 }
 
 .logo-vet   { color: var(--brand) !important; }
