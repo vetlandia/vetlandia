@@ -15,5 +15,14 @@ class Settings(BaseSettings):
     APP_NAME: str = "VetLândia"
     APP_VERSION: str = "1.0.0"
 
+    @property
+    def db_url(self) -> str:
+        """Convert DATABASE_URL to psycopg3 format if needed."""
+        url = self.DATABASE_URL
+        # Convert postgresql:// to postgresql+psycopg://
+        if url.startswith("postgresql://"):
+            return url.replace("postgresql://", "postgresql+psycopg://", 1)
+        return url
+
 
 settings = Settings()
