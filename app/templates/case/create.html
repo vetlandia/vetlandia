@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Publicar Caso Clínico - VetLândia{% endblock %}
+
+{% block content %}
+<section class="create-case-page">
+    <div class="container-narrow">
+        <div class="page-header">
+            <h1>Publicar Caso Clínico</h1>
+            <p>Compartilhe conhecimento com a comunidade veterinária</p>
+        </div>
+
+        <div class="form-card">
+            <form id="createCaseForm">
+                <div class="form-group">
+                    <label class="form-label form-label-required">Título do Caso</label>
+                    <input type="text" name="title" class="form-input" maxlength="255" required>
+                    <p class="form-help">Seja claro e descritivo</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Espécie</label>
+                        <select name="species" class="form-select">
+                            <option value="">Selecione...</option>
+                            <option value="Canino">Canino</option>
+                            <option value="Felino">Felino</option>
+                            <option value="Equino">Equino</option>
+                            <option value="Bovino">Bovino</option>
+                            <option value="Suíno">Suíno</option>
+                            <option value="Ave">Ave</option>
+                            <option value="Réptil">Réptil</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Raça</label>
+                        <input type="text" name="breed" class="form-input" maxlength="100">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Especialidade</label>
+                    <select name="specialty" class="form-select">
+                        <option value="">Selecione...</option>
+                        <option value="Dermatologia">Dermatologia</option>
+                        <option value="Cirurgia">Cirurgia</option>
+                        <option value="Ortopedia">Ortopedia</option>
+                        <option value="Cardiologia">Cardiologia</option>
+                        <option value="Oftalmologia">Oftalmologia</option>
+                        <option value="Oncologia">Oncologia</option>
+                        <option value="Neurologia">Neurologia</option>
+                        <option value="Endocrinologia">Endocrinologia</option>
+                        <option value="Nefrologia">Nefrologia</option>
+                        <option value="Anestesiologia">Anestesiologia</option>
+                        <option value="Diagnóstico por Imagem">Diagnóstico por Imagem</option>
+                        <option value="Clínica Geral">Clínica Geral</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Descrição do Caso</label>
+                    <textarea name="content" class="form-textarea" rows="12" required></textarea>
+                    <p class="form-help">Mínimo 100 caracteres. Descreva: histórico, sintomas, diagnóstico, tratamento e evolução</p>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>⚠️ Importante:</strong> Não inclua informações que possam identificar o tutor ou o paciente. Foque apenas nos aspectos técnicos do caso.
+                </div>
+
+                <div id="caseError" class="alert alert-error hidden"></div>
+
+                <div class="form-actions">
+                    <a href="/casos-clinicos" class="btn btn-ghost">Cancelar</a>
+                    <button type="submit" class="btn btn-primary btn-lg">Publicar Caso Clínico</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+.create-case-page {
+    padding: var(--space-8) 0;
+    min-height: calc(100vh - 400px);
+}
+
+.form-card {
+    background: white;
+    padding: var(--space-10);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    margin-top: var(--space-8);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: flex-end;
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-light);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.getElementById('createCaseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById('caseError');
+
+    if (!isAuthenticated()) {
+        errorDiv.textContent = 'Você precisa estar logado como veterinário para publicar casos clínicos';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    errorDiv.classList.add('hidden');
+    setButtonLoading(submitBtn, true);
+
+    const formData = new FormData(form);
+    const data = {
+        title: formData.get('title'),
+        species: formData.get('species') || null,
+        breed: formData.get('breed') || null,
+        specialty: formData.get('specialty') || null,
+        content: formData.get('content')
+    };
+
+    try {
+        const response = await fetch('/api/casos-clinicos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.detail || 'Erro ao publicar caso clínico');
+        }
+
+        window.location.href = `/casos-clinicos/${result.id}`;
+
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        setButtonLoading(submitBtn, false);
+    }
+});
+</script>
+{% endblock %}

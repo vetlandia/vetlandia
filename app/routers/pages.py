@@ -287,3 +287,55 @@ def termos(request: Request):
 @router.get("/privacidade", response_class=HTMLResponse)
 def privacidade(request: Request):
     return templates.TemplateResponse("pages/privacidade.html", {"request": request})
+
+
+@router.get("/casos-clinicos", response_class=HTMLResponse)
+def casos_clinicos(
+    request: Request,
+    db: Session = Depends(get_db),
+    especialidade: str = None,
+):
+    q = db.query(ClinicalCase).options(joinedload(ClinicalCase.author))
+
+    if especialidade:
+        q = q.filter(ClinicalCase.specialty.ilike(f"%{especialidade}%"))
+
+    cases = q.order_by(ClinicalCase.created_at.desc()).all()
+
+    return templates.TemplateResponse(
+        "case/list.html",
+        {"request": request, "cases": cases, "especialidade": especialidade},
+    )
+
+
+@router.get("/casos-clinicos/criar", response_class=HTMLResponse)
+def criar_caso_clinico(request: Request):
+    return templates.TemplateResponse("case/create.html", {"request": request})
+
+
+@router.get("/casos-clinicos/{case_id}", response_class=HTMLResponse)
+def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(get_db)):
+    from app.models.case import CaseComment
+
+    case = (
+        db.query(ClinicalCase)
+        .options(joinedload(ClinicalCase.author))
+        .filter(ClinicalCase.id == case_id)
+        .first()
+    )
+
+    if not case:
+        return RedirectResponse("/casos-clinicos")
+
+    comments = (
+        db.query(CaseComment)
+        .options(joinedload(CaseComment.author))
+        .filter(CaseComment.case_id == case_id)
+        .order_by(CaseComment.created_at.desc())
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        "case/detail.html",
+        {"request": request, "case": case, "comments": comments},
+    )

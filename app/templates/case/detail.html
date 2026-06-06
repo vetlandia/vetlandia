@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}{{ case.title }} - VetLândia{% endblock %}
+
+{% block content %}
+<section class="case-detail-page">
+    <div class="container-narrow">
+        <!-- Header do Caso -->
+        <div class="case-detail-header">
+            <div class="case-badges">
+                {% if case.specialty %}
+                <span class="badge badge-orange">{{ case.specialty }}</span>
+                {% endif %}
+                {% if case.species %}
+                <span class="badge badge-blue">{{ case.species }}</span>
+                {% endif %}
+                {% if case.breed %}
+                <span class="badge badge-gray">{{ case.breed }}</span>
+                {% endif %}
+            </div>
+
+            <h1>{{ case.title }}</h1>
+
+            <div class="case-meta">
+                <div class="case-author-info">
+                    <div class="case-author-avatar-lg">{{ case.author.full_name[0] }}</div>
+                    <div>
+                        <a href="/veterinario/{{ case.author.slug }}" class="case-author-name-lg">{{ case.author.full_name }}</a>
+                        <p class="case-author-crmv">{{ case.author.crmv }}</p>
+                    </div>
+                </div>
+                <span class="case-date-lg">{{ case.created_at.strftime('%d/%m/%Y às %H:%M') }}</span>
+            </div>
+        </div>
+
+        <!-- Conteúdo do Caso -->
+        <div class="case-content">
+            <div class="case-content-body">
+                {{ case.content|replace('\n', '<br>')|safe }}
+            </div>
+        </div>
+
+        <!-- Comentários -->
+        <div class="comments-section">
+            <h2>Discussão ({{ comments|length }})</h2>
+
+            {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <div class="comment-avatar">{{ comment.author.full_name[0] }}</div>
+                            <div>
+                                <a href="/veterinario/{{ comment.author.slug }}" class="comment-author-name">{{ comment.author.full_name }}</a>
+                                <p class="comment-author-crmv">{{ comment.author.crmv }}</p>
+                            </div>
+                        </div>
+                        <span class="comment-date">{{ comment.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <div class="comment-content">
+                        {{ comment.content|replace('\n', '<br>')|safe }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-secondary">Nenhum comentário ainda. Seja o primeiro a contribuir!</p>
+            {% endif %}
+
+            <!-- Form comentário (só para veterinários logados) -->
+            <div class="comment-form-section">
+                <h3>Adicionar Comentário</h3>
+                <p class="text-secondary text-sm">Apenas veterinários podem comentar</p>
+                <form id="commentForm" class="comment-form">
+                    <textarea name="content" class="form-textarea" rows="4" placeholder="Compartilhe sua experiência ou opinião sobre este caso..." required></textarea>
+                    <div id="commentError" class="alert alert-error hidden"></div>
+                    <button type="submit" class="btn btn-primary">Publicar Comentário</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.case-detail-page {
+    padding: var(--space-8) 0;
+}
+
+.case-detail-header {
+    margin-bottom: var(--space-8);
+}
+
+.case-badges {
+    display: flex;
+    gap: var(--space-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-4);
+}
+
+.case-detail-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-6);
+    line-height: 1.2;
+}
+
+.case-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+}
+
+.case-author-info {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.case-author-avatar-lg {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.case-author-name-lg {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+}
+
+.case-author-crmv {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+    margin: 0;
+}
+
+.case-date-lg {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+}
+
+.case-content {
+    background: white;
+    padding: var(--space-10);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-8);
+}
+
+.case-content-body {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+}
+
+.comments-section {
+    background: white;
+    padding: var(--space-8);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.comments-section h2 {
+    margin-bottom: var(--space-6);
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-bottom: var(--space-8);
+}
+
+.comment-card {
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    border-left: 3px solid var(--azul-claro);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.comment-author {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.comment-author-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
+}
+
+.comment-content {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.comment-form-section {
+    padding-top: var(--space-8);
+    border-top: 2px solid var(--border-light);
+}
+
+.comment-form-section h3 {
+    margin-bottom: var(--space-3);
+}
+
+.comment-form {
+    margin-top: var(--space-5);
+}
+
+@media (max-width: 768px) {
+    .case-detail-header h1 {
+        font-size: 2rem;
+    }
+
+    .case-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-4);
+    }
+}
+</style>
+
+<script>
+document.getElementById('commentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById('commentError');
+
+    if (!isAuthenticated()) {
+        errorDiv.textContent = 'Você precisa estar logado para comentar';
+        errorDiv.classList.remove('hidden');
+        return;
+    }
+
+    errorDiv.classList.add('hidden');
+    setButtonLoading(submitBtn, true);
+
+    const formData = {
+        content: form.content.value
+    };
+
+    try {
+        const response = await fetch('/api/casos-clinicos/{{ case.id }}/comentarios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || 'Erro ao publicar comentário');
+        }
+
+        window.location.reload();
+
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        setButtonLoading(submitBtn, false);
+    }
+});
+</script>
+{% endblock %}
