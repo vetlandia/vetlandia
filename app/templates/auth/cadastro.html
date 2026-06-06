@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - VetLândia{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="container-narrow">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Criar Conta</h1>
+                <p>Escolha o tipo de cadastro</p>
+            </div>
+
+            <!-- Tipo de Usuário -->
+            <div class="user-type-selector">
+                <button class="user-type-btn active" data-type="tutor">
+                    <span class="type-icon">🐾</span>
+                    <span class="type-label">Sou Tutor</span>
+                </button>
+                <button class="user-type-btn" data-type="veterinarian">
+                    <span class="type-icon">⚕️</span>
+                    <span class="type-label">Sou Veterinário</span>
+                </button>
+                <button class="user-type-btn" data-type="clinic">
+                    <span class="type-icon">🏥</span>
+                    <span class="type-label">Sou Clínica</span>
+                </button>
+            </div>
+
+            <!-- Form Tutor -->
+            <form id="formTutor" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label form-label-required">Nome Completo</label>
+                    <input type="text" name="full_name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" name="phone" class="form-input" placeholder="(11) 99999-9999">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Email</label>
+                    <input type="email" name="email" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Senha</label>
+                    <input type="password" name="password" class="form-input" minlength="6" required>
+                    <p class="form-help">Mínimo 6 caracteres</p>
+                </div>
+
+                <div id="errorTutor" class="alert alert-error hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    Criar Conta Tutor
+                </button>
+            </form>
+
+            <!-- Form Veterinário -->
+            <form id="formVeterinarian" class="auth-form hidden">
+                <div class="form-group">
+                    <label class="form-label form-label-required">Nome Completo</label>
+                    <input type="text" name="full_name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">CRMV</label>
+                    <input type="text" name="crmv" class="form-input" placeholder="CRMV-SP 12345" required>
+                    <p class="form-help">Formato: CRMV-UF XXXXX</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Especialidade</label>
+                    <input type="text" name="specialty" class="form-input" placeholder="Ex: Dermatologia">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" name="city" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Estado</label>
+                    <select name="state" class="form-select">
+                        <option value="">Selecione...</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="PR">Paraná</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="BA">Bahia</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="CE">Ceará</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" name="phone" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Email</label>
+                    <input type="email" name="email" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Senha</label>
+                    <input type="password" name="password" class="form-input" minlength="6" required>
+                </div>
+
+                <div id="errorVet" class="alert alert-error hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    Criar Perfil Veterinário
+                </button>
+            </form>
+
+            <!-- Form Clínica -->
+            <form id="formClinic" class="auth-form hidden">
+                <div class="form-group">
+                    <label class="form-label form-label-required">Nome da Clínica</label>
+                    <input type="text" name="name" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <textarea name="description" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Endereço</label>
+                    <input type="text" name="address" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Cidade</label>
+                    <input type="text" name="city" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Estado</label>
+                    <select name="state" class="form-select" required>
+                        <option value="">Selecione...</option>
+                        <option value="SP">São Paulo</option>
+                        <option value="RJ">Rio de Janeiro</option>
+                        <option value="MG">Minas Gerais</option>
+                        <option value="RS">Rio Grande do Sul</option>
+                        <option value="PR">Paraná</option>
+                        <option value="SC">Santa Catarina</option>
+                        <option value="BA">Bahia</option>
+                        <option value="PE">Pernambuco</option>
+                        <option value="CE">Ceará</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Telefone</label>
+                    <input type="tel" name="phone" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email da Clínica</label>
+                    <input type="email" name="email" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Email de Acesso</label>
+                    <input type="email" name="email_user" class="form-input" required>
+                    <p class="form-help">Usado para login</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Senha</label>
+                    <input type="password" name="password" class="form-input" minlength="6" required>
+                </div>
+
+                <div id="errorClinic" class="alert alert-error hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    Cadastrar Clínica
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Já tem conta? <a href="/login">Entrar</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.user-type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-8);
+}
+
+.user-type-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.user-type-btn.active {
+    background: white;
+    border-color: var(--azul-intermediario);
+    box-shadow: 0 4px 12px rgba(8, 131, 149, 0.2);
+}
+
+.type-icon {
+    font-size: 2rem;
+}
+
+.type-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+    .user-type-selector {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+// Toggle user type
+const typeBtns = document.querySelectorAll('.user-type-btn');
+const forms = {
+    tutor: document.getElementById('formTutor'),
+    veterinarian: document.getElementById('formVeterinarian'),
+    clinic: document.getElementById('formClinic')
+};
+
+typeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        typeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const type = btn.dataset.type;
+        Object.keys(forms).forEach(key => {
+            forms[key].classList.add('hidden');
+        });
+        forms[type].classList.remove('hidden');
+    });
+});
+
+// Submit handlers
+async function handleSubmit(e, endpoint, errorId) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById(errorId);
+
+    errorDiv.classList.add('hidden');
+    setButtonLoading(submitBtn, true);
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.detail || 'Erro ao cadastrar');
+        }
+
+        saveToken(result.access_token);
+        window.location.href = '/meu-perfil';
+
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        setButtonLoading(submitBtn, false);
+    }
+}
+
+forms.tutor.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/tutor', 'errorTutor'));
+forms.veterinarian.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/veterinarian', 'errorVet'));
+forms.clinic.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/clinic', 'errorClinic'));
+</script>
+{% endblock %}

@@ -454,6 +454,30 @@
     margin-bottom: var(--space-1);
 }
 
+.rating-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.rating-stars {
+    color: var(--amarelo-quente);
+    font-size: 0.875rem;
+    letter-spacing: 1px;
+}
+
+.rating-value {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+}
+
+.rating-count {
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
+}
+
 .vet-card-specialty {
     display: inline-block;
     padding: 4px 12px;

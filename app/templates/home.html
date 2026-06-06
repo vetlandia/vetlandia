@@ -77,6 +77,18 @@
                 <div class="vet-card-content">
                     <h3 class="vet-card-name">{{ vet.full_name }}</h3>
 
+                    {% if vet.avg_rating > 0 %}
+                    <div class="rating-inline">
+                        <span class="rating-stars">
+                            {% for i in range(5) %}
+                                {% if i < vet.avg_rating|int %}⭐{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="rating-value">{{ vet.avg_rating }}</span>
+                        <span class="rating-count">({{ vet.review_count }})</span>
+                    </div>
+                    {% endif %}
+
                     {% if vet.specialty %}
                     <span class="vet-card-specialty">{{ vet.specialty }}</span>
                     {% endif %}
@@ -130,6 +142,18 @@
 
                 <div class="clinic-card-content">
                     <h3 class="clinic-card-name">{{ clinic.name }}</h3>
+
+                    {% if clinic.avg_rating > 0 %}
+                    <div class="rating-inline">
+                        <span class="rating-stars">
+                            {% for i in range(5) %}
+                                {% if i < clinic.avg_rating|int %}⭐{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="rating-value">{{ clinic.avg_rating }}</span>
+                        <span class="rating-count">({{ clinic.review_count }})</span>
+                    </div>
+                    {% endif %}
 
                     <div class="clinic-card-meta">
                         <span class="meta-item">

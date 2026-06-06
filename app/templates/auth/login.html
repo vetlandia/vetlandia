@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Entrar - VetLândia{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="container-narrow">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Entrar</h1>
+                <p>Acesse sua conta VetLândia</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label form-label-required">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        class="form-input"
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Senha</label>
+                    <input
+                        type="password"
+                        name="password"
+                        class="form-input"
+                        placeholder="••••••••"
+                        required
+                    >
+                </div>
+
+                <div id="errorMessage" class="alert alert-error hidden"></div>
+
+                <button type="submit" class="btn btn-primary btn-full btn-lg">
+                    Entrar
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Ainda não tem conta? <a href="/cadastro">Cadastre-se grátis</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.auth-page {
+    min-height: calc(100vh - 72px - 400px);
+    display: flex;
+    align-items: center;
+    padding: var(--space-12) 0;
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-12);
+    box-shadow: var(--shadow-lg);
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.auth-header h1 {
+    font-size: 2rem;
+    margin-bottom: var(--space-3);
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-form {
+    margin-bottom: var(--space-6);
+}
+
+.auth-footer {
+    text-align: center;
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-light);
+}
+
+.auth-footer p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.auth-footer a {
+    color: var(--laranja-vibrante);
+    font-weight: 600;
+}
+</style>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const errorDiv = document.getElementById('errorMessage');
+
+    errorDiv.classList.add('hidden');
+    setButtonLoading(submitBtn, true);
+
+    const formData = {
+        email: form.email.value,
+        password: form.password.value
+    };
+
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || 'Erro ao fazer login');
+        }
+
+        saveToken(data.access_token);
+        window.location.href = '/meu-perfil';
+
+    } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.classList.remove('hidden');
+        setButtonLoading(submitBtn, false);
+    }
+});
+</script>
+{% endblock %}
