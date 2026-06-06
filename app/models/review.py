@@ -14,6 +14,12 @@ class RevieweeType(str, PyEnum):
     CLINIC = "clinic"
 
 
+class ReviewStatus(str, PyEnum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 class Review(Base):
     __tablename__ = "reviews"
 
@@ -23,6 +29,7 @@ class Review(Base):
     reviewee_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     rating = Column(Integer, nullable=False)
     comment = Column(Text, nullable=False)
+    status = Column(Enum(ReviewStatus), default=ReviewStatus.PENDING, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

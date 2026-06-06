@@ -15,7 +15,8 @@ from app.models.user import User, UserType
 from app.models.veterinarian import Veterinarian
 from app.models.clinic import Clinic
 from app.models.tutor import Tutor
-from app.models.review import Review, RevieweeType
+from app.models.administrator import Administrator
+from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.case import ClinicalCase
 from app.utils.slugify import slugify
 
@@ -32,9 +33,27 @@ def seed_database():
         db.query(Veterinarian).delete()
         db.query(Clinic).delete()
         db.query(Tutor).delete()
+        db.query(Administrator).delete()
         db.query(User).delete()
         db.commit()
         print("✅ Dados anteriores removidos")
+
+        # Criar administrador
+        admin_user = User(
+            email="admin@vetlandia.com.br",
+            password_hash=get_password_hash("admin123"),
+            user_type=UserType.ADMIN,
+        )
+        db.add(admin_user)
+        db.flush()
+
+        admin = Administrator(
+            user_id=admin_user.id,
+            full_name="Administrador VetLândia",
+        )
+        db.add(admin)
+        db.commit()
+        print(f"✅ 1 administrador criado (email: admin@vetlandia.com.br, senha: admin123)")
 
         # Criar tutores
         tutores_data = [
@@ -96,6 +115,7 @@ def seed_database():
                 city=cidade,
                 state=estado,
                 slug=slug,
+                is_approved=True,  # Aprovado para demo
             )
             db.add(vet)
             veterinarians.append((user, vet))
@@ -133,6 +153,7 @@ def seed_database():
                 phone=telefone,
                 email=email,
                 slug=slug,
+                is_approved=True,  # Aprovado para demo
             )
             db.add(clinic)
             clinicas.append((user, clinic))
@@ -143,6 +164,8 @@ def seed_database():
         # Criar avaliações para veterinários
         import random
         avaliacoes_count = 0
+        avaliacoes_aprovadas = 0
+        avaliacoes_pendentes = 0
 
         for tutor_user, tutor in tutores:
             for vet_user, vet in veterinarians[:4]:  # Avaliar primeiros 4 vets
@@ -154,15 +177,23 @@ def seed_database():
                     "Recomendo de olhos fechados. Meu gato ficou ótimo após o tratamento.",
                 ]
 
+                # 80% aprovadas, 20% pendentes (para demo de moderação)
+                status = ReviewStatus.APPROVED if random.random() < 0.8 else ReviewStatus.PENDING
+
                 review = Review(
                     author_id=tutor_user.id,
                     reviewee_type=RevieweeType.VETERINARIAN,
                     reviewee_id=vet.id,
                     rating=rating,
                     comment=random.choice(comentarios),
+                    status=status,
                 )
                 db.add(review)
                 avaliacoes_count += 1
+                if status == ReviewStatus.APPROVED:
+                    avaliacoes_aprovadas += 1
+                else:
+                    avaliacoes_pendentes += 1
 
         # Avaliar clínicas
         for tutor_user, tutor in tutores:
@@ -174,18 +205,26 @@ def seed_database():
                     "Confio de olhos fechados. Já salvaram meu pet várias vezes.",
                 ]
 
+                # 80% aprovadas, 20% pendentes
+                status = ReviewStatus.APPROVED if random.random() < 0.8 else ReviewStatus.PENDING
+
                 review = Review(
                     author_id=tutor_user.id,
                     reviewee_type=RevieweeType.CLINIC,
                     reviewee_id=clinic.id,
                     rating=rating,
                     comment=random.choice(comentarios_clinica),
+                    status=status,
                 )
                 db.add(review)
                 avaliacoes_count += 1
+                if status == ReviewStatus.APPROVED:
+                    avaliacoes_aprovadas += 1
+                else:
+                    avaliacoes_pendentes += 1
 
         db.commit()
-        print(f"✅ {avaliacoes_count} avaliações criadas")
+        print(f"✅ {avaliacoes_count} avaliações criadas ({avaliacoes_aprovadas} aprovadas, {avaliacoes_pendentes} pendentes)")
 
         # Criar casos clínicos
         casos_data = [

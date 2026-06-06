@@ -12,6 +12,7 @@ class UserType(str, PyEnum):
     TUTOR = "tutor"
     VETERINARIAN = "veterinarian"
     CLINIC = "clinic"
+    ADMIN = "admin"
 
 
 class User(Base):

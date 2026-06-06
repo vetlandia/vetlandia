@@ -1,15 +1,15 @@
-"""Initial schema: users, tutors, veterinarians, clinics, reviews, cases
+"""initial_complete_schema_with_moderation
 
-Revision ID: 4e59c80a831b
+Revision ID: 5486fcdc671f
 Revises: 
-Create Date: 2026-06-06 14:00:55.499642
+Create Date: 2026-06-06 20:11:21.505992
 
 """
 from alembic import op
 import sqlalchemy as sa
 
 
-revision = '4e59c80a831b'
+revision = '5486fcdc671f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,13 +21,23 @@ def upgrade() -> None:
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('password_hash', sa.String(length=255), nullable=False),
-    sa.Column('user_type', sa.Enum('TUTOR', 'VETERINARIAN', 'CLINIC', name='usertype'), nullable=False),
+    sa.Column('user_type', sa.Enum('TUTOR', 'VETERINARIAN', 'CLINIC', 'ADMIN', name='usertype'), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
+    op.create_table('administrators',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('full_name', sa.String(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('user_id')
+    )
     op.create_table('clinics',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
@@ -42,6 +52,7 @@ def upgrade() -> None:
     sa.Column('website', sa.String(length=500), nullable=True),
     sa.Column('logo_url', sa.String(length=500), nullable=True),
     sa.Column('slug', sa.String(length=255), nullable=False),
+    sa.Column('is_approved', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
@@ -49,6 +60,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('user_id')
     )
     op.create_index(op.f('ix_clinics_city'), 'clinics', ['city'], unique=False)
+    op.create_index(op.f('ix_clinics_is_approved'), 'clinics', ['is_approved'], unique=False)
     op.create_index(op.f('ix_clinics_slug'), 'clinics', ['slug'], unique=True)
     op.create_index(op.f('ix_clinics_state'), 'clinics', ['state'], unique=False)
     op.create_table('reviews',
@@ -58,6 +70,7 @@ def upgrade() -> None:
     sa.Column('reviewee_id', sa.UUID(), nullable=False),
     sa.Column('rating', sa.Integer(), nullable=False),
     sa.Column('comment', sa.Text(), nullable=False),
+    sa.Column('status', sa.Enum('PENDING', 'APPROVED', 'REJECTED', name='reviewstatus'), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.CheckConstraint('length(comment) >= 50', name='min_comment_length'),
@@ -69,6 +82,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_reviews_author_id'), 'reviews', ['author_id'], unique=False)
     op.create_index(op.f('ix_reviews_created_at'), 'reviews', ['created_at'], unique=False)
     op.create_index(op.f('ix_reviews_reviewee_id'), 'reviews', ['reviewee_id'], unique=False)
+    op.create_index(op.f('ix_reviews_status'), 'reviews', ['status'], unique=False)
     op.create_table('tutors',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
@@ -79,6 +93,21 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id')
     )
+    op.create_table('comments',
+    sa.Column('id', sa.UUID(), nullable=False),
+    sa.Column('review_id', sa.UUID(), nullable=False),
+    sa.Column('author_id', sa.UUID(), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.CheckConstraint('length(content) >= 10', name='min_comment_content_length'),
+    sa.ForeignKeyConstraint(['author_id'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['review_id'], ['reviews.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_comments_author_id'), 'comments', ['author_id'], unique=False)
+    op.create_index(op.f('ix_comments_created_at'), 'comments', ['created_at'], unique=False)
+    op.create_index(op.f('ix_comments_review_id'), 'comments', ['review_id'], unique=False)
     op.create_table('veterinarians',
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
@@ -92,6 +121,7 @@ def upgrade() -> None:
     sa.Column('clinic_id', sa.UUID(), nullable=True),
     sa.Column('city', sa.String(length=100), nullable=True),
     sa.Column('state', sa.String(length=2), nullable=True),
+    sa.Column('is_approved', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['clinic_id'], ['clinics.id'], ),
@@ -101,6 +131,7 @@ def upgrade() -> None:
     )
     op.create_index(op.f('ix_veterinarians_city'), 'veterinarians', ['city'], unique=False)
     op.create_index(op.f('ix_veterinarians_crmv'), 'veterinarians', ['crmv'], unique=True)
+    op.create_index(op.f('ix_veterinarians_is_approved'), 'veterinarians', ['is_approved'], unique=False)
     op.create_index(op.f('ix_veterinarians_slug'), 'veterinarians', ['slug'], unique=True)
     op.create_index(op.f('ix_veterinarians_state'), 'veterinarians', ['state'], unique=False)
     op.create_table('clinical_cases',
@@ -148,18 +179,26 @@ def downgrade() -> None:
     op.drop_table('clinical_cases')
     op.drop_index(op.f('ix_veterinarians_state'), table_name='veterinarians')
     op.drop_index(op.f('ix_veterinarians_slug'), table_name='veterinarians')
+    op.drop_index(op.f('ix_veterinarians_is_approved'), table_name='veterinarians')
     op.drop_index(op.f('ix_veterinarians_crmv'), table_name='veterinarians')
     op.drop_index(op.f('ix_veterinarians_city'), table_name='veterinarians')
     op.drop_table('veterinarians')
+    op.drop_index(op.f('ix_comments_review_id'), table_name='comments')
+    op.drop_index(op.f('ix_comments_created_at'), table_name='comments')
+    op.drop_index(op.f('ix_comments_author_id'), table_name='comments')
+    op.drop_table('comments')
     op.drop_table('tutors')
+    op.drop_index(op.f('ix_reviews_status'), table_name='reviews')
     op.drop_index(op.f('ix_reviews_reviewee_id'), table_name='reviews')
     op.drop_index(op.f('ix_reviews_created_at'), table_name='reviews')
     op.drop_index(op.f('ix_reviews_author_id'), table_name='reviews')
     op.drop_table('reviews')
     op.drop_index(op.f('ix_clinics_state'), table_name='clinics')
     op.drop_index(op.f('ix_clinics_slug'), table_name='clinics')
+    op.drop_index(op.f('ix_clinics_is_approved'), table_name='clinics')
     op.drop_index(op.f('ix_clinics_city'), table_name='clinics')
     op.drop_table('clinics')
+    op.drop_table('administrators')
     op.drop_index(op.f('ix_users_email'), table_name='users')
     op.drop_table('users')
     # ### end Alembic commands ###
