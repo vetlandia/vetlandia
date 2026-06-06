@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VetLândia — Proposta Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --brand: #00C4A7;
+  --brand-dark: #008C77;
+  --brand-light: #E6FAF7;
+  --action: #FF5A5F;
+  --surface: #F7F8FA;
+  --card: #FFFFFF;
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B7280;
+  --text-light: #9CA3AF;
+  --border: #E5E7EB;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #1A1A2E;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 40px;
+  min-height: 100vh;
+  flex-wrap: wrap;
+}
+
+/* ── LABEL ── */
+.label {
+  color: #9CA3AF;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* ── PHONE FRAME ── */
+.phone-wrapper { display: flex; flex-direction: column; align-items: center; }
+.phone {
+  width: 375px;
+  height: 780px;
+  background: var(--surface);
+  border-radius: 40px;
+  overflow: hidden;
+  border: 8px solid #2D2D2D;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background: var(--card);
+  padding: 12px 20px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.status-icons { display: flex; gap: 6px; align-items: center; font-size: 11px; }
+
+/* ── HEADER ── */
+.header {
+  background: var(--card);
+  padding: 4px 20px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.header-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.header-location span { font-size: 10px; color: var(--brand); }
+.header-actions { display: flex; gap: 12px; align-items: center; }
+.notif-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--brand-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  position: relative;
+}
+.notif-badge {
+  position: absolute;
+  top: -2px; right: -2px;
+  width: 14px; height: 14px;
+  background: var(--action);
+  border-radius: 50%;
+  font-size: 8px;
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  border: 2px solid white;
+}
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: white; font-weight: 700;
+}
+
+/* ── SEARCH BAR ── */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-light);
+}
+.search-bar span:first-child { font-size: 16px; }
+.search-bar .mic {
+  margin-left: auto;
+  width: 32px; height: 32px;
+  background: var(--brand);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+
+/* ── SCROLL CONTENT ── */
+.scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.scroll-content::-webkit-scrollbar { display: none; }
+
+/* ── GREETING ── */
+.greeting {
+  padding: 16px 20px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.greeting-text h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.greeting-text p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.coupon-chip {
+  background: linear-gradient(135deg, #7C3AED, #A855F7);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── QUICK ACTIONS ── */
+.section { padding: 16px 20px; }
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.qa-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.qa-icon {
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  position: relative;
+}
+.qa-icon.teal { background: var(--brand-light); }
+.qa-icon.red { background: #FFF0F0; }
+.qa-icon.blue { background: #EEF2FF; }
+.qa-icon.yellow { background: #FFFBEB; }
+.qa-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.3;
+}
+.qa-badge {
+  position: absolute;
+  top: -4px; right: -4px;
+  background: var(--action);
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 8px;
+  border: 2px solid white;
+}
+
+/* ── CATEGORY CHIPS ── */
+.chips-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 20px 16px;
+  scrollbar-width: none;
+}
+.chips-row::-webkit-scrollbar { display: none; }
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-secondary);
+}
+.chip.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: white;
+}
+
+/* ── VET CARD ── */
+.cards-section { padding: 0 20px 16px; }
+.cards-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.cards-row::-webkit-scrollbar { display: none; }
+.vet-card {
+  min-width: 160px;
+  background: var(--card);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+.vet-card-img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  background: linear-gradient(135deg, #E6FAF7 0%, #B2F5EA 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  position: relative;
+}
+.vet-card-badge {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--brand);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 7px;
+  border-radius: 8px;
+}
+.vet-card-body { padding: 10px; }
+.vet-card-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.vet-card-spec {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-bottom: 6px;
+}
+.vet-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.stars { font-size: 10px; color: #F59E0B; }
+.price { font-size: 11px; font-weight: 700; color: var(--brand-dark); }
+
+/* ── CLINIC LIST ── */
+.clinic-list { padding: 0 20px 16px; }
+.clinic-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--card);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+.clinic-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: var(--brand-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.clinic-info { flex: 1; }
+.clinic-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.clinic-meta { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+.clinic-chip {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--brand-light);
+  color: var(--brand-dark);
+}
+.clinic-chip.open { background: #ECFDF5; color: #059669; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0 16px;
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-light);
+  min-width: 50px;
+}
+.nav-item.active { color: var(--brand); }
+.nav-icon { font-size: 20px; }
+.nav-item.active .nav-icon {
+  filter: none;
+}
+
+/* ── DESKTOP FRAME ── */
+.desktop-wrapper { display: flex; flex-direction: column; align-items: center; }
+.desktop {
+  width: 960px;
+  height: 620px;
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 6px solid #2D2D2D;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+.desktop-nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 56px;
+}
+.desktop-logo {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--brand);
+  letter-spacing: -0.5px;
+  margin-right: 16px;
+}
+.desktop-nav-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+}
+.desktop-nav-link.active {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+}
+.desktop-nav-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.btn-outline {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  cursor: pointer;
+}
+.btn-primary {
+  padding: 7px 18px;
+  background: var(--brand);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.desktop-body { flex: 1; display: flex; overflow: hidden; }
+.desktop-hero {
+  flex: 1;
+  background: linear-gradient(135deg, #0D1B2A 0%, #00C4A7 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 48px 48px 60px;
+  position: relative;
+  overflow: hidden;
+}
+.desktop-hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 400px; height: 400px;
+  background: rgba(0,196,167,0.15);
+  border-radius: 50%;
+}
+.desktop-hero::after {
+  content: '';
+  position: absolute;
+  bottom: -100px; left: -60px;
+  width: 300px; height: 300px;
+  background: rgba(0,196,167,0.08);
+  border-radius: 50%;
+}
+.desktop-hero-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin-bottom: 12px;
+}
+.desktop-hero h1 {
+  font-size: 38px;
+  font-weight: 900;
+  color: white;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+.desktop-hero h1 span { color: var(--brand); }
+.desktop-hero p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+.desktop-search-box {
+  display: flex;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+}
+.desktop-search-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  flex: 1;
+  font-size: 14px;
+  color: var(--text-light);
+  border-right: 1px solid var(--border);
+}
+.desktop-search-input:last-of-type { border-right: none; }
+.desktop-search-btn {
+  padding: 0 20px;
+  background: var(--brand);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.desktop-stats {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+  position: relative;
+  z-index: 1;
+}
+.desktop-stat {
+  display: flex;
+  flex-direction: column;
+}
+.desktop-stat-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: white;
+}
+.desktop-stat-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+
+.desktop-sidebar {
+  width: 280px;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.sidebar-vet-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sidebar-vet-card:hover { background: var(--brand-light); }
+.sidebar-vet-avatar {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--brand-light), var(--brand));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.sidebar-vet-name { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.sidebar-vet-spec { font-size: 10px; color: var(--text-light); }
+.sidebar-vet-price { font-size: 11px; font-weight: 700; color: var(--brand-dark); margin-top: 1px; }
+.sidebar-stars { font-size: 9px; color: #F59E0B; }
+.sidebar-badge {
+  margin-left: auto;
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MOBILE                                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="phone-wrapper">
+  <div class="label">📱 Mobile — Home</div>
+  <div class="phone">
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <span>▌▌▌</span>
+        <span>WiFi</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <div class="header-location">
+          <span style="font-size:14px">📍</span>
+          R. das Flores, 240
+          <span>▾</span>
+        </div>
+        <div class="header-actions">
+          <div class="notif-btn">
+            🔔
+            <div class="notif-badge">2</div>
+          </div>
+          <div class="avatar">M</div>
+        </div>
+      </div>
+      <!-- Search -->
+      <div class="search-bar">
+        <span>🔍</span>
+        <span>Buscar veterinários, clínicas...</span>
+        <div class="mic">🎤</div>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="scroll-content">
+
+      <!-- Greeting -->
+      <div class="greeting">
+        <div class="greeting-text">
+          <h2>Olá, Marcos 👋</h2>
+          <p>Como seu pet está hoje?</p>
+        </div>
+        <div class="coupon-chip">💜 3 cupons</div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section">
+        <div class="quick-actions">
+          <div class="qa-item">
+            <div class="qa-icon teal">🩺</div>
+            <span class="qa-label">Veterinários</span>
+          </div>
+          <div class="qa-item">
+            <div class="qa-icon blue">🏥</div>
+            <span class="qa-label">Clínicas</span>
+          </div>
+          <div class="qa-item">
+            <div class="qa-icon red" style="position:relative">
+              🚨
+              <span class="qa-badge">24h</span>
+            </div>
+            <span class="qa-label">Emergência</span>
+          </div>
+          <div class="qa-item">
+            <div class="qa-icon yellow">💊</div>
+            <span class="qa-label">Farmácias Pet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Chips -->
+      <div class="chips-row">
+        <div class="chip active">🐶 Cães</div>
+        <div class="chip">🐱 Gatos</div>
+        <div class="chip">🐦 Aves</div>
+        <div class="chip">🐇 Exóticos</div>
+        <div class="chip">🐠 Aquários</div>
+      </div>
+
+      <!-- Vet Cards -->
+      <div class="section" style="padding-bottom:0">
+        <div class="section-title">Veterinários em destaque</div>
+      </div>
+      <div class="cards-section">
+        <div class="cards-row">
+
+          <div class="vet-card">
+            <div class="vet-card-img">
+              🐾
+              <div class="vet-card-badge">Top</div>
+            </div>
+            <div class="vet-card-body">
+              <div class="vet-card-name">Dr. Rafael Lima</div>
+              <div class="vet-card-spec">Clínico Geral</div>
+              <div class="vet-card-footer">
+                <span class="stars">★★★★★ 4.9</span>
+                <span class="price">R$ 90</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="vet-card">
+            <div class="vet-card-img" style="background: linear-gradient(135deg,#EEF2FF,#C7D2FE);">
+              🐕‍🦺
+              <div class="vet-card-badge" style="background:#7C3AED">Pro</div>
+            </div>
+            <div class="vet-card-body">
+              <div class="vet-card-name">Dra. Ana Costa</div>
+              <div class="vet-card-spec">Dermatologista</div>
+              <div class="vet-card-footer">
+                <span class="stars">★★★★☆ 4.7</span>
+                <span class="price">R$ 120</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="vet-card">
+            <div class="vet-card-img" style="background: linear-gradient(135deg,#FFF0F0,#FED7D7);">
+              🐈
+            </div>
+            <div class="vet-card-body">
+              <div class="vet-card-name">Dr. João Mello</div>
+              <div class="vet-card-spec">Felino Esp.</div>
+              <div class="vet-card-footer">
+                <span class="stars">★★★★★ 5.0</span>
+                <span class="price">R$ 80</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Clinics -->
+      <div class="section" style="padding-bottom:0">
+        <div class="section-title">Clínicas perto de você</div>
+      </div>
+      <div class="clinic-list">
+
+        <div class="clinic-item">
+          <div class="clinic-icon">🏥</div>
+          <div class="clinic-info">
+            <div class="clinic-name">PetClínica Vila Madalena</div>
+            <div class="clinic-meta">⭐ 4.8 · 1,2 km · Aberta agora</div>
+          </div>
+          <div class="clinic-chip open">Aberta</div>
+        </div>
+
+        <div class="clinic-item">
+          <div class="clinic-icon">🐾</div>
+          <div class="clinic-info">
+            <div class="clinic-name">Clínica Animal Center</div>
+            <div class="clinic-meta">⭐ 4.6 · 2,8 km · Abre às 8h</div>
+          </div>
+          <div class="clinic-chip">Fechada</div>
+        </div>
+
+      </div>
+
+    </div><!-- /scroll-content -->
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        Início
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">🔍</span>
+        Buscar
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📅</span>
+        Consultas
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">⭐</span>
+        Avaliações
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">👤</span>
+        Perfil
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- DESKTOP                                     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="desktop-wrapper">
+  <div class="label">🖥️ Desktop — Home</div>
+  <div class="desktop">
+
+    <!-- Nav -->
+    <div class="desktop-nav">
+      <span class="desktop-logo">VetLândia</span>
+      <a class="desktop-nav-link active">Início</a>
+      <a class="desktop-nav-link">Veterinários</a>
+      <a class="desktop-nav-link">Clínicas</a>
+      <a class="desktop-nav-link">Emergência</a>
+      <a class="desktop-nav-link">Casos Clínicos</a>
+      <div class="desktop-nav-actions">
+        <button class="btn-outline">Entrar</button>
+        <button class="btn-primary">Cadastre-se</button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="desktop-body">
+
+      <!-- Hero -->
+      <div class="desktop-hero">
+        <div class="desktop-hero-eyebrow">🐾 Plataforma #1 do Brasil</div>
+        <h1>O melhor cuidado<br>para o seu <span>pet</span></h1>
+        <p>Encontre veterinários e clínicas avaliados pela comunidade.</p>
+
+        <div class="desktop-search-box">
+          <div class="desktop-search-input">
+            🔍 O que você precisa?
+          </div>
+          <div class="desktop-search-input">
+            📍 Sua cidade
+          </div>
+          <button class="desktop-search-btn">Buscar →</button>
+        </div>
+
+        <div class="desktop-stats">
+          <div class="desktop-stat">
+            <span class="desktop-stat-num">1.247</span>
+            <span class="desktop-stat-label">Veterinários</span>
+          </div>
+          <div class="desktop-stat">
+            <span class="desktop-stat-num">489</span>
+            <span class="desktop-stat-label">Clínicas</span>
+          </div>
+          <div class="desktop-stat">
+            <span class="desktop-stat-num">3.891</span>
+            <span class="desktop-stat-label">Avaliações</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="desktop-sidebar">
+        <div class="sidebar-title">Em destaque perto de você</div>
+
+        <div class="sidebar-vet-card">
+          <div class="sidebar-vet-avatar">🩺</div>
+          <div>
+            <div class="sidebar-vet-name">Dr. Rafael Lima</div>
+            <div class="sidebar-vet-spec">Clínico Geral · 1,2 km</div>
+            <div class="sidebar-stars">★★★★★</div>
+            <div class="sidebar-vet-price">A partir de R$ 90</div>
+          </div>
+          <div class="sidebar-badge">Top</div>
+        </div>
+
+        <div class="sidebar-vet-card">
+          <div class="sidebar-vet-avatar">🐕‍🦺</div>
+          <div>
+            <div class="sidebar-vet-name">Dra. Ana Costa</div>
+            <div class="sidebar-vet-spec">Dermatologista · 2,1 km</div>
+            <div class="sidebar-stars">★★★★☆</div>
+            <div class="sidebar-vet-price">A partir de R$ 120</div>
+          </div>
+          <div class="sidebar-badge" style="background:#EEF2FF;color:#7C3AED">Pro</div>
+        </div>
+
+        <div class="sidebar-vet-card">
+          <div class="sidebar-vet-avatar">🏥</div>
+          <div>
+            <div class="sidebar-vet-name">PetClínica VM</div>
+            <div class="sidebar-vet-spec">Clínica · Aberta agora</div>
+            <div class="sidebar-stars">★★★★★</div>
+            <div class="sidebar-vet-price">Consulta a partir de R$ 80</div>
+          </div>
+          <div class="sidebar-badge" style="background:#ECFDF5;color:#059669">Aberta</div>
+        </div>
+
+        <div class="sidebar-vet-card">
+          <div class="sidebar-vet-avatar">🐈</div>
+          <div>
+            <div class="sidebar-vet-name">Dr. João Mello</div>
+            <div class="sidebar-vet-spec">Felinos · 3,4 km</div>
+            <div class="sidebar-stars">★★★★★</div>
+            <div class="sidebar-vet-price">A partir de R$ 80</div>
+          </div>
+          <div class="sidebar-badge">Novo</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
