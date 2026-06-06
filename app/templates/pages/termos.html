@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Termos de Uso - VetLândia{% endblock %}
+
+{% block content %}
+<section class="institutional-page">
+    <div class="container-narrow">
+        <div class="page-header">
+            <h1>Termos de Uso</h1>
+            <p class="lead">Última atualização: Junho de 2026</p>
+        </div>
+
+        <div class="legal-content">
+            <h2>1. Aceitação dos Termos</h2>
+            <p>Ao acessar e usar o VetLândia, você concorda com estes Termos de Uso. Se não concordar, não use nossa plataforma.</p>
+
+            <h2>2. Descrição do Serviço</h2>
+            <p>O VetLândia é uma plataforma que conecta tutores de animais a veterinários e clínicas veterinárias, além de facilitar o compartilhamento de conhecimento profissional entre veterinários.</p>
+
+            <h2>3. Cadastro e Conta</h2>
+            <p><strong>3.1.</strong> Você deve fornecer informações verdadeiras e atualizadas ao se cadastrar.</p>
+            <p><strong>3.2.</strong> Veterinários devem possuir CRMV válido e ativo.</p>
+            <p><strong>3.3.</strong> Você é responsável pela segurança da sua senha.</p>
+            <p><strong>3.4.</strong> É proibido criar múltiplas contas ou contas falsas.</p>
+
+            <h2>4. Uso Aceitável</h2>
+            <p>Você concorda em NÃO:</p>
+            <ul>
+                <li>Publicar informações falsas ou enganosas</li>
+                <li>Usar a plataforma para fins ilegais</li>
+                <li>Assediar, difamar ou prejudicar outros usuários</li>
+                <li>Publicar spam ou conteúdo comercial não autorizado</li>
+                <li>Tentar acessar contas de outros usuários</li>
+                <li>Fazer scraping ou coleta automatizada de dados</li>
+            </ul>
+
+            <h2>5. Avaliações</h2>
+            <p><strong>5.1.</strong> Avaliações devem ser honestas e baseadas em experiências reais.</p>
+            <p><strong>5.2.</strong> É proibido publicar avaliações falsas ou manipular o sistema de avaliações.</p>
+            <p><strong>5.3.</strong> O VetLândia se reserva o direito de remover avaliações que violem estes termos.</p>
+
+            <h2>6. Conteúdo do Usuário</h2>
+            <p><strong>6.1.</strong> Você mantém direitos sobre o conteúdo que publica.</p>
+            <p><strong>6.2.</strong> Você concede ao VetLândia licença para exibir e distribuir seu conteúdo na plataforma.</p>
+            <p><strong>6.3.</strong> Você é responsável pelo conteúdo que publica.</p>
+
+            <h2>7. Casos Clínicos</h2>
+            <p><strong>7.1.</strong> Apenas veterinários podem publicar casos clínicos.</p>
+            <p><strong>7.2.</strong> Casos clínicos não devem conter informações que identifiquem tutores ou pacientes.</p>
+            <p><strong>7.3.</strong> O compartilhamento é apenas para fins educacionais.</p>
+
+            <h2>8. Isenção de Responsabilidade</h2>
+            <p><strong>8.1.</strong> O VetLândia não pratica medicina veterinária e não é responsável por diagnósticos ou tratamentos.</p>
+            <p><strong>8.2.</strong> Avaliações representam opiniões individuais dos usuários.</p>
+            <p><strong>8.3.</strong> Não garantimos a precisão de todas as informações publicadas por usuários.</p>
+
+            <h2>9. Suspensão e Encerramento</h2>
+            <p>Podemos suspender ou encerrar contas que violem estes termos, sem aviso prévio.</p>
+
+            <h2>10. Modificações</h2>
+            <p>Podemos atualizar estes termos periodicamente. Mudanças significativas serão comunicadas aos usuários.</p>
+
+            <h2>11. Lei Aplicável</h2>
+            <p>Estes termos são regidos pelas leis do Brasil.</p>
+
+            <h2>12. Contato</h2>
+            <p>Dúvidas sobre estes termos? Entre em contato: <a href="mailto:vetlandiabrasil@outlook.com">vetlandiabrasil@outlook.com</a></p>
+        </div>
+    </div>
+</section>
+
+<style>
+.legal-content {
+    background: white;
+    padding: var(--space-10);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.legal-content h2 {
+    font-size: 1.5rem;
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
+    color: var(--azul-profundo);
+}
+
+.legal-content h2:first-child {
+    margin-top: 0;
+}
+
+.legal-content p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+.legal-content ul {
+    margin: var(--space-4) 0;
+    padding-left: var(--space-8);
+}
+
+.legal-content li {
+    margin-bottom: var(--space-2);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.legal-content a {
+    color: var(--azul-intermediario);
+    font-weight: 600;
+}
+</style>
+{% endblock %}

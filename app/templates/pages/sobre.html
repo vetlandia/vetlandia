@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre Nós - VetLândia{% endblock %}
+
+{% block content %}
+<section class="institutional-page">
+    <div class="container-narrow">
+        <div class="page-header">
+            <h1>Sobre o VetLândia</h1>
+            <p class="lead">Confiança para quem cuida. Conhecimento para quem trata.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Nossa Missão</h2>
+            <p>O VetLândia nasceu com o propósito de conectar tutores aos melhores veterinários do Brasil e criar uma comunidade profissional onde o conhecimento veterinário é compartilhado e valorizado.</p>
+            <p>Acreditamos que todo animal merece acesso a cuidados veterinários de qualidade, e todo profissional veterinário merece ter visibilidade e reconhecimento pelo seu trabalho.</p>
+        </div>
+
+        <div class="content-block">
+            <h2>Para Tutores</h2>
+            <p>Encontre veterinários qualificados perto de você com base em avaliações reais de outros tutores. Tome decisões informadas sobre a saúde do seu melhor amigo.</p>
+            <ul class="feature-list">
+                <li>✓ Busca por especialidade e localização</li>
+                <li>✓ Avaliações verificadas de tutores</li>
+                <li>✓ Informações completas sobre clínicas e profissionais</li>
+                <li>✓ Sistema de ranking transparente</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <h2>Para Veterinários</h2>
+            <p>Construa sua presença profissional online, compartilhe conhecimento com colegas e seja encontrado por milhares de tutores em todo Brasil.</p>
+            <ul class="feature-list">
+                <li>✓ Perfil profissional com CRMV verificado</li>
+                <li>✓ Receba e responda avaliações</li>
+                <li>✓ Compartilhe casos clínicos com a comunidade</li>
+                <li>✓ Networking com outros profissionais</li>
+            </ul>
+        </div>
+
+        <div class="content-block">
+            <h2>Nossos Valores</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <h3>🎯 Transparência</h3>
+                    <p>Avaliações reais de tutores reais. Sem manipulação, sem fake reviews.</p>
+                </div>
+                <div class="value-card">
+                    <h3>🤝 Comunidade</h3>
+                    <p>Conectamos pessoas que amam animais: tutores, veterinários e clínicas.</p>
+                </div>
+                <div class="value-card">
+                    <h3>📚 Conhecimento</h3>
+                    <p>Compartilhamento de casos clínicos para evolução da medicina veterinária.</p>
+                </div>
+                <div class="value-card">
+                    <h3>💙 Compromisso</h3>
+                    <p>Comprometidos com o bem-estar animal e a valorização profissional.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-block">
+            <h2>Faça Parte do VetLândia</h2>
+            <p>Junte-se à maior comunidade veterinária do Brasil</p>
+            <a href="/cadastro" class="btn btn-primary btn-lg">Cadastrar Grátis</a>
+        </div>
+    </div>
+</section>
+
+<style>
+.institutional-page {
+    padding: var(--space-12) 0;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: var(--space-12);
+}
+
+.page-header h1 {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+}
+
+.lead {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.content-block {
+    margin-bottom: var(--space-10);
+}
+
+.content-block h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-5);
+    color: var(--azul-profundo);
+}
+
+.content-block p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-6) 0;
+}
+
+.feature-list li {
+    font-size: 1.125rem;
+    padding: var(--space-3) 0;
+    color: var(--text-primary);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+}
+
+.value-card {
+    padding: var(--space-6);
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-light);
+    transition: all var(--transition-base);
+}
+
+.value-card:hover {
+    border-color: var(--azul-claro);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.value-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-3);
+}
+
+.value-card p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.cta-block {
+    text-align: center;
+    padding: var(--space-12) var(--space-6);
+    background: linear-gradient(135deg, var(--azul-profundo), var(--azul-intermediario));
+    border-radius: var(--radius-xl);
+    color: white;
+    margin-top: var(--space-12);
+}
+
+.cta-block h2 {
+    color: white;
+    margin-bottom: var(--space-3);
+}
+
+.cta-block p {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-6);
+    opacity: 0.95;
+}
+</style>
+{% endblock %}

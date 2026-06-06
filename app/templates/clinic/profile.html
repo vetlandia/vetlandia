@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}{{ clinic.name }} - VetLândia{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+    <div class="container-narrow">
+        <!-- Header do Perfil -->
+        <div class="profile-header-card">
+            <div class="profile-avatar-large">
+                {% if clinic.logo_url %}
+                <img src="{{ clinic.logo_url }}" alt="{{ clinic.name }}">
+                {% else %}
+                <div class="clinic-logo-placeholder-large">{{ clinic.name[0] }}</div>
+                {% endif %}
+            </div>
+
+            <div class="profile-info-main">
+                <h1>{{ clinic.name }}</h1>
+
+                {% if clinic.avg_rating > 0 %}
+                <div class="rating-large">
+                    <span class="rating-stars-large">
+                        {% for i in range(5) %}
+                            {% if i < clinic.avg_rating|int %}⭐{% else %}☆{% endif %}
+                        {% endfor %}
+                    </span>
+                    <span class="rating-value-large">{{ clinic.avg_rating }}</span>
+                    <span class="rating-count-large">({{ clinic.review_count }} avaliações)</span>
+                </div>
+                {% endif %}
+
+                <div class="profile-details">
+                    <p><strong>📍 Endereço:</strong> {% if clinic.address %}{{ clinic.address }}, {% endif %}{{ clinic.city }}, {{ clinic.state }}</p>
+                    {% if clinic.phone %}
+                    <p><strong>📞 Telefone:</strong> {{ clinic.phone }}</p>
+                    {% endif %}
+                    {% if clinic.email %}
+                    <p><strong>✉️ Email:</strong> {{ clinic.email }}</p>
+                    {% endif %}
+                    {% if clinic.website %}
+                    <p><strong>🌐 Site:</strong> <a href="{{ clinic.website }}" target="_blank">{{ clinic.website }}</a></p>
+                    {% endif %}
+                </div>
+
+                {% if clinic.description %}
+                <div class="profile-bio">
+                    <h3>Sobre a Clínica</h3>
+                    <p>{{ clinic.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Veterinários da Clínica -->
+        {% if veterinarians %}
+        <div class="team-section">
+            <h2>Equipe ({{ veterinarians|length }})</h2>
+            <div class="team-grid">
+                {% for vet in veterinarians %}
+                <a href="/veterinario/{{ vet.slug }}" class="team-member-card">
+                    <div class="team-avatar">
+                        {% if vet.photo_url %}
+                        <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">
+                        {% else %}
+                        <div class="avatar-placeholder-sm">{{ vet.full_name[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4>{{ vet.full_name }}</h4>
+                        {% if vet.specialty %}
+                        <p class="text-secondary text-sm">{{ vet.specialty }}</p>
+                        {% endif %}
+                        <p class="text-tertiary text-xs">{{ vet.crmv }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Avaliações -->
+        <div class="reviews-section">
+            <h2>Avaliações ({{ reviews|length }})</h2>
+
+            {% if reviews %}
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-rating">
+                            {% for i in range(review.rating) %}⭐{% endfor %}
+                        </div>
+                        <span class="review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
+                    </div>
+                    <p class="review-comment">{{ review.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-secondary">Nenhuma avaliação ainda. Seja o primeiro!</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<style>
+.clinic-logo-placeholder-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto var(--space-6);
+    background: linear-gradient(135deg, var(--laranja-vibrante), var(--amarelo-quente));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(247, 127, 0, 0.3);
+}
+
+.team-section {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-8);
+}
+
+.team-section h2 {
+    margin-bottom: var(--space-6);
+}
+
+.team-grid {
+    display: grid;
+    gap: var(--space-4);
+}
+
+.team-member-card {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    border: 2px solid transparent;
+}
+
+.team-member-card:hover {
+    background: white;
+    border-color: var(--azul-claro);
+    transform: translateX(4px);
+}
+
+.team-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-placeholder-sm {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.team-member-card h4 {
+    margin-bottom: var(--space-1);
+    color: var(--text-primary);
+}
+</style>
+{% endblock %}

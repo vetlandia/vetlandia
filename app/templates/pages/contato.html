@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Contato - VetLândia{% endblock %}
+
+{% block content %}
+<section class="institutional-page">
+    <div class="container-narrow">
+        <div class="page-header">
+            <h1>Fale Conosco</h1>
+            <p class="lead">Estamos aqui para ajudar</p>
+        </div>
+
+        <div class="contact-grid">
+            <div class="contact-info">
+                <h2>Entre em Contato</h2>
+                <p>Tem dúvidas, sugestões ou precisa de ajuda? Entre em contato conosco pelos canais abaixo:</p>
+
+                <div class="contact-methods">
+                    <div class="contact-method">
+                        <div class="method-icon">✉️</div>
+                        <div>
+                            <h3>Email</h3>
+                            <a href="mailto:vetlandiabrasil@outlook.com">vetlandiabrasil@outlook.com</a>
+                        </div>
+                    </div>
+
+                    <div class="contact-method">
+                        <div class="method-icon">💬</div>
+                        <div>
+                            <h3>Suporte</h3>
+                            <p>Respondemos em até 24 horas úteis</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-method">
+                        <div class="method-icon">🌐</div>
+                        <div>
+                            <h3>Redes Sociais</h3>
+                            <p>Em breve nas principais redes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-section">
+                    <h3>Perguntas Frequentes</h3>
+                    <div class="faq-item">
+                        <h4>Como criar uma conta?</h4>
+                        <p>Acesse <a href="/cadastro">Cadastro</a> e escolha o tipo de conta: Tutor, Veterinário ou Clínica.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>Como avaliar um veterinário?</h4>
+                        <p>Você precisa estar logado como tutor. Acesse o perfil do veterinário e clique em "Avaliar".</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>O cadastro é gratuito?</h4>
+                        <p>Sim! Todos os tipos de cadastro são 100% gratuitos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.contact-grid {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.contact-info h2 {
+    font-size: 2rem;
+    margin-bottom: var(--space-5);
+}
+
+.contact-methods {
+    margin: var(--space-8) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.contact-method {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-light);
+}
+
+.method-icon {
+    font-size: 2.5rem;
+}
+
+.contact-method h3 {
+    margin-bottom: var(--space-2);
+    color: var(--azul-profundo);
+}
+
+.contact-method a {
+    color: var(--azul-intermediario);
+    font-weight: 600;
+}
+
+.faq-section {
+    margin-top: var(--space-10);
+    padding-top: var(--space-10);
+    border-top: 2px solid var(--border-light);
+}
+
+.faq-section h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-6);
+}
+
+.faq-item {
+    margin-bottom: var(--space-6);
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+}
+
+.faq-item h4 {
+    color: var(--azul-profundo);
+    margin-bottom: var(--space-2);
+}
+
+.faq-item p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+</style>
+{% endblock %}

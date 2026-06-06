@@ -267,3 +267,23 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db)):
             "veterinarians": veterinarians,
         },
     )
+
+
+@router.get("/sobre", response_class=HTMLResponse)
+def sobre(request: Request):
+    return templates.TemplateResponse("pages/sobre.html", {"request": request})
+
+
+@router.get("/contato", response_class=HTMLResponse)
+def contato(request: Request):
+    return templates.TemplateResponse("pages/contato.html", {"request": request})
+
+
+@router.get("/termos", response_class=HTMLResponse)
+def termos(request: Request):
+    return templates.TemplateResponse("pages/termos.html", {"request": request})
+
+
+@router.get("/privacidade", response_class=HTMLResponse)
+def privacidade(request: Request):
+    return templates.TemplateResponse("pages/privacidade.html", {"request": request})

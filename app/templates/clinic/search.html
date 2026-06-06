@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar Clínicas - VetLândia{% endblock %}
+
+{% block content %}
+<section class="search-page">
+    <div class="container">
+        <div class="search-header">
+            <h1>Clínicas Veterinárias</h1>
+            <p>Encontre as melhores clínicas perto de você</p>
+        </div>
+
+        <div class="search-filters">
+            <form method="get" class="filter-form">
+                <input type="text" name="query" class="form-input" placeholder="Nome da clínica..." value="{{ query or '' }}">
+                <input type="text" name="cidade" class="form-input" placeholder="Cidade..." value="{{ cidade or '' }}">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+        </div>
+
+        {% if clinics %}
+        <div class="results-count">
+            <p>{{ clinics|length }} clínica(s) encontrada(s)</p>
+        </div>
+
+        <div class="feed-grid">
+            {% for clinic in clinics %}
+            <a href="/clinica/{{ clinic.slug }}" class="clinic-card">
+                <div class="clinic-card-logo">
+                    {% if clinic.logo_url %}
+                    <img src="{{ clinic.logo_url }}" alt="{{ clinic.name }}">
+                    {% else %}
+                    <div class="clinic-logo-placeholder">{{ clinic.name[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="clinic-card-content">
+                    <h3 class="clinic-card-name">{{ clinic.name }}</h3>
+
+                    {% if clinic.avg_rating > 0 %}
+                    <div class="rating-inline">
+                        <span class="rating-stars">
+                            {% for i in range(5) %}
+                                {% if i < clinic.avg_rating|int %}⭐{% else %}☆{% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="rating-value">{{ clinic.avg_rating }}</span>
+                        <span class="rating-count">({{ clinic.review_count }})</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="clinic-card-meta">
+                        <span class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            {{ clinic.city }}, {{ clinic.state }}
+                        </span>
+                    </div>
+
+                    {% if clinic.phone %}
+                    <span class="clinic-phone">{{ clinic.phone }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="clinic-card-arrow">→</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏥</div>
+            <h3>Nenhuma clínica encontrada</h3>
+            <p>Tente ajustar os filtros de busca</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.search-page {
+    padding: var(--space-12) 0;
+    min-height: 60vh;
+}
+
+.search-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.search-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-3);
+}
+
+.search-header p {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+}
+
+.search-filters {
+    max-width: 800px;
+    margin: 0 auto var(--space-8);
+}
+
+.filter-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: var(--space-3);
+}
+
+.results-count {
+    margin-bottom: var(--space-6);
+    color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+    .filter-form {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
