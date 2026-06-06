@@ -56,42 +56,7 @@
   z-index: 100 !important;
 }
 
-.logo, .vt-logo {
-  display: flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  text-decoration: none !important;
-}
-
-/* Logo ícone (contorno à esquerda) */
-.logo-icon {
-  height: 50px !important;
-  width: auto !important;
-  display: block !important;
-  object-fit: contain !important;
-  flex-shrink: 0 !important;
-}
-
-/* Logo texto (vetlandia.png à direita) - MAIOR */
-.logo-text {
-  height: 65px !important;
-  width: auto !important;
-  display: block !important;
-  object-fit: contain !important;
-  flex-shrink: 0 !important;
-}
-
-/* Ajuste para mobile menu */
-.mobile-menu-header .logo-icon {
-  height: 40px !important;
-}
-
-.mobile-menu-header .logo-text {
-  height: 52px !important;
-}
-
-.logo-vet   { color: var(--brand) !important; }
-.logo-landia { color: var(--text-1) !important; }
+/* Logo estilos movidos para logo.css */
 
 .nav-link {
   color: var(--text-2) !important;

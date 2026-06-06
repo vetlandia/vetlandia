@@ -1,0 +1,46 @@
+/* VetLândia - Estilos do Logo (todas as páginas) */
+
+.logo, .vt-logo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+/* Logo ícone (contorno à esquerda) */
+.logo-icon {
+  height: 50px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Logo texto (vetlandia.png à direita) */
+.logo-text {
+  height: 65px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Mobile menu */
+.mobile-menu-header .logo-icon {
+  height: 40px;
+}
+
+.mobile-menu-header .logo-text {
+  height: 52px;
+}
+
+/* Responsivo para mobile */
+@media (max-width: 768px) {
+  .logo-icon {
+    height: 42px;
+  }
+
+  .logo-text {
+    height: 55px;
+  }
+}
