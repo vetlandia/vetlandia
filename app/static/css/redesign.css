@@ -59,7 +59,7 @@
 .logo, .vt-logo {
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 4px !important;
   text-decoration: none !important;
 }
 
@@ -72,9 +72,9 @@
   flex-shrink: 0 !important;
 }
 
-/* Logo texto (vetlandia.png à direita) */
+/* Logo texto (vetlandia.png à direita) - MAIOR */
 .logo-text {
-  height: 50px !important;
+  height: 65px !important;
   width: auto !important;
   display: block !important;
   object-fit: contain !important;
@@ -87,7 +87,7 @@
 }
 
 .mobile-menu-header .logo-text {
-  height: 40px !important;
+  height: 52px !important;
 }
 
 .logo-vet   { color: var(--brand) !important; }
