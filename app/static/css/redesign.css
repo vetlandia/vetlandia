@@ -59,16 +59,21 @@
 .logo, .vt-logo {
   display: flex !important;
   align-items: center !important;
-  gap: 8px !important;
+  gap: 10px !important;
   text-decoration: none !important;
-  font-family: 'Inter', sans-serif !important;
-  font-size: 1.25rem !important;
-  font-weight: 900 !important;
-  letter-spacing: -0.5px !important;
-  color: var(--text-1) !important;
 }
 
-.logo img, .vt-logo img {
+/* Logo ícone (contorno à esquerda) */
+.logo-icon {
+  height: 40px !important;
+  width: auto !important;
+  display: block !important;
+  object-fit: contain !important;
+  flex-shrink: 0 !important;
+}
+
+/* Logo texto (vetlandia.png à direita) */
+.logo-text {
   height: 40px !important;
   width: auto !important;
   display: block !important;
@@ -77,9 +82,12 @@
 }
 
 /* Ajuste para mobile menu */
-.mobile-menu-header .logo img,
-.mobile-menu-header .vt-logo img {
-  height: 36px !important;
+.mobile-menu-header .logo-icon {
+  height: 32px !important;
+}
+
+.mobile-menu-header .logo-text {
+  height: 32px !important;
 }
 
 .logo-vet   { color: var(--brand) !important; }
