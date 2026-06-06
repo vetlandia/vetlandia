@@ -1,0 +1,890 @@
+/* VetLândia - Páginas Premium (iFood/Nubank Style) */
+
+/* ========================================
+   HEADER CLEAN
+======================================== */
+.header {
+    background: var(--surface-card);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+}
+
+.logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--azul-profundo) 0%, var(--azul-intermediario) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+}
+
+.nav-link {
+    color: var(--text-secondary);
+    font-weight: var(--weight-medium);
+    font-size: 0.9375rem;
+    transition: color var(--transition-base);
+    position: relative;
+    padding: var(--space-2) 0;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--azul-intermediario);
+    transition: width var(--transition-base);
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+.nav-link.active {
+    color: var(--text-primary);
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: var(--space-2);
+}
+
+/* ========================================
+   MOBILE MENU
+======================================== */
+.mobile-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1998;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.mobile-menu-overlay.active {
+    opacity: 1;
+}
+
+.mobile-menu {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 85%;
+    max-width: 360px;
+    height: 100%;
+    background: var(--surface-card);
+    z-index: 1999;
+    transition: right var(--transition-slow);
+    box-shadow: var(--shadow-xl);
+}
+
+.mobile-menu.active {
+    right: 0;
+}
+
+.mobile-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: var(--space-2);
+}
+
+.mobile-menu-content {
+    padding: var(--space-6);
+}
+
+.mobile-menu-link {
+    display: block;
+    padding: var(--space-4) 0;
+    color: var(--text-primary);
+    font-weight: var(--weight-medium);
+    font-size: 1.0625rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.mobile-menu-cta {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border-light);
+}
+
+/* ========================================
+   HERO COMPACTO (iFood Style)
+======================================== */
+.hero-compact {
+    background: linear-gradient(135deg, var(--azul-profundo) 0%, var(--azul-intermediario) 100%);
+    color: white;
+    padding: var(--space-12) 0 var(--space-10);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-compact::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(252, 191, 73, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+
+.hero-compact h1 {
+    color: white;
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+    position: relative;
+    z-index: 1;
+}
+
+.hero-subtitle {
+    font-size: 1.125rem;
+    opacity: 0.9;
+    margin-bottom: var(--space-8);
+    position: relative;
+    z-index: 1;
+}
+
+/* ========================================
+   SEARCH COMPACTO
+======================================== */
+.search-compact {
+    max-width: 600px;
+    position: relative;
+    z-index: 1;
+}
+
+.search-compact form {
+    display: flex;
+    gap: var(--space-3);
+    background: white;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.search-input-compact {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1rem;
+    padding: 12px 16px;
+    color: var(--text-primary);
+}
+
+.search-input-compact::placeholder {
+    color: var(--text-tertiary);
+}
+
+.search-input-compact:focus {
+    outline: none;
+}
+
+.btn-search-compact {
+    background: linear-gradient(135deg, var(--laranja-vibrante) 0%, var(--amarelo-quente) 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-base);
+    box-shadow: 0 4px 12px rgba(247, 127, 0, 0.3);
+}
+
+.btn-search-compact:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(247, 127, 0, 0.4);
+}
+
+/* ========================================
+   CATEGORIAS PILLS (Scroll Horizontal)
+======================================== */
+.categories-section {
+    padding: var(--space-6) 0;
+    background: white;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.categories-scroll {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.categories-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 10px 20px;
+    background: var(--surface-secondary);
+    border-radius: var(--radius-full);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    transition: all var(--transition-base);
+    border: 2px solid transparent;
+}
+
+.category-pill:hover {
+    background: var(--laranja-vibrante);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 127, 0, 0.3);
+}
+
+.category-pill-more {
+    background: white;
+    border: 2px solid var(--border-medium);
+}
+
+.category-pill-more:hover {
+    background: white;
+    border-color: var(--azul-intermediario);
+    color: var(--azul-intermediario);
+}
+
+.category-icon {
+    font-size: 1.25rem;
+}
+
+/* ========================================
+   FEED SECTIONS
+======================================== */
+.feed-section {
+    padding: var(--space-12) 0;
+}
+
+.section-header-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+}
+
+.section-header-inline h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.link-see-all {
+    color: var(--azul-intermediario);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all var(--transition-base);
+    position: relative;
+    padding-right: 20px;
+}
+
+.link-see-all::after {
+    content: '→';
+    position: absolute;
+    right: 0;
+    transition: transform var(--transition-base);
+}
+
+.link-see-all:hover {
+    color: var(--laranja-vibrante);
+}
+
+.link-see-all:hover::after {
+    transform: translateX(4px);
+}
+
+/* ========================================
+   VET CARDS (iFood Style)
+======================================== */
+.feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-5);
+}
+
+.vet-card {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vet-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(8, 131, 149, 0.2);
+    border-color: var(--azul-intermediario);
+}
+
+.vet-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--azul-claro) 0%, var(--azul-intermediario) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.vet-card:hover::before {
+    opacity: 1;
+}
+
+.vet-card-avatar {
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(5, 191, 219, 0.3);
+    transition: all var(--transition-base);
+}
+
+.vet-card:hover .avatar-placeholder {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(5, 191, 219, 0.4);
+}
+
+.vet-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.vet-card-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.vet-card-specialty {
+    display: inline-block;
+    padding: 4px 12px;
+    background: linear-gradient(135deg, rgba(5, 191, 219, 0.1), rgba(8, 131, 149, 0.15));
+    color: var(--azul-intermediario);
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    border: 1px solid rgba(5, 191, 219, 0.3);
+}
+
+.vet-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.meta-icon {
+    font-size: 1rem;
+}
+
+.crmv-badge {
+    display: inline-block;
+    margin-top: var(--space-2);
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid var(--border-medium);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    font-family: monospace;
+}
+
+.vet-card-arrow {
+    color: var(--text-tertiary);
+    font-size: 1.25rem;
+    align-self: center;
+    transition: all var(--transition-base);
+}
+
+.vet-card:hover .vet-card-arrow {
+    color: var(--azul-intermediario);
+    transform: translateX(4px);
+}
+
+/* ========================================
+   CLINIC CARDS
+======================================== */
+.clinic-card {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    position: relative;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.clinic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(247, 127, 0, 0.25);
+    border-color: var(--laranja-vibrante);
+}
+
+.clinic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--laranja-vibrante) 0%, var(--amarelo-quente) 100%);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    opacity: 0;
+    transition: opacity var(--transition-base);
+}
+
+.clinic-card:hover::before {
+    opacity: 1;
+}
+
+.clinic-card-logo {
+    flex-shrink: 0;
+}
+
+.clinic-card-logo img {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+}
+
+.clinic-logo-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--laranja-vibrante), var(--amarelo-quente));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(247, 127, 0, 0.3);
+    transition: all var(--transition-base);
+}
+
+.clinic-card:hover .clinic-logo-placeholder {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 6px 16px rgba(247, 127, 0, 0.4);
+}
+
+.clinic-card-content {
+    flex: 1;
+}
+
+.clinic-card-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.clinic-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.clinic-phone {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.clinic-card-arrow {
+    color: var(--text-tertiary);
+    font-size: 1.25rem;
+    align-self: center;
+}
+
+.clinic-card:hover .clinic-card-arrow {
+    color: var(--laranja-vibrante);
+    transform: translateX(4px);
+}
+
+/* ========================================
+   CASE CARDS
+======================================== */
+.cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-5);
+}
+
+.case-card {
+    padding: var(--space-6);
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    display: flex;
+    flex-direction: column;
+}
+
+.case-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(5, 191, 219, 0.2);
+    border-color: var(--azul-claro);
+}
+
+.case-card-header {
+    display: flex;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
+}
+
+.case-specialty-badge {
+    padding: 4px 12px;
+    background: var(--laranja-vibrante);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.case-species {
+    padding: 4px 12px;
+    background: var(--surface-secondary);
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.case-card-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    line-height: 1.4;
+}
+
+.case-card-excerpt {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+    flex: 1;
+}
+
+.case-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-light);
+}
+
+.case-author {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.case-author-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.case-author-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.case-read-more {
+    color: var(--azul-intermediario);
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   EMPTY STATE
+======================================== */
+.empty-state {
+    text-align: center;
+    padding: var(--space-16) var(--space-6);
+    background: linear-gradient(135deg, rgba(5, 191, 219, 0.03), rgba(247, 127, 0, 0.03));
+    border-radius: var(--radius-lg);
+    border: 2px dashed var(--border-medium);
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-5);
+    opacity: 0.6;
+    filter: grayscale(0.3);
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: var(--space-3);
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 1.0625rem;
+    margin-bottom: var(--space-6);
+}
+
+/* ========================================
+   CTA BANNER
+======================================== */
+.cta-banner {
+    background: linear-gradient(135deg, var(--azul-profundo) 0%, var(--azul-intermediario) 100%);
+    padding: var(--space-16) 0;
+    margin: var(--space-12) 0 0;
+}
+
+.cta-content {
+    text-align: center;
+    color: white;
+}
+
+.cta-content h2 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+}
+
+.cta-content p {
+    font-size: 1.125rem;
+    opacity: 0.95;
+    margin-bottom: var(--space-8);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* ========================================
+   FOOTER
+======================================== */
+.footer {
+    background: var(--azul-profundo);
+    color: white;
+    padding: var(--space-12) 0 var(--space-6);
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
+}
+
+.footer-section h3 {
+    color: white;
+    font-size: 1.125rem;
+    margin-bottom: var(--space-4);
+}
+
+.footer-section p {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.7;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    margin-bottom: var(--space-3);
+    font-weight: 500;
+}
+
+.footer-link:hover {
+    color: var(--azul-claro);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: var(--space-6);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   RESPONSIVO
+======================================== */
+@media (max-width: 768px) {
+    .nav {
+        display: none;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .mobile-menu-overlay,
+    .mobile-menu {
+        display: block;
+    }
+
+    .hero-compact h1 {
+        font-size: 1.75rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .search-compact form {
+        flex-direction: column;
+    }
+
+    .btn-search-compact {
+        width: 100%;
+    }
+
+    .section-header-inline h2 {
+        font-size: 1.5rem;
+    }
+
+    .feed-grid,
+    .cases-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+    }
+
+    .cta-buttons .btn {
+        width: 100%;
+    }
+}

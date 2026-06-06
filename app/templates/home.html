@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}VetLândia - Confiança para quem cuida. Conhecimento para quem trata.{% endblock %}
+
+{% block content %}
+<!-- Hero Compacto estilo iFood/Nubank -->
+<section class="hero-compact">
+    <div class="container">
+        <h1>Encontre os melhores veterinários</h1>
+        <p class="hero-subtitle">Especialistas verificados perto de você</p>
+
+        <div class="search-compact">
+            <form action="/buscar/veterinarios" method="get">
+                <input
+                    type="text"
+                    name="query"
+                    class="search-input-compact"
+                    placeholder="Buscar por especialidade ou nome..."
+                >
+                <button type="submit" class="btn-search-compact">Buscar</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Categorias Rápidas (Pills) -->
+<section class="categories-section">
+    <div class="container">
+        <div class="categories-scroll">
+            <a href="/buscar/veterinarios?especialidade=dermatologia" class="category-pill">
+                <span class="category-icon">🔬</span>
+                Dermatologia
+            </a>
+            <a href="/buscar/veterinarios?especialidade=cirurgia" class="category-pill">
+                <span class="category-icon">⚕️</span>
+                Cirurgia
+            </a>
+            <a href="/buscar/veterinarios?especialidade=ortopedia" class="category-pill">
+                <span class="category-icon">🦴</span>
+                Ortopedia
+            </a>
+            <a href="/buscar/veterinarios?especialidade=cardiologia" class="category-pill">
+                <span class="category-icon">❤️</span>
+                Cardiologia
+            </a>
+            <a href="/buscar/veterinarios?especialidade=oftalmologia" class="category-pill">
+                <span class="category-icon">👁️</span>
+                Oftalmologia
+            </a>
+            <a href="/buscar/veterinarios" class="category-pill category-pill-more">
+                Ver todas →
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Veterinários em Destaque -->
+<section class="feed-section">
+    <div class="container">
+        <div class="section-header-inline">
+            <h2>Veterinários em Destaque</h2>
+            <a href="/buscar/veterinarios" class="link-see-all">Ver todos →</a>
+        </div>
+
+        {% if veterinarians %}
+        <div class="feed-grid">
+            {% for vet in veterinarians %}
+            <a href="/veterinario/{{ vet.slug }}" class="vet-card">
+                <div class="vet-card-avatar">
+                    {% if vet.photo_url %}
+                    <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="avatar-img">
+                    {% else %}
+                    <div class="avatar-placeholder">{{ vet.full_name[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="vet-card-content">
+                    <h3 class="vet-card-name">{{ vet.full_name }}</h3>
+
+                    {% if vet.specialty %}
+                    <span class="vet-card-specialty">{{ vet.specialty }}</span>
+                    {% endif %}
+
+                    <div class="vet-card-meta">
+                        <span class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            {% if vet.city %}{{ vet.city }}{% if vet.state %}, {{ vet.state }}{% endif %}{% else %}Localização não informada{% endif %}
+                        </span>
+                    </div>
+
+                    {% if vet.crmv %}
+                    <span class="crmv-badge">{{ vet.crmv }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="vet-card-arrow">→</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏥</div>
+            <h3>Nenhum veterinário cadastrado ainda</h3>
+            <p>Seja o primeiro profissional a criar seu perfil</p>
+            <a href="/cadastro" class="btn btn-primary">Criar Perfil</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Clínicas em Destaque -->
+<section class="feed-section">
+    <div class="container">
+        <div class="section-header-inline">
+            <h2>Clínicas Veterinárias</h2>
+            <a href="/buscar/clinicas" class="link-see-all">Ver todas →</a>
+        </div>
+
+        {% if clinics %}
+        <div class="feed-grid">
+            {% for clinic in clinics %}
+            <a href="/clinica/{{ clinic.slug }}" class="clinic-card">
+                <div class="clinic-card-logo">
+                    {% if clinic.logo_url %}
+                    <img src="{{ clinic.logo_url }}" alt="{{ clinic.name }}">
+                    {% else %}
+                    <div class="clinic-logo-placeholder">{{ clinic.name[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="clinic-card-content">
+                    <h3 class="clinic-card-name">{{ clinic.name }}</h3>
+
+                    <div class="clinic-card-meta">
+                        <span class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            {{ clinic.city }}, {{ clinic.state }}
+                        </span>
+                    </div>
+
+                    {% if clinic.phone %}
+                    <span class="clinic-phone">{{ clinic.phone }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="clinic-card-arrow">→</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🏢</div>
+            <h3>Nenhuma clínica cadastrada ainda</h3>
+            <p>Cadastre sua clínica veterinária</p>
+            <a href="/cadastro" class="btn btn-primary">Cadastrar Clínica</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Casos Clínicos Recentes -->
+{% if recent_cases %}
+<section class="feed-section">
+    <div class="container">
+        <div class="section-header-inline">
+            <h2>Casos Clínicos Recentes</h2>
+            <a href="/casos-clinicos" class="link-see-all">Ver todos →</a>
+        </div>
+
+        <div class="cases-grid">
+            {% for case in recent_cases %}
+            <a href="/casos-clinicos/{{ case.id }}" class="case-card">
+                <div class="case-card-header">
+                    {% if case.specialty %}
+                    <span class="case-specialty-badge">{{ case.specialty }}</span>
+                    {% endif %}
+                    {% if case.species %}
+                    <span class="case-species">{{ case.species }}</span>
+                    {% endif %}
+                </div>
+
+                <h3 class="case-card-title">{{ case.title }}</h3>
+
+                <p class="case-card-excerpt">
+                    {{ case.content[:120] }}{% if case.content|length > 120 %}...{% endif %}
+                </p>
+
+                <div class="case-card-footer">
+                    <div class="case-author">
+                        <div class="case-author-avatar">{{ case.author.full_name[0] }}</div>
+                        <span class="case-author-name">{{ case.author.full_name }}</span>
+                    </div>
+                    <span class="case-read-more">Ler →</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Cadastro -->
+<section class="cta-banner">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Você é veterinário?</h2>
+            <p>Crie seu perfil profissional e seja encontrado por milhares de tutores</p>
+            <div class="cta-buttons">
+                <a href="/cadastro" class="btn btn-primary btn-lg">Criar Perfil Grátis</a>
+                <a href="/sobre" class="btn btn-outline btn-lg">Saiba Mais</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

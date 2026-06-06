@@ -1,0 +1,68 @@
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
+
+from app.utils.validators import validate_brazilian_state
+
+
+class ClinicBase(BaseModel):
+    name: str = Field(..., min_length=3, max_length=255)
+    description: Optional[str] = None
+    address: Optional[str] = Field(None, max_length=500)
+    city: str = Field(..., max_length=100)
+    state: str = Field(..., min_length=2, max_length=2)
+    zip_code: Optional[str] = Field(None, max_length=10)
+    phone: Optional[str] = Field(None, max_length=20)
+    email: Optional[EmailStr] = None
+    website: Optional[str] = Field(None, max_length=500)
+
+    @field_validator("state")
+    @classmethod
+    def validate_state_code(cls, v: str) -> str:
+        if not validate_brazilian_state(v):
+            raise ValueError("Código de estado inválido")
+        return v.upper()
+
+
+class ClinicCreate(ClinicBase):
+    email_user: str
+    password: str
+
+
+class ClinicUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=3, max_length=255)
+    description: Optional[str] = None
+    address: Optional[str] = Field(None, max_length=500)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, min_length=2, max_length=2)
+    zip_code: Optional[str] = Field(None, max_length=10)
+    phone: Optional[str] = Field(None, max_length=20)
+    email: Optional[EmailStr] = None
+    website: Optional[str] = Field(None, max_length=500)
+    logo_url: Optional[str] = Field(None, max_length=500)
+
+
+class ClinicResponse(ClinicBase):
+    id: UUID
+    user_id: UUID
+    slug: str
+    logo_url: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ClinicListItem(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    city: str
+    state: str
+    logo_url: Optional[str]
+
+    class Config:
+        from_attributes = True

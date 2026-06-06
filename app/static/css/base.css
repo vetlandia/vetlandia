@@ -1,0 +1,274 @@
+/* VetLândia - Design System Premium */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Reset Premium */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variáveis CSS - Inspirado em MedIDData + Nubank */
+:root {
+    /* Cores Originais - Azul Médico Moderno */
+    --azul-profundo: #0A4D68;
+    --azul-intermediario: #088395;
+    --azul-claro: #05BFDB;
+
+    /* Laranja Vitalidade */
+    --laranja-vibrante: #F77F00;
+    --amarelo-quente: #FCBF49;
+
+    /* Superfícies */
+    --surface-base: #F8FAFC;
+    --surface-secondary: #EFF4F9;
+    --surface-card: #FFFFFF;
+    --surface-elevated: #FFFFFF;
+
+    /* Bordas */
+    --border-light: #E2E8F0;
+    --border-medium: #CBD5E1;
+    --border-strong: #94A3B8;
+
+    /* Texto */
+    --text-primary: #1E293B;
+    --text-secondary: #475569;
+    --text-tertiary: #94A3B8;
+    --text-inverse: #FFFFFF;
+
+    /* Feedback Semântico */
+    --success: #10B981;
+    --success-light: #D1FAE5;
+    --warning: #F59E0B;
+    --warning-light: #FEF3C7;
+    --error: #EF4444;
+    --error-light: #FEE2E2;
+    --info: #3B82F6;
+    --info-light: #DBEAFE;
+
+    /* Tipografia Premium */
+    --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* Pesos */
+    --weight-light: 300;
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+    --weight-extrabold: 800;
+
+    /* Espaçamento Sistema 4px */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    /* Border Radius Premium */
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+
+    /* Sombras Elevadas */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.16), 0 8px 16px rgba(0, 0, 0, 0.08);
+
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, var(--vet-deep) 0%, var(--vet-primary) 100%);
+    --gradient-teal: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 100%);
+    --gradient-orange: linear-gradient(135deg, var(--orange-dark) 0%, var(--orange) 100%);
+
+    /* Transições */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+    --transition-slow: 0.3s ease;
+}
+
+/* Tipografia Premium */
+body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: var(--weight-regular);
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--surface-base);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: var(--weight-bold);
+    line-height: 1.2;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+h1 {
+    font-size: 3rem;
+    font-weight: var(--weight-extrabold);
+    margin-bottom: var(--space-6);
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: var(--weight-bold);
+    margin-bottom: var(--space-5);
+}
+
+h3 {
+    font-size: 1.5rem;
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--space-4);
+}
+
+h4 {
+    font-size: 1.25rem;
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--space-3);
+}
+
+p {
+    margin-bottom: var(--space-4);
+    line-height: 1.7;
+}
+
+a {
+    color: var(--vet-primary);
+    text-decoration: none;
+    transition: color var(--transition-base);
+    font-weight: var(--weight-medium);
+}
+
+a:hover {
+    color: var(--teal);
+}
+
+strong, b {
+    font-weight: var(--weight-semibold);
+}
+
+small {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Layout Premium */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 var(--space-8);
+}
+
+.container-narrow {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+}
+
+.container-wide {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--space-8);
+}
+
+/* Grid System Premium */
+.grid {
+    display: grid;
+    gap: var(--space-6);
+}
+
+.grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Flex Utilities */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+
+/* Responsivo Premium */
+@media (max-width: 1024px) {
+    .container,
+    .container-wide {
+        padding: 0 var(--space-6);
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2.25rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.375rem;
+    }
+
+    .container,
+    .container-narrow,
+    .container-wide {
+        padding: 0 var(--space-4);
+    }
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.875rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+}

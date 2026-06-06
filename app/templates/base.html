@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="{% block meta_description %}Confiança para quem cuida. Conhecimento para quem trata.{% endblock %}">
+    <meta name="theme-color" content="#0A4D68">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>{% block title %}VetLândia{% endblock %}</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/pages.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header Premium -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">VetLândia</a>
+
+                <nav class="nav">
+                    <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
+                    <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
+                    <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
+
+                    {% if current_user %}
+                        <a href="/meu-perfil" class="nav-link">Meu Perfil</a>
+                        <a href="/logout" class="btn btn-outline btn-sm">Sair</a>
+                    {% else %}
+                        <a href="/login" class="nav-link">Entrar</a>
+                        <a href="/cadastro" class="btn btn-orange btn-sm">Cadastrar</a>
+                    {% endif %}
+                </nav>
+
+                <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    <nav class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span class="logo">VetLândia</span>
+            <button class="mobile-menu-close" id="mobileMenuClose">✕</button>
+        </div>
+        <div class="mobile-menu-content">
+            <a href="/buscar/veterinarios" class="mobile-menu-link">Veterinários</a>
+            <a href="/buscar/clinicas" class="mobile-menu-link">Clínicas</a>
+            <a href="/casos-clinicos" class="mobile-menu-link">Casos Clínicos</a>
+
+            {% if current_user %}
+                <a href="/meu-perfil" class="mobile-menu-link">Meu Perfil</a>
+                <a href="/logout" class="mobile-menu-link">Sair</a>
+            {% else %}
+                <a href="/login" class="mobile-menu-link">Entrar</a>
+                <div class="mobile-menu-cta">
+                    <a href="/cadastro" class="btn btn-orange btn-full">Cadastrar Grátis</a>
+                </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Mensagens flash -->
+    {% if messages %}
+        <div class="container" style="padding-top: var(--space-4);">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.type }}">
+                    {{ message.text }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Conteúdo principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer Premium -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>VetLândia</h3>
+                    <p>Confiança para quem cuida.<br>Conhecimento para quem trata.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Para Tutores</h3>
+                    <a href="/buscar/veterinarios" class="footer-link">Encontrar Veterinários</a>
+                    <a href="/buscar/clinicas" class="footer-link">Encontrar Clínicas</a>
+                    <a href="/cadastro" class="footer-link">Criar Conta</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Para Veterinários</h3>
+                    <a href="/casos-clinicos" class="footer-link">Casos Clínicos</a>
+                    <a href="/cadastro" class="footer-link">Criar Perfil</a>
+                </div>
+
+                <div class="footer-section">
+                    <h3>Sobre</h3>
+                    <a href="/sobre" class="footer-link">Sobre Nós</a>
+                    <a href="/contato" class="footer-link">Contato</a>
+                    <a href="/termos" class="footer-link">Termos de Uso</a>
+                    <a href="/privacidade" class="footer-link">Privacidade</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                &copy; 2026 VetLândia. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', path='/js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
