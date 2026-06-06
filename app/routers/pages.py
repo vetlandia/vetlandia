@@ -73,7 +73,7 @@ def home(request: Request, db: Session = Depends(get_db)):
     )
 
     return templates.TemplateResponse(
-        "home.html",
+        "home-redesign.html",
         {
             "request": request,
             "veterinarians": veterinarians,

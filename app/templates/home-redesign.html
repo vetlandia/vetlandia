@@ -1,0 +1,379 @@
+{% extends "base.html" %}
+
+{% block title %}VetLândia - Onde tutores encontram os veterinários mais confiados do Brasil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/redesign.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     HERO - IMPACTO VISUAL
+     ============================================ -->
+<section class="hero-redesign">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                Onde tutores encontram<br>
+                os veterinários mais<br>
+                confiados do Brasil
+            </h1>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="hero-stat-number">1.247</span>
+                    <span>veterinários</span>
+                </div>
+                <div class="hero-stat">
+                    <span>•</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">489</span>
+                    <span>clínicas</span>
+                </div>
+                <div class="hero-stat">
+                    <span>•</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="hero-stat-number">3.891</span>
+                    <span>avaliações</span>
+                </div>
+            </div>
+
+            <div class="search-hero">
+                <form action="/buscar/veterinarios" method="get">
+                    <div class="search-hero-grid">
+                        <div class="search-hero-input">
+                            <span class="search-hero-input-icon">🔍</span>
+                            <input
+                                type="text"
+                                name="query"
+                                placeholder="O que você precisa?"
+                            >
+                        </div>
+                        <div class="search-hero-input">
+                            <span class="search-hero-input-icon">📍</span>
+                            <input
+                                type="text"
+                                name="cidade"
+                                placeholder="Onde?"
+                            >
+                        </div>
+                    </div>
+                    <button type="submit" class="search-hero-button">
+                        Buscar Agora
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     CATEGORIAS EXPLORÁVEIS
+     ============================================ -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Explore por Especialidade</h2>
+            <p class="section-subtitle">Encontre o especialista ideal para seu pet</p>
+        </div>
+
+        <div class="categories-grid">
+            <a href="/buscar/veterinarios?especialidade=dermatologia" class="category-card">
+                <span class="category-icon">🔬</span>
+                <div class="category-name">Dermatologia</div>
+                <div class="category-count">156 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=cirurgia" class="category-card">
+                <span class="category-icon">⚕️</span>
+                <div class="category-name">Cirurgia</div>
+                <div class="category-count">89 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=ortopedia" class="category-card">
+                <span class="category-icon">🦴</span>
+                <div class="category-name">Ortopedia</div>
+                <div class="category-count">127 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=cardiologia" class="category-card">
+                <span class="category-icon">❤️</span>
+                <div class="category-name">Cardiologia</div>
+                <div class="category-count">64 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=oftalmologia" class="category-card">
+                <span class="category-icon">👁️</span>
+                <div class="category-name">Oftalmologia</div>
+                <div class="category-count">52 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=oncologia" class="category-card">
+                <span class="category-icon">🧬</span>
+                <div class="category-name">Oncologia</div>
+                <div class="category-count">43 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios?especialidade=emergencia" class="category-card">
+                <span class="category-icon">🚑</span>
+                <div class="category-name">Emergência</div>
+                <div class="category-count">201 veterinários</div>
+            </a>
+
+            <a href="/buscar/veterinarios" class="category-card">
+                <span class="category-icon">🏥</span>
+                <div class="category-name">Clínica Geral</div>
+                <div class="category-count">389 veterinários</div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     VETERINÁRIOS MAIS CONFIADOS
+     ============================================ -->
+<section class="vets-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Veterinários Mais Confiados</h2>
+            <p class="section-subtitle">Baseado em avaliações reais de tutores</p>
+        </div>
+
+        {% if veterinarians %}
+        <div class="vets-grid">
+            {% for vet in veterinarians[:6] %}
+            <div class="vet-card-premium">
+                <div class="vet-avatar-large">
+                    {{ vet.full_name[0] }}
+                </div>
+
+                <h3 class="vet-name">{{ vet.full_name }}</h3>
+
+                {% if vet.avg_rating > 0 %}
+                <div class="vet-rating-display">
+                    <span class="rating-stars">⭐</span>
+                    <span class="rating-value">{{ vet.avg_rating }}</span>
+                    <span class="rating-count">({{ vet.review_count }} avaliações)</span>
+                </div>
+                {% endif %}
+
+                {% if vet.specialty %}
+                <div class="vet-specialty">
+                    <span>🏥</span>
+                    <span>{{ vet.specialty }}</span>
+                </div>
+                {% endif %}
+
+                <div class="vet-location">
+                    <span>📍</span>
+                    <span>
+                        {% if vet.city %}{{ vet.city }}{% if vet.state %}, {{ vet.state }}{% endif %}{% else %}Não informado{% endif %}
+                    </span>
+                </div>
+
+                {% if vet.bio %}
+                <p class="vet-bio-short">"{{ vet.bio[:50] }}{% if vet.bio|length > 50 %}...{% endif %}"</p>
+                {% endif %}
+
+                <div class="vet-crmv">CRMV {{ vet.crmv }}</div>
+
+                <a href="/veterinario/{{ vet.slug }}" class="btn-view-profile">
+                    Ver Perfil Completo
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p>Nenhum veterinário cadastrado ainda.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ============================================
+     CLÍNICAS DE CONFIANÇA
+     ============================================ -->
+<section class="vets-section" style="background: var(--bg-secondary);">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Clínicas de Confiança</h2>
+            <p class="section-subtitle">Estrutura completa, equipe especializada</p>
+        </div>
+
+        {% if clinics %}
+        <div class="vets-grid">
+            {% for clinic in clinics[:6] %}
+            <div class="vet-card-premium">
+                <div class="vet-avatar-large">
+                    {{ clinic.name[0] }}
+                </div>
+
+                <h3 class="vet-name">{{ clinic.name }}</h3>
+
+                {% if clinic.avg_rating > 0 %}
+                <div class="vet-rating-display">
+                    <span class="rating-stars">⭐</span>
+                    <span class="rating-value">{{ clinic.avg_rating }}</span>
+                    <span class="rating-count">({{ clinic.review_count }} avaliações)</span>
+                </div>
+                {% endif %}
+
+                <div class="vet-location">
+                    <span>📍</span>
+                    <span>{{ clinic.city }}{% if clinic.state %}, {{ clinic.state }}{% endif %}</span>
+                </div>
+
+                {% if clinic.description %}
+                <p class="vet-bio-short">"{{ clinic.description[:60] }}{% if clinic.description|length > 60 %}...{% endif %}"</p>
+                {% endif %}
+
+                <a href="/clinica/{{ clinic.slug }}" class="btn-view-profile">
+                    Ver Clínica
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center">
+            <p>Nenhuma clínica cadastrada ainda.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- ============================================
+     CONHECIMENTO COMPARTILHADO
+     ============================================ -->
+{% if recent_cases %}
+<section class="vets-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Conhecimento Compartilhado</h2>
+            <p class="section-subtitle">Casos clínicos da comunidade veterinária</p>
+        </div>
+
+        <div class="vets-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+            {% for case in recent_cases %}
+            <div class="vet-card-premium" style="text-align: left;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-500), var(--primary-300)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                        {{ case.author.full_name[0] }}
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.95rem;">{{ case.author.full_name }}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-tertiary);">{{ case.created_at.strftime('%d/%m/%Y') }}</div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">
+                    {{ case.title }}
+                </h3>
+
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                    {{ case.content[:120] }}{% if case.content|length > 120 %}...{% endif %}
+                </p>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    {% if case.species %}
+                    <span style="padding: 4px 10px; background: var(--bg-secondary); border-radius: 12px; font-size: 0.8rem; color: var(--text-secondary);">
+                        🐕 {{ case.species }}
+                    </span>
+                    {% endif %}
+                    {% if case.specialty %}
+                    <span style="padding: 4px 10px; background: var(--bg-secondary); border-radius: 12px; font-size: 0.8rem; color: var(--text-secondary);">
+                        {{ case.specialty }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <a href="/casos-clinicos/{{ case.id }}" class="btn-view-profile">
+                    Ler Caso Completo
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center" style="margin-top: 48px;">
+            <a href="/casos-clinicos" class="cta-button">
+                Ver Todos os Casos Clínicos
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ============================================
+     COMUNIDADE ATIVA
+     ============================================ -->
+<section class="community-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title" style="color: white;">Comunidade VetLândia</h2>
+            <p class="section-subtitle" style="color: rgba(255,255,255,0.9);">Uma plataforma viva e em crescimento</p>
+        </div>
+
+        <div class="community-grid">
+            <div class="community-stat-card">
+                <div class="community-number">1.247</div>
+                <div class="community-label">Veterinários</div>
+                <div class="community-activity">
+                    <span class="pulse-dot"></span>
+                    <span>243 online agora</span>
+                </div>
+            </div>
+
+            <div class="community-stat-card">
+                <div class="community-number">489</div>
+                <div class="community-label">Clínicas</div>
+                <div class="community-activity">
+                    <span>📝</span>
+                    <span>18 novos casos hoje</span>
+                </div>
+            </div>
+
+            <div class="community-stat-card">
+                <div class="community-number">3.891</div>
+                <div class="community-label">Avaliações</div>
+                <div class="community-activity">
+                    <span>⭐</span>
+                    <span>127 nas últimas 24h</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================
+     CTA DUPLO
+     ============================================ -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-grid">
+            <div class="cta-card">
+                <h3 class="cta-card-title">Encontre o melhor cuidado</h3>
+                <p class="cta-card-text">
+                    para seu melhor amigo
+                </p>
+                <a href="/buscar/veterinarios" class="cta-button">
+                    Buscar Veterinários
+                </a>
+            </div>
+
+            <div class="cta-card">
+                <h3 class="cta-card-title">Veterinário ou Clínica?</h3>
+                <p class="cta-card-text">
+                    Construa sua reputação digital
+                </p>
+                <a href="/cadastro" class="cta-button cta-button-secondary">
+                    Criar Perfil Grátis
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
