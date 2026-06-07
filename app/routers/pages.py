@@ -16,13 +16,14 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db)):
-    # Buscar veterinários com ranking (média avaliações)
+    # Buscar apenas veterinários aprovados com ranking
     vet_ratings = (
         db.query(
             Veterinarian,
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         )
+        .filter(Veterinarian.is_approved == True)
         .outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
@@ -40,13 +41,14 @@ def home(request: Request, db: Session = Depends(get_db)):
         vet.review_count = review_count
         veterinarians.append(vet)
 
-    # Buscar clínicas com ranking
+    # Buscar apenas clínicas aprovadas com ranking
     clinic_ratings = (
         db.query(
             Clinic,
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         )
+        .filter(Clinic.is_approved == True)
         .outerjoin(
             Review,
             (Review.reviewee_id == Clinic.id) & (Review.reviewee_type == RevieweeType.CLINIC),
@@ -63,7 +65,7 @@ def home(request: Request, db: Session = Depends(get_db)):
         clinic.review_count = review_count
         clinics.append(clinic)
 
-    # Buscar casos clínicos recentes
+    # Buscar casos clínicos recentes (sem filter, já que não tem is_approved ainda)
     recent_cases = (
         db.query(ClinicalCase)
         .options(joinedload(ClinicalCase.author))
@@ -106,6 +108,8 @@ def buscar_veterinarios(
         Veterinarian,
         func.avg(Review.rating).label("avg_rating"),
         func.count(Review.id).label("review_count"),
+    ).filter(
+        Veterinarian.is_approved == True
     ).outerjoin(
         Review,
         (Review.reviewee_id == Veterinarian.id)
@@ -162,6 +166,8 @@ def buscar_clinicas(
         Clinic,
         func.avg(Review.rating).label("avg_rating"),
         func.count(Review.id).label("review_count"),
+    ).filter(
+        Clinic.is_approved == True
     ).outerjoin(
         Review, (Review.reviewee_id == Clinic.id) & (Review.reviewee_type == RevieweeType.CLINIC)
     )
