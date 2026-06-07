@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -5,9 +7,11 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.database import get_db
+from app.core.deps import get_current_user
 from app.models.case import ClinicalCase
 from app.models.clinic import Clinic
 from app.models.review import Review, RevieweeType
+from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
 router = APIRouter()
@@ -15,7 +19,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-def home(request: Request, db: Session = Depends(get_db)):
+def home(request: Request, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     # Buscar apenas veterinários aprovados com ranking
     vet_ratings = (
         db.query(
@@ -83,6 +87,7 @@ def home(request: Request, db: Session = Depends(get_db)):
         "home-redesign.html",
         {
             "request": request,
+            "current_user": current_user,
             "veterinarians": veterinarians,
             "clinics": clinics,
             "recent_cases": recent_cases,
@@ -94,19 +99,24 @@ def home(request: Request, db: Session = Depends(get_db)):
 
 
 @router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request):
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+def login_page(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    if current_user:
+        return RedirectResponse("/")
+    return templates.TemplateResponse("auth/login.html", {"request": request, "current_user": None})
 
 
 @router.get("/cadastro", response_class=HTMLResponse)
-def cadastro_page(request: Request):
-    return templates.TemplateResponse("auth/cadastro.html", {"request": request})
+def cadastro_page(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    if current_user:
+        return RedirectResponse("/")
+    return templates.TemplateResponse("auth/cadastro.html", {"request": request, "current_user": None})
 
 
 @router.get("/buscar/veterinarios", response_class=HTMLResponse)
 def buscar_veterinarios(
     request: Request,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
     query: str = None,
     especialidade: str = None,
     cidade: str = None,
@@ -155,6 +165,7 @@ def buscar_veterinarios(
         "veterinarian/search.html",
         {
             "request": request,
+            "current_user": current_user,
             "veterinarians": veterinarians,
             "query": query,
             "especialidade": especialidade,
@@ -166,6 +177,7 @@ def buscar_veterinarios(
 def buscar_clinicas(
     request: Request,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
     query: str = None,
     cidade: str = None,
     estado: str = None,
@@ -203,12 +215,12 @@ def buscar_clinicas(
 
     return templates.TemplateResponse(
         "clinic/search.html",
-        {"request": request, "clinics": clinics, "query": query},
+        {"request": request, "current_user": current_user, "clinics": clinics, "query": query},
     )
 
 
 @router.get("/veterinario/{slug}", response_class=HTMLResponse)
-def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db)):
+def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     vet = db.query(Veterinarian).filter(Veterinarian.slug == slug).first()
 
     if not vet:
@@ -238,12 +250,12 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
 
     return templates.TemplateResponse(
         "veterinarian/profile.html",
-        {"request": request, "veterinarian": vet, "reviews": reviews},
+        {"request": request, "current_user": current_user, "veterinarian": vet, "reviews": reviews},
     )
 
 
 @router.get("/clinica/{slug}", response_class=HTMLResponse)
-def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db)):
+def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     clinic = db.query(Clinic).filter(Clinic.slug == slug).first()
 
     if not clinic:
@@ -276,6 +288,7 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db)):
         "clinic/profile.html",
         {
             "request": request,
+            "current_user": current_user,
             "clinic": clinic,
             "reviews": reviews,
             "veterinarians": veterinarians,
@@ -284,29 +297,30 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db)):
 
 
 @router.get("/sobre", response_class=HTMLResponse)
-def sobre(request: Request):
-    return templates.TemplateResponse("pages/sobre.html", {"request": request})
+def sobre(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("pages/sobre.html", {"request": request, "current_user": current_user})
 
 
 @router.get("/contato", response_class=HTMLResponse)
-def contato(request: Request):
-    return templates.TemplateResponse("pages/contato.html", {"request": request})
+def contato(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("pages/contato.html", {"request": request, "current_user": current_user})
 
 
 @router.get("/termos", response_class=HTMLResponse)
-def termos(request: Request):
-    return templates.TemplateResponse("pages/termos.html", {"request": request})
+def termos(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("pages/termos.html", {"request": request, "current_user": current_user})
 
 
 @router.get("/privacidade", response_class=HTMLResponse)
-def privacidade(request: Request):
-    return templates.TemplateResponse("pages/privacidade.html", {"request": request})
+def privacidade(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("pages/privacidade.html", {"request": request, "current_user": current_user})
 
 
 @router.get("/casos-clinicos", response_class=HTMLResponse)
 def casos_clinicos(
     request: Request,
     db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
     especialidade: str = None,
 ):
     q = db.query(ClinicalCase).options(joinedload(ClinicalCase.author))
@@ -318,17 +332,17 @@ def casos_clinicos(
 
     return templates.TemplateResponse(
         "case/list.html",
-        {"request": request, "cases": cases, "especialidade": especialidade},
+        {"request": request, "current_user": current_user, "cases": cases, "especialidade": especialidade},
     )
 
 
 @router.get("/casos-clinicos/criar", response_class=HTMLResponse)
-def criar_caso_clinico(request: Request):
-    return templates.TemplateResponse("case/create.html", {"request": request})
+def criar_caso_clinico(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("case/create.html", {"request": request, "current_user": current_user})
 
 
 @router.get("/casos-clinicos/{case_id}", response_class=HTMLResponse)
-def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(get_db)):
+def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     from app.models.case import CaseComment
 
     case = (
@@ -351,5 +365,5 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
 
     return templates.TemplateResponse(
         "case/detail.html",
-        {"request": request, "case": case, "comments": comments},
+        {"request": request, "current_user": current_user, "case": case, "comments": comments},
     )

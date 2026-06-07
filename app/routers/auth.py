@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.models.user import UserType
 from app.schemas.clinic import ClinicCreate
 from app.schemas.tutor import TutorCreate
 from app.schemas.user import Token, UserLogin
@@ -12,24 +13,61 @@ router = APIRouter()
 
 
 @router.post("/login", response_model=Token)
-def login(credentials: UserLogin, db: Session = Depends(get_db)):
-    """Login de usuário (tutor, veterinário ou clínica)"""
-    return auth_service.login(db, credentials)
+def login(credentials: UserLogin, response: Response, db: Session = Depends(get_db)):
+    token = auth_service.login(db, credentials)
+
+    # Descobrir user_type para redirecionar
+    user = auth_service.authenticate_user(db, credentials)
+    is_admin = user and user.user_type == UserType.ADMIN
+
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False,  # Railway usa HTTPS, Cloudflare termina SSL
+        max_age=60 * 60 * 24 * 30,  # 30 dias
+    )
+    return {**token.dict(), "is_admin": is_admin}
 
 
 @router.post("/register/tutor", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register_tutor(data: TutorCreate, db: Session = Depends(get_db)):
-    """Registro de tutor"""
-    return auth_service.register_tutor(db, data)
+def register_tutor(data: TutorCreate, response: Response, db: Session = Depends(get_db)):
+    token = auth_service.register_tutor(db, data)
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        max_age=60 * 60 * 24 * 30,
+    )
+    return token
 
 
 @router.post("/register/veterinarian", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register_veterinarian(data: VeterinarianCreate, db: Session = Depends(get_db)):
-    """Registro de veterinário"""
-    return auth_service.register_veterinarian(db, data)
+def register_veterinarian(data: VeterinarianCreate, response: Response, db: Session = Depends(get_db)):
+    token = auth_service.register_veterinarian(db, data)
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        max_age=60 * 60 * 24 * 30,
+    )
+    return token
 
 
 @router.post("/register/clinic", response_model=Token, status_code=status.HTTP_201_CREATED)
-def register_clinic(data: ClinicCreate, db: Session = Depends(get_db)):
-    """Registro de clínica"""
-    return auth_service.register_clinic(db, data)
+def register_clinic(data: ClinicCreate, response: Response, db: Session = Depends(get_db)):
+    token = auth_service.register_clinic(db, data)
+    response.set_cookie(
+        key="access_token",
+        value=token.access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        max_age=60 * 60 * 24 * 30,
+    )
+    return token

@@ -283,8 +283,7 @@ async function handleSubmit(e, endpoint, errorId) {
             throw new Error(result.detail || 'Erro ao cadastrar');
         }
 
-        saveToken(result.access_token);
-        window.location.href = '/meu-perfil';
+        window.location.href = '/';
 
     } catch (error) {
         errorDiv.textContent = error.message;

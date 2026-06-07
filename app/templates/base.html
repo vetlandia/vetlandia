@@ -34,7 +34,9 @@
                     <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
 
                     {% if current_user %}
-                        <a href="/meu-perfil" class="nav-link">Meu Perfil</a>
+                        {% if current_user.user_type.value == 'admin' %}
+                            <a href="/admin" class="nav-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Admin</a>
+                        {% endif %}
                         <a href="/logout" class="btn btn-outline btn-sm">Sair</a>
                     {% else %}
                         <a href="/login" class="nav-link">Entrar</a>
@@ -63,7 +65,9 @@
             <a href="/casos-clinicos" class="mobile-menu-link">Casos Clínicos</a>
 
             {% if current_user %}
-                <a href="/meu-perfil" class="mobile-menu-link">Meu Perfil</a>
+                {% if current_user.user_type.value == 'admin' %}
+                    <a href="/admin" class="mobile-menu-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Painel Admin</a>
+                {% endif %}
                 <a href="/logout" class="mobile-menu-link">Sair</a>
             {% else %}
                 <a href="/login" class="mobile-menu-link">Entrar</a>
