@@ -728,3 +728,64 @@
   .mobile-topbar { display: none !important; }
   .bottom-nav { display: none !important; }
 }
+
+/* ═══════════════════════════════════════════
+   ESTADOS VAZIOS (sem dados fake)
+   ═══════════════════════════════════════════ */
+.empty-state-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 20px;
+  text-align: center;
+  min-width: 260px;
+  width: 100%;
+  color: var(--text-3, #888);
+}
+.empty-state-inline .empty-icon {
+  font-size: 2rem;
+  opacity: 0.6;
+}
+.empty-state-inline p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-2, #555);
+}
+.empty-link {
+  color: var(--brand, #0A4D68);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.empty-state-block {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 48px 24px;
+  text-align: center;
+  background: var(--surface-2, #f7f7f9);
+  border-radius: 16px;
+  color: var(--text-3, #888);
+}
+.empty-state-block .empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.6;
+}
+.empty-state-block .empty-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-1, #222);
+}
+.empty-state-block .empty-desc {
+  font-size: 0.875rem;
+  color: var(--text-2, #666);
+  max-width: 320px;
+}
+.empty-state-block .btn {
+  margin-top: 8px;
+}

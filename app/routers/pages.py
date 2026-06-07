@@ -74,6 +74,11 @@ def home(request: Request, db: Session = Depends(get_db)):
         .all()
     )
 
+    # Contagens reais para estatísticas do hero
+    vet_count = db.query(Veterinarian).filter(Veterinarian.is_approved == True).count()
+    clinic_count = db.query(Clinic).filter(Clinic.is_approved == True).count()
+    review_count = db.query(Review).count()
+
     return templates.TemplateResponse(
         "home-redesign.html",
         {
@@ -81,6 +86,9 @@ def home(request: Request, db: Session = Depends(get_db)):
             "veterinarians": veterinarians,
             "clinics": clinics,
             "recent_cases": recent_cases,
+            "vet_count": vet_count,
+            "clinic_count": clinic_count,
+            "review_count": review_count,
         },
     )
 
