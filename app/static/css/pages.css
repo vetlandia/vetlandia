@@ -84,6 +84,7 @@
    MOBILE MENU
 ======================================== */
 .mobile-menu-overlay {
+    /* Fica oculto (e sem capturar cliques) até ser aberto via .active */
     display: none;
     position: fixed;
     top: 0;
@@ -98,6 +99,7 @@
 }
 
 .mobile-menu-overlay.active {
+    display: block;
     opacity: 1;
 }
 
@@ -105,18 +107,20 @@
     display: none;
     position: fixed;
     top: 0;
-    right: -100%;
+    right: 0;
     width: 85%;
     max-width: 360px;
     height: 100%;
     background: var(--surface-card);
     z-index: 1999;
-    transition: right var(--transition-slow);
+    /* Off-canvas via transform (não gera scroll horizontal como right:-100%) */
+    transform: translateX(100%);
+    transition: transform var(--transition-slow);
     box-shadow: var(--shadow-xl);
 }
 
 .mobile-menu.active {
-    right: 0;
+    transform: translateX(0);
 }
 
 .mobile-menu-header {
@@ -870,7 +874,8 @@
         display: block;
     }
 
-    .mobile-menu-overlay,
+    /* O menu fica montado (off-canvas via transform); o overlay só
+       aparece quando .active — assim não bloqueia cliques fechado */
     .mobile-menu {
         display: block;
     }
