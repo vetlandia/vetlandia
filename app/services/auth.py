@@ -126,6 +126,7 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         state=data.state,
         complement=data.complement,
         animal_species=data.animal_species,
+        photo_url=data.photo_url,
         slug=slug,
         clinic_id=data.clinic_id,
     )
@@ -173,6 +174,7 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
         convenios=data.convenios,
         animal_species=data.animal_species,
         specialties=data.specialties,
+        photo_url=data.photo_url,
         slug=slug,
     )
     db.add(clinic)

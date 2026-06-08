@@ -19,6 +19,7 @@ class VeterinarianBase(BaseModel):
     state: Optional[str] = Field(None, min_length=2, max_length=2)
     complement: Optional[str] = Field(None, max_length=200)
     animal_species: Optional[str] = None  # JSON string
+    photo_url: Optional[str] = Field(None, max_length=500)
 
     @field_validator("crmv")
     @classmethod

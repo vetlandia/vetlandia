@@ -24,6 +24,7 @@ class ClinicBase(BaseModel):
     convenios: Optional[str] = None       # JSON string
     animal_species: Optional[str] = None  # JSON string
     specialties: Optional[str] = None     # JSON string
+    photo_url: Optional[str] = Field(None, max_length=500)
 
     @field_validator("state")
     @classmethod
