@@ -36,7 +36,7 @@ def create_token_for_user(user: User) -> Token:
     access_token = create_access_token(
         data={"sub": str(user.id), "user_type": user.user_type.value}
     )
-    return Token(access_token=access_token)
+    return Token(access_token=access_token, user_type=user.user_type.value)
 
 
 def login(db: Session, credentials: UserLogin) -> Token:

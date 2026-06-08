@@ -130,7 +130,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             throw new Error(data.detail || 'Erro ao fazer login');
         }
 
-        if (data.is_admin) {
+        if (data.user_type === 'admin') {
             window.location.href = '/admin';
         } else {
             window.location.href = '/';

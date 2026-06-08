@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models.user import UserType
 from app.schemas.clinic import ClinicCreate
 from app.schemas.tutor import TutorCreate
 from app.schemas.user import Token, UserLogin
@@ -15,20 +14,15 @@ router = APIRouter()
 @router.post("/login", response_model=Token)
 def login(credentials: UserLogin, response: Response, db: Session = Depends(get_db)):
     token = auth_service.login(db, credentials)
-
-    # Descobrir user_type para redirecionar
-    user = auth_service.authenticate_user(db, credentials)
-    is_admin = user and user.user_type == UserType.ADMIN
-
     response.set_cookie(
         key="access_token",
         value=token.access_token,
         httponly=True,
         samesite="lax",
-        secure=False,  # Railway usa HTTPS, Cloudflare termina SSL
-        max_age=60 * 60 * 24 * 30,  # 30 dias
+        secure=False,
+        max_age=60 * 60 * 24 * 30,
     )
-    return {**token.dict(), "is_admin": is_admin}
+    return token
 
 
 @router.post("/register/tutor", response_model=Token, status_code=status.HTTP_201_CREATED)
