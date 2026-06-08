@@ -82,8 +82,12 @@
           {% if veterinarians %}
             {% for vet in veterinarians[:6] %}
             <a href="/veterinario/{{ vet.slug }}" class="vet-card" data-esp="{{ (vet.specialty or 'clinica-geral') | lower | replace(' ', '-') }}">
-              <div class="vet-card-thumb {% if loop.index % 3 == 1 %}teal{% elif loop.index % 3 == 2 %}purple{% else %}red{% endif %}">
+              <div class="vet-card-thumb {% if not vet.photo_url %}{% if loop.index % 3 == 1 %}teal{% elif loop.index % 3 == 2 %}purple{% else %}red{% endif %}{% endif %}">
+                {% if vet.photo_url %}
+                <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="vet-card-photo">
+                {% else %}
                 <span style="font-size:2rem;font-weight:900;opacity:0.6">{{ vet.full_name[0] }}</span>
+                {% endif %}
                 {% if loop.index == 1 %}<span class="vet-card-tag top">Top</span>{% endif %}
                 {% if loop.index == 2 %}<span class="vet-card-tag pro">Pro</span>{% endif %}
               </div>
@@ -176,7 +180,9 @@
     {% if veterinarians %}
       {% for vet in veterinarians[:4] %}
       <a href="/veterinario/{{ vet.slug }}" class="sidebar-vet">
-        <div class="sidebar-vet-avatar">{{ vet.full_name[0] }}</div>
+        <div class="sidebar-vet-avatar">
+          {% if vet.photo_url %}<img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">{% else %}{{ vet.full_name[0] }}{% endif %}
+        </div>
         <div class="sidebar-vet-info">
           <div class="sidebar-vet-name">{{ vet.full_name }}</div>
           <div class="sidebar-vet-spec">{{ vet.specialty or 'Clínico Geral' }}</div>
