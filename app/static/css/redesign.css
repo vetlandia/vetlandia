@@ -479,10 +479,10 @@
 
 /* Tablet */
 @media (max-width: 1024px) {
-  .home-desktop-grid { grid-template-columns: 1fr; }
+  .home-desktop-grid { grid-template-columns: minmax(0, 1fr); }
   .home-sidebar { display: none; }
   .desktop-content { padding: 24px; }
-  .desktop-vet-grid { grid-template-columns: repeat(2, 1fr); }
+  .desktop-vet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* Mobile */
@@ -525,8 +525,9 @@
   .hero-stats { gap: 28px; }
   .hero-stat-number { font-size: 1.25rem; }
 
-  /* Grid principal vira coluna única */
-  .home-desktop-grid { grid-template-columns: 1fr; min-height: 0; }
+  /* Grid principal vira coluna única — minmax(0,1fr) permite encolher
+     abaixo do conteúdo (1fr puro = minmax(auto,1fr) causava overflow) */
+  .home-desktop-grid { grid-template-columns: minmax(0, 1fr); min-height: 0; }
   .home-sidebar { display: none; }
 
   .desktop-content { padding: 20px 16px; }
@@ -535,7 +536,7 @@
 
   /* Cards de vets: 2 colunas compactas */
   .desktop-vet-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
   }
   .desktop-vet-grid .vet-card {
@@ -543,11 +544,14 @@
     max-width: none;
     width: 100%;
   }
+
+  /* Estado vazio mais compacto no mobile */
+  .empty-state-block { padding: 28px 16px; }
 }
 
 /* Telefones estreitos */
 @media (max-width: 380px) {
-  .desktop-vet-grid { grid-template-columns: 1fr; }
+  .desktop-vet-grid { grid-template-columns: minmax(0, 1fr); }
   .hero-stats { gap: 20px; }
 }
 
