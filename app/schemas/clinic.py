@@ -24,7 +24,7 @@ class ClinicBase(BaseModel):
     convenios: Optional[str] = None       # JSON string
     animal_species: Optional[str] = None  # JSON string
     specialties: Optional[str] = None     # JSON string
-    photo_url: Optional[str] = Field(None, max_length=500)
+    photo_url: Optional[str] = None  # data URL ou https URL
 
     @field_validator("state")
     @classmethod
@@ -53,8 +53,8 @@ class ClinicUpdate(BaseModel):
     whatsapp: Optional[str] = Field(None, max_length=20)
     email: Optional[EmailStr] = None
     website: Optional[str] = Field(None, max_length=500)
-    logo_url: Optional[str] = Field(None, max_length=500)
-    photo_url: Optional[str] = Field(None, max_length=500)
+    logo_url: Optional[str] = None
+    photo_url: Optional[str] = None
     convenios: Optional[str] = None
     animal_species: Optional[str] = None
     specialties: Optional[str] = None

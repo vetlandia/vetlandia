@@ -153,6 +153,36 @@
 
 #saveStatus { margin-bottom: var(--space-4); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
 
+.photo-upload-widget {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    border: 1.5px dashed var(--border-medium);
+}
+
+.photo-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.photo-preview.clinic-preview { border-radius: var(--radius-lg); }
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.photo-preview-placeholder { font-size: 2rem; opacity: 0.4; }
+.photo-upload-actions { flex: 1; min-width: 0; }
+.photo-upload-btn { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: var(--space-2); }
+.photo-file-input { display: none; }
+
 @media (max-width: 768px) {
     .profile-grid { grid-template-columns: 1fr; }
     .profile-sidebar { display: none; }
@@ -320,9 +350,22 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">URL da Foto de Perfil</label>
-                            <input type="url" name="photo_url" class="form-input" value="{{ profile.photo_url if profile and profile.photo_url else '' }}" placeholder="https://...">
-                            <p class="form-help">Cole o link de uma foto sua (ex: LinkedIn, Google Fotos)</p>
+                            <label class="form-label">Foto de Perfil</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview" id="pc-vet-preview">
+                                    {% if profile and profile.photo_url %}
+                                    <img src="{{ profile.photo_url }}" alt="Foto atual">
+                                    {% else %}
+                                    <span class="photo-preview-placeholder">⚕️</span>
+                                    {% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-vet-photo-input">📷 Trocar foto</label>
+                                    <input type="file" id="pc-vet-photo-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="photo_url" id="pc-vet-photo-data" value="{{ profile.photo_url if profile and profile.photo_url else '' }}">
+                                    <p class="form-help">JPG, PNG ou WEBP. Máx 400×400px após compressão.</p>
+                                </div>
+                            </div>
                         </div>
 
                         {% elif current_user.user_type.value == 'clinic' %}
@@ -380,8 +423,22 @@
                             <input type="url" name="website" class="form-input" value="{{ profile.website if profile and profile.website else '' }}" placeholder="https://www.suaclinica.com.br">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">URL da Foto</label>
-                            <input type="url" name="photo_url" class="form-input" value="{{ profile.photo_url if profile and profile.photo_url else '' }}" placeholder="https://...">
+                            <label class="form-label">Foto da Clínica</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview clinic-preview" id="pc-clinic-preview">
+                                    {% if profile and profile.photo_url %}
+                                    <img src="{{ profile.photo_url }}" alt="Foto atual">
+                                    {% else %}
+                                    <span class="photo-preview-placeholder">🏥</span>
+                                    {% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-clinic-photo-input">📷 Trocar foto</label>
+                                    <input type="file" id="pc-clinic-photo-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="photo_url" id="pc-clinic-photo-data" value="{{ profile.photo_url if profile and profile.photo_url else '' }}">
+                                    <p class="form-help">JPG, PNG ou WEBP. Fachada ou interior da clínica.</p>
+                                </div>
+                            </div>
                             <p class="form-help">Cole o link de uma foto da clínica</p>
                         </div>
                         {% endif %}
@@ -401,6 +458,42 @@
 {% endblock %}
 
 {% block extra_js %}
+<script>
+function setupPhotoUpload(inputId, previewId, hiddenId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const hidden = document.getElementById(hiddenId);
+    if (!input) return;
+    input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const MAX = 400;
+                let w = img.width, h = img.height;
+                if (w > MAX || h > MAX) {
+                    if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                    else { w = Math.round(w * MAX / h); h = MAX; }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+                hidden.value = dataUrl;
+                preview.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+setupPhotoUpload('pc-vet-photo-input',    'pc-vet-preview',    'pc-vet-photo-data');
+setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-data');
+</script>
+
 <script>
 (function () {
     const form = document.getElementById('profileForm');
