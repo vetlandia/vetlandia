@@ -131,32 +131,6 @@
         </div>
     </footer>
 
-    <!-- Bottom Navigation (mobile) -->
-    <nav class="bottom-nav" id="globalBottomNav">
-        <div class="bottom-nav-inner">
-            <a href="/" class="bnav-item">
-                <span class="bnav-icon">🏠</span>
-                Início
-            </a>
-            <a href="/buscar/veterinarios" class="bnav-item">
-                <span class="bnav-icon">🔍</span>
-                Buscar
-            </a>
-            <a href="/buscar/clinicas" class="bnav-item">
-                <span class="bnav-icon">🏥</span>
-                Clínicas
-            </a>
-            <a href="/casos-clinicos" class="bnav-item">
-                <span class="bnav-icon">📋</span>
-                Casos
-            </a>
-            <a href="{% if current_user %}/logout{% else %}/login{% endif %}" class="bnav-item">
-                <span class="bnav-icon">👤</span>
-                {% if current_user %}Sair{% else %}Entrar{% endif %}
-            </a>
-        </div>
-    </nav>
-
     <!-- JavaScript -->
     <script src="{{ url_for('static', path='/js/main.js') }}"></script>
     {% block extra_js %}{% endblock %}

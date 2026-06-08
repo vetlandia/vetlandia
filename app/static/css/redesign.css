@@ -77,126 +77,7 @@
 .btn-orange:hover { background: var(--brand-dark) !important; }
 
 /* ════════════════════════════════════
-   MOBILE HEADER (substitui menu hamburguer)
-   ════════════════════════════════════ */
-.mobile-topbar {
-  display: none;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 16px 8px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-}
-
-.mobile-topbar-row1 {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.mobile-location {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text-1);
-  cursor: pointer;
-}
-.mobile-location .arrow { color: var(--brand); font-size: 0.7rem; }
-
-.mobile-topbar-actions { display: flex; gap: 10px; align-items: center; }
-
-.topbar-btn {
-  width: 36px; height: 36px;
-  min-width: 36px;
-  border-radius: 50%;
-  background: var(--brand-light);
-  border: none;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem;
-  line-height: 1;
-  position: relative;
-  flex-shrink: 0;
-}
-.topbar-btn .badge {
-  position: absolute;
-  top: -2px; right: -2px;
-  width: 14px; height: 14px;
-  background: var(--action);
-  border-radius: 50%;
-  font-size: 8px;
-  color: white;
-  font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  border: 2px solid white;
-}
-
-.topbar-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: 700; font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.mobile-search-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 9px 12px;
-  cursor: text;
-}
-.mobile-search-bar span { font-size: 0.875rem; color: var(--text-3); flex: 1; }
-.mobile-search-bar .search-icon { font-size: 1rem; }
-.mobile-search-mic {
-  width: 30px; height: 30px;
-  background: var(--brand);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.8rem;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-/* bnav colors for home page teal brand override */
-.vt .bnav-item.active { color: var(--brand); }
-.vt .bnav-item:hover { color: var(--brand); }
-
-/* ════════════════════════════════════
-   HOME — GREETING + COUPON
-   ════════════════════════════════════ */
-.home-greeting {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 18px 20px 0;
-}
-.greeting-text h2 {
-  font-size: 1.125rem;
-  font-weight: 800;
-  color: var(--text-1);
-}
-.greeting-text p { font-size: 0.8125rem; color: var(--text-2); margin-top: 2px; }
-.coupon-chip {
-  background: linear-gradient(135deg, var(--purple), #A855F7);
-  color: white;
-  padding: 6px 12px;
-  border-radius: var(--r-full);
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-/* ════════════════════════════════════
-   HOME — HERO (desktop)
+   HOME — HERO
    ════════════════════════════════════ */
 .hero-redesign {
   position: relative;
@@ -327,11 +208,8 @@
 .hero-stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 
 /* ════════════════════════════════════
-   SECTION WRAPPER
+   SECTION HEADER (título + "ver todos")
    ════════════════════════════════════ */
-.home-section {
-  padding: 24px 20px 0;
-}
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -351,59 +229,7 @@
 }
 
 /* ════════════════════════════════════
-   QUICK ACTIONS
-   ════════════════════════════════════ */
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.qa-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  text-decoration: none;
-  cursor: pointer;
-}
-.qa-icon-wrap {
-  width: 56px; height: 56px;
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
-  position: relative;
-  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
-}
-.qa-item:hover .qa-icon-wrap {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-.qa-icon-wrap.teal   { background: var(--brand-light); }
-.qa-icon-wrap.blue   { background: #EEF2FF; }
-.qa-icon-wrap.red    { background: var(--action-light); }
-.qa-icon-wrap.yellow { background: var(--yellow-light); }
-.qa-badge {
-  position: absolute;
-  top: -4px; right: -4px;
-  background: var(--action);
-  color: white;
-  font-size: 8px;
-  font-weight: 700;
-  padding: 2px 5px;
-  border-radius: var(--r-sm);
-  border: 2px solid white;
-}
-.qa-label {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  color: var(--text-2);
-  text-align: center;
-  line-height: 1.3;
-}
-
-/* ════════════════════════════════════
-   CATEGORY CHIPS
+   CATEGORY CHIPS (filtro de especialidades)
    ════════════════════════════════════ */
 .chips-scroll {
   display: flex;
@@ -438,19 +264,8 @@
 }
 
 /* ════════════════════════════════════
-   VET CARDS — HORIZONTAL SCROLL
+   VET CARDS
    ════════════════════════════════════ */
-.cards-scroll-wrap { padding: 0 20px 20px; }
-.cards-scroll {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 4px;
-}
-.cards-scroll::-webkit-scrollbar { display: none; }
-
 .vet-card {
   min-width: 158px;
   max-width: 200px;
@@ -659,6 +474,7 @@
 
 /* ════════════════════════════════════
    RESPONSIVE BREAKPOINTS
+   (layout único web/mobile — mesma identidade)
    ════════════════════════════════════ */
 
 /* Tablet */
@@ -671,60 +487,73 @@
 
 /* Mobile */
 @media (max-width: 768px) {
-  /* Oculta header desktop e footer no mobile */
-  .header { display: none !important; }
-  .footer { display: none !important; }
+  /* Hero responsivo — mantém gradiente, título, busca e stats */
+  .hero-redesign {
+    min-height: auto;
+    padding: 44px 0;
+  }
+  .hero-redesign::before { width: 300px; height: 300px; top: -60px; right: -60px; }
+  .hero-redesign::after  { width: 240px; height: 240px; bottom: -80px; left: -50px; }
 
-  /* Mostra mobile topbar */
-  .mobile-topbar { display: block; }
+  .hero-content { padding: 0 16px; }
+  .hero-eyebrow { font-size: 0.6875rem; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .hero-title { font-size: clamp(1.875rem, 8vw, 2.5rem); margin-bottom: 12px; }
+  .hero-subtitle { font-size: 0.9375rem; margin-bottom: 24px; }
 
-  /* Hero vira greeting card */
-  .hero-redesign { display: none; }
+  /* Search vira coluna empilhada */
+  .search-hero {
+    flex-direction: column;
+    padding: 10px;
+    gap: 6px;
+    margin-bottom: 28px;
+    border-radius: var(--r-lg);
+  }
+  .search-hero-input {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    padding: 11px 10px;
+  }
+  .search-hero-input:last-of-type { border-bottom: none; }
+  .search-hero-button {
+    width: 100%;
+    padding: 13px;
+    justify-content: center;
+    border-radius: var(--r-md);
+  }
 
-  /* Desktop grid desmonta */
-  .home-desktop-grid { display: block; }
-  .desktop-content { display: none; }
+  .hero-stats { gap: 28px; }
+  .hero-stat-number { font-size: 1.25rem; }
 
-  /* Mobile sections visíveis */
-  .mobile-only { display: block; }
+  /* Grid principal vira coluna única */
+  .home-desktop-grid { grid-template-columns: 1fr; min-height: 0; }
+  .home-sidebar { display: none; }
+
+  .desktop-content { padding: 20px 16px; }
+  .desktop-section { margin-bottom: 28px; }
+  .desktop-section-title { font-size: 1.0625rem; }
+
+  /* Cards de vets: 2 colunas compactas */
+  .desktop-vet-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .desktop-vet-grid .vet-card {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
 }
 
-@media (min-width: 769px) {
-  .mobile-only { display: none; }
-  .mobile-topbar { display: none !important; }
-  .bottom-nav { display: none !important; }
+/* Telefones estreitos */
+@media (max-width: 380px) {
+  .desktop-vet-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 20px; }
 }
 
 /* ═══════════════════════════════════════════
    ESTADOS VAZIOS (sem dados fake)
    ═══════════════════════════════════════════ */
-.empty-state-inline {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 28px 20px;
-  text-align: center;
-  min-width: 260px;
-  width: 100%;
-  color: var(--text-3, #888);
-}
-.empty-state-inline .empty-icon {
-  font-size: 2rem;
-  opacity: 0.6;
-}
-.empty-state-inline p {
-  margin: 0;
-  font-weight: 600;
-  color: var(--text-2, #555);
-}
-.empty-link {
-  color: var(--brand, #0A4D68);
-  font-weight: 700;
-  font-size: 0.875rem;
-  text-decoration: none;
-}
 .empty-state-block {
   grid-column: 1 / -1;
   display: flex;
