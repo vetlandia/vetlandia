@@ -62,10 +62,15 @@
         .nav-back { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 0.875rem; text-decoration: none; margin-bottom: 20px; }
         .nav-back:hover { color: var(--brand); }
 
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
         @media (max-width: 640px) {
             .admin-stats { grid-template-columns: 1fr; }
-            .admin-table { font-size: 0.8rem; }
-            .admin-table th:nth-child(3), .admin-table td:nth-child(3) { display: none; }
+            .admin-wrap { padding: 16px 12px 80px; }
+            .admin-table { font-size: 0.8rem; min-width: 480px; }
+            .admin-section { padding: 16px; }
+            .stat-card { padding: 14px 16px; }
+            .stat-num { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -113,7 +118,7 @@
             ⚕️ Veterinários aguardando aprovação
             {% if pending_vets > 0 %}<span class="badge-count">{{ pending_vets }}</span>{% endif %}
         </h2>
-        <table class="admin-table">
+        <div class="table-scroll"><table class="admin-table">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -147,7 +152,7 @@
                     <tr class="empty-row"><td colspan="6">Nenhum veterinário pendente ✅</td></tr>
                 {% endif %}
             </tbody>
-        </table>
+        </table></div>
     </div>
 
     <!-- Clínicas pendentes -->
@@ -156,7 +161,7 @@
             🏥 Clínicas aguardando aprovação
             {% if pending_clinics > 0 %}<span class="badge-count">{{ pending_clinics }}</span>{% endif %}
         </h2>
-        <table class="admin-table">
+        <div class="table-scroll"><table class="admin-table">
             <thead>
                 <tr>
                     <th>Nome</th>
@@ -188,7 +193,7 @@
                     <tr class="empty-row"><td colspan="5">Nenhuma clínica pendente ✅</td></tr>
                 {% endif %}
             </tbody>
-        </table>
+        </table></div>
     </div>
 
     <!-- Avaliações pendentes -->
@@ -197,7 +202,7 @@
             ⭐ Avaliações aguardando moderação
             {% if pending_reviews > 0 %}<span class="badge-count">{{ pending_reviews }}</span>{% endif %}
         </h2>
-        <table class="admin-table">
+        <div class="table-scroll"><table class="admin-table">
             <thead>
                 <tr>
                     <th>Nota</th>
@@ -229,13 +234,13 @@
                     <tr class="empty-row"><td colspan="5">Nenhuma avaliação pendente ✅</td></tr>
                 {% endif %}
             </tbody>
-        </table>
+        </table></div>
     </div>
 
     <!-- Usuários -->
     <div class="admin-section">
         <h2>👤 Usuários recentes</h2>
-        <table class="admin-table">
+        <div class="table-scroll"><table class="admin-table">
             <thead>
                 <tr>
                     <th>Email</th>
@@ -278,7 +283,7 @@
                     <tr class="empty-row"><td colspan="5">Nenhum usuário cadastrado ainda</td></tr>
                 {% endif %}
             </tbody>
-        </table>
+        </table></div>
     </div>
 
 </div>

@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ========================================
-    // Active Nav Link
+    // Active Nav Link + Bottom Nav
     // ========================================
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
@@ -98,6 +98,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const href = link.getAttribute('href');
         if (href === currentPath || (href !== '/' && currentPath.startsWith(href))) {
             link.classList.add('active');
+        }
+    });
+
+    const bnavItems = document.querySelectorAll('.bnav-item');
+    bnavItems.forEach(item => {
+        const href = item.getAttribute('href');
+        if (!href) return;
+        if (href === '/' ? currentPath === '/' : currentPath.startsWith(href)) {
+            item.classList.add('active');
         }
     });
 

@@ -166,39 +166,9 @@
   flex-shrink: 0;
 }
 
-/* ════════════════════════════════════
-   BOTTOM NAVIGATION (mobile only)
-   ════════════════════════════════════ */
-.bottom-nav {
-  display: none;
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--card);
-  border-top: 1px solid var(--border);
-  z-index: 200;
-  padding: 6px 0 max(10px, env(safe-area-inset-bottom));
-}
-
-.bottom-nav-inner {
-  display: flex;
-  justify-content: space-around;
-}
-
-.bnav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  text-decoration: none;
-  color: var(--text-3);
-  font-size: 0.625rem;
-  font-weight: 600;
-  min-width: 52px;
-  padding: 2px 0;
-  transition: color var(--fast) var(--ease);
-}
-.bnav-item.active { color: var(--brand); }
-.bnav-icon { font-size: 1.35rem; line-height: 1; }
+/* bnav colors for home page teal brand override */
+.vt .bnav-item.active { color: var(--brand); }
+.vt .bnav-item:hover { color: var(--brand); }
 
 /* ════════════════════════════════════
    HOME — GREETING + COUPON
@@ -705,12 +675,8 @@
   .header { display: none !important; }
   .footer { display: none !important; }
 
-  /* Mostra mobile topbar e bottom nav */
+  /* Mostra mobile topbar */
   .mobile-topbar { display: block; }
-  .bottom-nav { display: block; }
-
-  /* Padding para compensar bottom nav */
-  body { padding-bottom: 70px; }
 
   /* Hero vira greeting card */
   .hero-redesign { display: none; }
