@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.case import ClinicalCase
@@ -16,6 +17,7 @@ from app.models.veterinarian import Veterinarian
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+templates.env.globals["asset_v"] = ASSET_VERSION
 
 
 @router.get("/", response_class=HTMLResponse)

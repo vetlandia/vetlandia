@@ -3,7 +3,7 @@
 {% block title %}VetLândia — O melhor cuidado para o seu pet{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', path='/css/redesign.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/redesign.css') }}?v={{ asset_v }}">
 {% endblock %}
 
 {% block content %}

@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import require_admin
 from app.models.case import ClinicalCase
@@ -13,6 +14,7 @@ from app.models.veterinarian import Veterinarian
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 templates = Jinja2Templates(directory="app/templates")
+templates.env.globals["asset_v"] = ASSET_VERSION
 
 
 def _admin_context(request: Request, db: Session, **kwargs):
