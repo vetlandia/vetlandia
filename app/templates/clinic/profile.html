@@ -5,18 +5,22 @@
 {% block content %}
 <section class="profile-page">
     <div class="container-narrow">
+
         <!-- Header do Perfil -->
         <div class="profile-header-card">
             <div class="profile-avatar-large">
-                {% if clinic.logo_url %}
-                <img src="{{ clinic.logo_url }}" alt="{{ clinic.name }}">
+                {% if clinic.photo_url or clinic.logo_url %}
+                <img src="{{ clinic.photo_url or clinic.logo_url }}" alt="{{ clinic.name }}">
                 {% else %}
-                <div class="clinic-logo-placeholder-large">{{ clinic.name[0] }}</div>
+                <div class="avatar-placeholder-large clinic-avatar">{{ clinic.name[0] }}</div>
                 {% endif %}
             </div>
 
             <div class="profile-info-main">
                 <h1>{{ clinic.name }}</h1>
+                {% if clinic.razao_social %}
+                <p class="profile-razao-social">{{ clinic.razao_social }}</p>
+                {% endif %}
 
                 {% if clinic.avg_rating > 0 %}
                 <div class="rating-large">
@@ -30,18 +34,58 @@
                 </div>
                 {% endif %}
 
+                <!-- Badges: especialidades e espécies -->
+                {% if clinic.specialties or clinic.animal_species %}
+                <div class="profile-badges">
+                    {% if clinic.specialties %}
+                        {% for sp in clinic.specialties | replace('[','') | replace(']','') | replace('"','') | split(',') %}
+                            {% set sp = sp.strip() %}
+                            {% if sp %}<span class="badge badge-blue">{{ sp }}</span>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if clinic.animal_species %}
+                        {% for sp in clinic.animal_species | replace('[','') | replace(']','') | replace('"','') | split(',') %}
+                            {% set sp = sp.strip() %}
+                            {% if sp %}<span class="badge badge-green">{{ sp }}</span>{% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+
                 <div class="profile-details">
-                    <p><strong>📍 Endereço:</strong> {% if clinic.address %}{{ clinic.address }}, {% endif %}{{ clinic.city }}, {{ clinic.state }}</p>
+                    <p><strong>📍 Localização:</strong>
+                        {% if clinic.address %}{{ clinic.address }}{% if clinic.complement %}, {{ clinic.complement }}{% endif %} — {% endif %}
+                        {{ clinic.city }}, {{ clinic.state }}
+                    </p>
                     {% if clinic.phone %}
                     <p><strong>📞 Telefone:</strong> {{ clinic.phone }}</p>
                     {% endif %}
+                    {% if clinic.whatsapp %}
+                    <p><strong>💬 WhatsApp:</strong> {{ clinic.whatsapp }}</p>
+                    {% endif %}
                     {% if clinic.email %}
-                    <p><strong>✉️ Email:</strong> {{ clinic.email }}</p>
+                    <p><strong>✉️ E-mail:</strong> {{ clinic.email }}</p>
                     {% endif %}
                     {% if clinic.website %}
-                    <p><strong>🌐 Site:</strong> <a href="{{ clinic.website }}" target="_blank">{{ clinic.website }}</a></p>
+                    <p><strong>🌐 Site:</strong> <a href="{{ clinic.website }}" target="_blank" rel="noopener">{{ clinic.website }}</a></p>
+                    {% endif %}
+                    {% if clinic.cnpj %}
+                    <p><strong>🏢 CNPJ:</strong> {{ clinic.cnpj }}</p>
                     {% endif %}
                 </div>
+
+                <!-- Convênios -->
+                {% if clinic.convenios %}
+                <div class="profile-convenios">
+                    <h4>Convênios aceitos</h4>
+                    <div class="convenios-list">
+                        {% for cv in clinic.convenios | replace('[','') | replace(']','') | replace('"','') | split(',') %}
+                            {% set cv = cv.strip() %}
+                            {% if cv %}<span class="convenio-tag">{{ cv }}</span>{% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
 
                 {% if clinic.description %}
                 <div class="profile-bio">
@@ -52,16 +96,16 @@
             </div>
         </div>
 
-        <!-- Veterinários da Clínica -->
+        <!-- Equipe da Clínica -->
         {% if veterinarians %}
-        <div class="team-section">
-            <h2>Equipe ({{ veterinarians|length }})</h2>
+        <div class="section-card">
+            <h2 class="section-card-title">Equipe ({{ veterinarians|length }})</h2>
             <div class="team-grid">
                 {% for vet in veterinarians %}
                 <a href="/veterinario/{{ vet.slug }}" class="team-member-card">
                     <div class="team-avatar">
                         {% if vet.photo_url %}
-                        <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">
+                        <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="avatar-placeholder-sm">
                         {% else %}
                         <div class="avatar-placeholder-sm">{{ vet.full_name[0] }}</div>
                         {% endif %}
@@ -80,9 +124,8 @@
         {% endif %}
 
         <!-- Avaliações -->
-        <div class="reviews-section">
-            <h2>Avaliações ({{ reviews|length }})</h2>
-
+        <div class="section-card">
+            <h2 class="section-card-title">Avaliações ({{ reviews|length }})</h2>
             {% if reviews %}
             <div class="reviews-list">
                 {% for review in reviews %}
@@ -101,60 +144,222 @@
             <p class="text-secondary">Nenhuma avaliação ainda. Seja o primeiro!</p>
             {% endif %}
         </div>
+
     </div>
 </section>
 
 <style>
-.clinic-logo-placeholder-large {
+/* ── Layout ── */
+.profile-page {
+    background: var(--surface-secondary);
+    padding: var(--space-8) 0 var(--space-16);
+    min-height: calc(100vh - 72px);
+}
+
+/* ── Card principal ── */
+.profile-header-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-10);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--space-6);
+    text-align: center;
+}
+
+/* ── Avatar ── */
+.profile-avatar-large {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     margin: 0 auto var(--space-6);
-    background: linear-gradient(135deg, var(--laranja-vibrante), var(--amarelo-quente));
+    overflow: hidden;
+}
+
+.profile-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.avatar-placeholder-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3rem;
     font-weight: 700;
+    box-shadow: 0 8px 24px rgba(8, 131, 149, 0.3);
+}
+
+.avatar-placeholder-large.clinic-avatar {
+    background: linear-gradient(135deg, var(--laranja-vibrante), var(--amarelo-quente));
     box-shadow: 0 8px 24px rgba(247, 127, 0, 0.3);
 }
 
-.team-section {
+/* ── Info ── */
+.profile-info-main h1 {
+    font-size: 2rem;
+    margin-bottom: var(--space-2);
+}
+
+.profile-razao-social {
+    color: var(--text-tertiary);
+    font-size: 0.875rem;
+    margin-bottom: var(--space-4);
+}
+
+/* ── Rating ── */
+.rating-large {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+
+.rating-stars-large { font-size: 1.5rem; }
+
+.rating-value-large {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rating-count-large { color: var(--text-secondary); }
+
+/* ── Badges ── */
+.profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: center;
+    margin-bottom: var(--space-5);
+}
+
+.badge-green {
+    background: #D1FAE5;
+    color: #065F46;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ── Detalhes ── */
+.profile-details {
+    text-align: left;
+    max-width: 540px;
+    margin: 0 auto var(--space-5);
+}
+
+.profile-details p {
+    margin-bottom: var(--space-3);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.profile-details a {
+    color: var(--azul-intermediario);
+    word-break: break-all;
+}
+
+/* ── Convênios ── */
+.profile-convenios {
+    max-width: 540px;
+    margin: 0 auto var(--space-5);
+    text-align: left;
+}
+
+.profile-convenios h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.convenios-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.convenio-tag {
+    padding: 4px 12px;
+    background: #EFF6FF;
+    color: #1D4ED8;
+    border-radius: var(--radius-full);
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid #BFDBFE;
+}
+
+/* ── Bio ── */
+.profile-bio {
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border-light);
+}
+
+.profile-bio h3 { margin-bottom: var(--space-3); font-size: 1rem; }
+.profile-bio p { color: var(--text-secondary); line-height: 1.7; margin: 0; }
+
+/* ── Cards de seção (equipe + avaliações) ── */
+.section-card {
     background: white;
     border-radius: var(--radius-xl);
     padding: var(--space-8);
     box-shadow: var(--shadow-sm);
-    margin-bottom: var(--space-8);
-}
-
-.team-section h2 {
+    border: 1px solid var(--border-light);
     margin-bottom: var(--space-6);
 }
 
+.section-card-title {
+    font-size: 1.25rem;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* ── Equipe ── */
 .team-grid {
-    display: grid;
-    gap: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
 }
 
 .team-member-card {
     display: flex;
     gap: var(--space-4);
-    padding: var(--space-5);
+    align-items: center;
+    padding: var(--space-4);
     background: var(--surface-secondary);
     border-radius: var(--radius-lg);
+    border: 1.5px solid transparent;
     transition: all var(--transition-base);
-    border: 2px solid transparent;
+    text-decoration: none;
 }
 
 .team-member-card:hover {
     background: white;
     border-color: var(--azul-claro);
     transform: translateX(4px);
+    box-shadow: var(--shadow-sm);
 }
 
-.team-avatar {
-    flex-shrink: 0;
+.team-member-card h4 {
+    margin-bottom: 2px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
 }
 
 .avatar-placeholder-sm {
@@ -167,11 +372,44 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    object-fit: cover;
 }
 
-.team-member-card h4 {
-    margin-bottom: var(--space-1);
-    color: var(--text-primary);
+/* ── Avaliações ── */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.review-card {
+    padding: var(--space-5);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    border-left: 3px solid var(--amarelo-quente);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+
+.review-rating { font-size: 1.125rem; }
+.review-date { font-size: 0.875rem; color: var(--text-tertiary); }
+.review-comment { color: var(--text-primary); line-height: 1.6; margin: 0; }
+
+/* ── Responsivo ── */
+@media (max-width: 768px) {
+    .profile-header-card { padding: var(--space-6) var(--space-5); }
+    .profile-info-main h1 { font-size: 1.5rem; }
+    .section-card { padding: var(--space-5); }
+    .profile-details { max-width: 100%; }
+    .profile-convenios { max-width: 100%; }
+    .profile-bio { max-width: 100%; }
 }
 </style>
 {% endblock %}

@@ -82,7 +82,9 @@
 
 <style>
 .profile-page {
-    padding: var(--space-8) 0;
+    background: var(--surface-secondary);
+    padding: var(--space-8) 0 var(--space-16);
+    min-height: calc(100vh - 72px);
 }
 
 .profile-header-card {
@@ -90,7 +92,8 @@
     border-radius: var(--radius-xl);
     padding: var(--space-10);
     box-shadow: var(--shadow-md);
-    margin-bottom: var(--space-8);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--space-6);
     text-align: center;
 }
 
@@ -175,6 +178,7 @@
     border-radius: var(--radius-xl);
     padding: var(--space-8);
     box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
 }
 
 .reviews-section h2 {
