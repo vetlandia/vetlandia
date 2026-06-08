@@ -8,15 +8,22 @@ from app.utils.validators import validate_brazilian_state
 
 
 class ClinicBase(BaseModel):
-    name: str = Field(..., min_length=3, max_length=255)
+    name: str = Field(..., min_length=2, max_length=255)  # Nome fantasia
+    razao_social: Optional[str] = Field(None, max_length=255)
+    cnpj: Optional[str] = Field(None, max_length=18)
     description: Optional[str] = None
     address: Optional[str] = Field(None, max_length=500)
+    complement: Optional[str] = Field(None, max_length=200)
     city: str = Field(..., max_length=100)
     state: str = Field(..., min_length=2, max_length=2)
     zip_code: Optional[str] = Field(None, max_length=10)
     phone: Optional[str] = Field(None, max_length=20)
+    whatsapp: Optional[str] = Field(None, max_length=20)
     email: Optional[EmailStr] = None
     website: Optional[str] = Field(None, max_length=500)
+    convenios: Optional[str] = None       # JSON string
+    animal_species: Optional[str] = None  # JSON string
+    specialties: Optional[str] = None     # JSON string
 
     @field_validator("state")
     @classmethod
@@ -32,16 +39,24 @@ class ClinicCreate(ClinicBase):
 
 
 class ClinicUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=3, max_length=255)
+    name: Optional[str] = Field(None, min_length=2, max_length=255)
+    razao_social: Optional[str] = Field(None, max_length=255)
+    cnpj: Optional[str] = Field(None, max_length=18)
     description: Optional[str] = None
     address: Optional[str] = Field(None, max_length=500)
+    complement: Optional[str] = Field(None, max_length=200)
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, min_length=2, max_length=2)
     zip_code: Optional[str] = Field(None, max_length=10)
     phone: Optional[str] = Field(None, max_length=20)
+    whatsapp: Optional[str] = Field(None, max_length=20)
     email: Optional[EmailStr] = None
     website: Optional[str] = Field(None, max_length=500)
     logo_url: Optional[str] = Field(None, max_length=500)
+    photo_url: Optional[str] = Field(None, max_length=500)
+    convenios: Optional[str] = None
+    animal_species: Optional[str] = None
+    specialties: Optional[str] = None
 
 
 class ClinicResponse(ClinicBase):
@@ -49,6 +64,7 @@ class ClinicResponse(ClinicBase):
     user_id: UUID
     slug: str
     logo_url: Optional[str]
+    photo_url: Optional[str]
     created_at: datetime
     updated_at: datetime
 

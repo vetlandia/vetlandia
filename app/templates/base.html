@@ -36,6 +36,8 @@
                     {% if current_user %}
                         {% if current_user.user_type.value == 'admin' %}
                             <a href="/admin" class="nav-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Admin</a>
+                        {% else %}
+                            <a href="/minha-conta" class="nav-link">Minha Conta</a>
                         {% endif %}
                         <a href="/logout" class="btn btn-outline btn-sm">Sair</a>
                     {% else %}
@@ -67,6 +69,8 @@
             {% if current_user %}
                 {% if current_user.user_type.value == 'admin' %}
                     <a href="/admin" class="mobile-menu-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Painel Admin</a>
+                {% else %}
+                    <a href="/minha-conta" class="mobile-menu-link">Minha Conta</a>
                 {% endif %}
                 <a href="/logout" class="mobile-menu-link">Sair</a>
             {% else %}
@@ -133,6 +137,7 @@
 
     <!-- JavaScript -->
     <script src="{{ url_for('static', path='/js/main.js') }}?v={{ asset_v }}"></script>
+    <script src="{{ url_for('static', path='/js/br-cities.js') }}?v={{ asset_v }}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

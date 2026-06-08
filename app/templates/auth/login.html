@@ -136,7 +136,13 @@
                 throw new Error(data.detail || 'Email ou senha inválidos');
             }
 
-            window.location.href = (data.user_type === 'admin') ? '/admin' : '/';
+            if (data.pending) {
+                window.location.href = '/aguardando-aprovacao';
+            } else if (data.user_type === 'admin') {
+                window.location.href = '/admin';
+            } else {
+                window.location.href = '/';
+            }
         } catch (error) {
             errorDiv.textContent = error.message || 'Erro de conexão. Tente novamente.';
             errorDiv.classList.remove('hidden');

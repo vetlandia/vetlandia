@@ -318,6 +318,29 @@ def privacidade(request: Request, current_user: Optional[User] = Depends(get_cur
     return templates.TemplateResponse("pages/privacidade.html", {"request": request, "current_user": current_user})
 
 
+@router.get("/aguardando-aprovacao", response_class=HTMLResponse)
+def aguardando_aprovacao(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    return templates.TemplateResponse("auth/aguardando.html", {"request": request, "current_user": current_user})
+
+
+@router.get("/minha-conta", response_class=HTMLResponse)
+def minha_conta(request: Request, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
+    if not current_user:
+        return RedirectResponse("/login")
+    profile = None
+    if current_user.user_type.value == "tutor":
+        from app.models.tutor import Tutor
+        profile = db.query(Tutor).filter(Tutor.user_id == current_user.id).first()
+    elif current_user.user_type.value == "veterinarian":
+        profile = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
+    elif current_user.user_type.value == "clinic":
+        profile = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
+    return templates.TemplateResponse(
+        "auth/minha-conta.html",
+        {"request": request, "current_user": current_user, "profile": profile},
+    )
+
+
 @router.get("/casos-clinicos", response_class=HTMLResponse)
 def casos_clinicos(
     request: Request,

@@ -9,12 +9,16 @@ from app.utils.validators import validate_brazilian_state, validate_crmv
 
 class VeterinarianBase(BaseModel):
     full_name: str = Field(..., min_length=3, max_length=255)
+    cpf: Optional[str] = Field(None, max_length=14)
     crmv: str = Field(..., min_length=10, max_length=20)
     specialty: Optional[str] = Field(None, max_length=100)
     bio: Optional[str] = None
     phone: Optional[str] = Field(None, max_length=20)
+    whatsapp: Optional[str] = Field(None, max_length=20)
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, min_length=2, max_length=2)
+    complement: Optional[str] = Field(None, max_length=200)
+    animal_species: Optional[str] = None  # JSON string
 
     @field_validator("crmv")
     @classmethod
@@ -39,12 +43,16 @@ class VeterinarianCreate(VeterinarianBase):
 
 class VeterinarianUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=3, max_length=255)
+    cpf: Optional[str] = Field(None, max_length=14)
     specialty: Optional[str] = Field(None, max_length=100)
     bio: Optional[str] = None
     phone: Optional[str] = Field(None, max_length=20)
+    whatsapp: Optional[str] = Field(None, max_length=20)
     photo_url: Optional[str] = Field(None, max_length=500)
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, min_length=2, max_length=2)
+    complement: Optional[str] = Field(None, max_length=200)
+    animal_species: Optional[str] = None
     clinic_id: Optional[UUID] = None
 
 

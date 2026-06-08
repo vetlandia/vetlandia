@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+
+{% block title %}Minha Conta - VetLândia{% endblock %}
+
+{% block extra_css %}
+<style>
+.profile-page {
+    background: var(--surface-secondary);
+    min-height: calc(100vh - 72px);
+    padding: var(--space-10) 0 var(--space-16);
+}
+
+.profile-header {
+    background: linear-gradient(135deg, var(--azul-profundo) 0%, var(--azul-intermediario) 100%);
+    color: white;
+    padding: var(--space-10) 0;
+    margin-bottom: var(--space-8);
+}
+
+.profile-header-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    flex-shrink: 0;
+    border: 3px solid rgba(255,255,255,0.4);
+}
+
+.profile-header-info h1 { font-size: 1.5rem; color: white; margin-bottom: 4px; }
+.profile-header-info p { color: rgba(255,255,255,0.75); font-size: 0.875rem; margin: 0; }
+
+.profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+}
+
+.badge-tutor { background: rgba(16, 185, 129, 0.25); color: #6EE7B7; }
+.badge-veterinarian { background: rgba(59, 130, 246, 0.25); color: #93C5FD; }
+.badge-clinic { background: rgba(251, 146, 60, 0.25); color: #FCD34D; }
+.badge-pending { background: rgba(245, 158, 11, 0.25); color: #FCD34D; }
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: var(--space-6);
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.profile-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all var(--transition-base);
+    text-decoration: none;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background: white;
+    color: var(--azul-intermediario);
+    box-shadow: var(--shadow-sm);
+}
+
+.profile-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+.form-group { margin-bottom: var(--space-4); }
+.form-group:last-child { margin-bottom: 0; }
+.form-label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1.5px solid var(--border-medium);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: white;
+    transition: border-color var(--transition-base);
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--azul-intermediario);
+    box-shadow: 0 0 0 3px rgba(8,131,149,0.1);
+}
+
+.form-input[readonly] { background: var(--surface-secondary); color: var(--text-secondary); cursor: default; }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+.form-select:disabled { background-color: var(--surface-secondary); color: var(--text-tertiary); }
+.form-help { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 4px; }
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border-light);
+}
+
+#saveStatus { margin-bottom: var(--space-4); border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4); }
+
+@media (max-width: 768px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .profile-sidebar { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .profile-card { padding: var(--space-5); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-header">
+    <div class="container">
+        <div class="profile-header-inner">
+            <div class="profile-avatar">
+                {% if current_user.user_type.value == 'tutor' %}🐾
+                {% elif current_user.user_type.value == 'veterinarian' %}⚕️
+                {% else %}🏥{% endif %}
+            </div>
+            <div class="profile-header-info">
+                <h1>{{ current_user.display_name }}</h1>
+                <p>{{ current_user.email }}</p>
+                {% set utype = current_user.user_type.value %}
+                {% if utype == 'tutor' %}
+                    <span class="profile-badge badge-tutor">Tutor</span>
+                {% elif utype == 'veterinarian' %}
+                    <span class="profile-badge badge-veterinarian">Médico Veterinário</span>
+                    {% if profile and not profile.is_approved %}
+                        <span class="profile-badge badge-pending" style="margin-left:8px">⏳ Aguardando aprovação</span>
+                    {% endif %}
+                {% elif utype == 'clinic' %}
+                    <span class="profile-badge badge-clinic">Clínica</span>
+                    {% if profile and not profile.is_approved %}
+                        <span class="profile-badge badge-pending" style="margin-left:8px">⏳ Aguardando aprovação</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="profile-page">
+    <div class="container">
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <nav class="sidebar-nav">
+                    <a href="/minha-conta" class="active">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                        Meus dados
+                    </a>
+                    {% if current_user.user_type.value == 'veterinarian' and profile and profile.slug %}
+                    <a href="/veterinario/{{ profile.slug }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2"/></svg>
+                        Ver meu perfil público
+                    </a>
+                    {% endif %}
+                    {% if current_user.user_type.value == 'clinic' and profile and profile.slug %}
+                    <a href="/clinica/{{ profile.slug }}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2"/></svg>
+                        Ver perfil público
+                    </a>
+                    {% endif %}
+                    <a href="/">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Ir para o início
+                    </a>
+                </nav>
+            </div>
+
+            <div>
+                <div class="profile-card">
+                    <h2 class="card-title">Editar Perfil</h2>
+                    <div id="saveStatus" class="alert hidden"></div>
+                    <form id="profileForm" novalidate>
+
+                        {% if current_user.user_type.value == 'tutor' %}
+                        <!-- TUTOR -->
+                        <div class="form-group">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" name="full_name" class="form-input" value="{{ profile.full_name if profile else '' }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">CPF</label>
+                                <input type="text" name="cpf" class="form-input" value="{{ profile.cpf if profile and profile.cpf else '' }}" placeholder="000.000.000-00" maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Telefone</label>
+                                <input type="tel" name="phone" class="form-input" value="{{ profile.phone if profile and profile.phone else '' }}" placeholder="(11) 99999-9999" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Estado</label>
+                                <select name="state" class="form-select" id="pc-state">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cidade</label>
+                                <select name="city" class="form-select" id="pc-city" disabled>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Endereço</label>
+                            <input type="text" name="address" class="form-input" value="{{ profile.address if profile and profile.address else '' }}" placeholder="Rua, número">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" name="complement" class="form-input" value="{{ profile.complement if profile and profile.complement else '' }}" placeholder="Apto, bloco">
+                        </div>
+
+                        {% elif current_user.user_type.value == 'veterinarian' %}
+                        <!-- VETERINÁRIO -->
+                        <div class="form-group">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" name="full_name" class="form-input" value="{{ profile.full_name if profile else '' }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">CPF</label>
+                                <input type="text" name="cpf" class="form-input" value="{{ profile.cpf if profile and profile.cpf else '' }}" placeholder="000.000.000-00" maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CRMV (não editável)</label>
+                                <input type="text" class="form-input" value="{{ profile.crmv if profile else '' }}" readonly>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Especialidade</label>
+                            <select name="specialty" class="form-select">
+                                <option value="">Selecione...</option>
+                                {% for sp in ['Acupuntura Veterinária','Anestesiologia','Cardiologia','Clínica Geral','Dermatologia','Diagnóstico por Imagem','Endocrinologia','Fisioterapia e Reabilitação','Gastroenterologia','Hematologia','Infectologia','Medicina de Animais Selvagens','Nefrologia e Urologia','Neurologia','Nutrição Animal','Odontologia Veterinária','Oftalmologia','Oncologia','Ortopedia e Cirurgia','Parasitologia','Reprodução Animal','Toxicologia','Zootecnia'] %}
+                                <option {% if profile and profile.specialty == sp %}selected{% endif %}>{{ sp }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bio / Sobre mim</label>
+                            <textarea name="bio" class="form-textarea">{{ profile.bio if profile and profile.bio else '' }}</textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Estado</label>
+                                <select name="state" class="form-select" id="pc-state">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cidade</label>
+                                <select name="city" class="form-select" id="pc-city" disabled>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Telefone</label>
+                                <input type="tel" name="phone" class="form-input" value="{{ profile.phone if profile and profile.phone else '' }}" placeholder="(11) 99999-9999" maxlength="15">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input type="tel" name="whatsapp" class="form-input" value="{{ profile.whatsapp if profile and profile.whatsapp else '' }}" placeholder="(11) 99999-9999" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">URL da Foto de Perfil</label>
+                            <input type="url" name="photo_url" class="form-input" value="{{ profile.photo_url if profile and profile.photo_url else '' }}" placeholder="https://...">
+                            <p class="form-help">Cole o link de uma foto sua (ex: LinkedIn, Google Fotos)</p>
+                        </div>
+
+                        {% elif current_user.user_type.value == 'clinic' %}
+                        <!-- CLÍNICA -->
+                        <div class="form-group">
+                            <label class="form-label">Nome Fantasia</label>
+                            <input type="text" name="name" class="form-input" value="{{ profile.name if profile else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Razão Social</label>
+                            <input type="text" name="razao_social" class="form-input" value="{{ profile.razao_social if profile and profile.razao_social else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CNPJ</label>
+                            <input type="text" name="cnpj" class="form-input" value="{{ profile.cnpj if profile and profile.cnpj else '' }}" placeholder="00.000.000/0000-00" maxlength="18">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Descrição</label>
+                            <textarea name="description" class="form-textarea">{{ profile.description if profile and profile.description else '' }}</textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Estado</label>
+                                <select name="state" class="form-select" id="pc-state">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cidade</label>
+                                <select name="city" class="form-select" id="pc-city" disabled>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Endereço</label>
+                            <input type="text" name="address" class="form-input" value="{{ profile.address if profile and profile.address else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Complemento</label>
+                            <input type="text" name="complement" class="form-input" value="{{ profile.complement if profile and profile.complement else '' }}">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Telefone Fixo</label>
+                                <input type="tel" name="phone" class="form-input" value="{{ profile.phone if profile and profile.phone else '' }}" placeholder="(11) 3333-4444" maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">WhatsApp</label>
+                                <input type="tel" name="whatsapp" class="form-input" value="{{ profile.whatsapp if profile and profile.whatsapp else '' }}" placeholder="(11) 99999-9999" maxlength="15">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Website</label>
+                            <input type="url" name="website" class="form-input" value="{{ profile.website if profile and profile.website else '' }}" placeholder="https://www.suaclinica.com.br">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">URL da Foto</label>
+                            <input type="url" name="photo_url" class="form-input" value="{{ profile.photo_url if profile and profile.photo_url else '' }}" placeholder="https://...">
+                            <p class="form-help">Cole o link de uma foto da clínica</p>
+                        </div>
+                        {% endif %}
+
+                        <div id="saveStatus2" class="alert hidden" style="margin-top: var(--space-4)"></div>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="window.location.href='/'" class="btn btn-secondary">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar alterações</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const form = document.getElementById('profileForm');
+    const statusBox = document.getElementById('saveStatus2');
+    const userType = '{{ current_user.user_type.value }}';
+    const currentState = '{{ profile.state if profile and profile.state else "" }}';
+    const currentCity = '{{ profile.city if profile and profile.city else "" }}';
+
+    function showStatus(kind, msg) {
+        statusBox.className = 'alert alert-' + kind;
+        statusBox.textContent = msg;
+        statusBox.classList.remove('hidden');
+        statusBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function maskPhone(v) {
+        v = v.replace(/\D/g, '').slice(0, 11);
+        if (v.length === 11) return v.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+        if (v.length === 10) return v.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+        if (v.length > 6) return v.replace(/(\d{2})(\d{5}?)(\d*)/, '($1) $2-$3');
+        if (v.length > 2) return v.replace(/(\d{2})(\d*)/, '($1) $2');
+        return v;
+    }
+
+    form.querySelectorAll('input[name="phone"], input[name="whatsapp"]').forEach(el => {
+        el.addEventListener('input', () => { el.value = maskPhone(el.value); });
+    });
+
+    // Cascata estado/cidade
+    const stateEl = document.getElementById('pc-state');
+    const cityEl = document.getElementById('pc-city');
+    if (stateEl && cityEl && typeof linkStateCitySelects === 'function') {
+        linkStateCitySelects(stateEl, cityEl);
+        if (currentState) {
+            stateEl.value = currentState;
+            stateEl.dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                cityEl.value = currentCity;
+            }, 50);
+        }
+    }
+
+    const endpoints = {
+        tutor: '/api/perfil/tutor',
+        veterinarian: '/api/perfil/veterinarian',
+        clinic: '/api/perfil/clinic',
+    };
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        const formData = new FormData(form);
+        const payload = {};
+        formData.forEach((v, k) => { payload[k] = v || null; });
+
+        try {
+            const resp = await fetch(endpoints[userType], {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.detail || 'Erro ao salvar');
+            showStatus('success', '✓ Perfil atualizado com sucesso!');
+        } catch (err) {
+            showStatus('error', err.message || 'Erro de conexão. Tente novamente.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar alterações';
+        }
+    });
+})();
+</script>
+{% endblock %}

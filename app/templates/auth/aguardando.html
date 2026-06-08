@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro em Análise - VetLândia{% endblock %}
+
+{% block content %}
+<section class="pending-page">
+    <div class="pending-container">
+        <div class="pending-icon">
+            <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="38" stroke="var(--azul-intermediario)" stroke-width="3" fill="var(--info-light)"/>
+                <path d="M40 24v20" stroke="var(--azul-intermediario)" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="40" cy="52" r="3" fill="var(--azul-intermediario)"/>
+            </svg>
+        </div>
+
+        <div class="pending-badge">Em análise</div>
+
+        <h1 class="pending-title">Cadastro recebido com sucesso!</h1>
+        <p class="pending-subtitle">
+            Seu perfil está sendo analisado pela nossa equipe de moderação.<br>
+            Você receberá o acesso em até <strong>24 horas</strong>.
+        </p>
+
+        <div class="pending-steps">
+            <div class="step done">
+                <div class="step-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#10B981"/><path d="M7 12l3 3 7-7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="step-text">
+                    <strong>Cadastro enviado</strong>
+                    <span>Seus dados foram recebidos</span>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step active">
+                <div class="step-icon pulse">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="var(--azul-intermediario)"/><path d="M12 7v5l3 3" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="step-text">
+                    <strong>Análise em andamento</strong>
+                    <span>Nossa equipe está verificando seu perfil</span>
+                </div>
+            </div>
+            <div class="step-connector"></div>
+            <div class="step pending">
+                <div class="step-icon">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#CBD5E1"/><path d="M12 8v4l2.5 2.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="step-text">
+                    <strong>Perfil publicado</strong>
+                    <span>Visível para os tutores</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="pending-info">
+            <div class="info-item">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/></svg>
+                <span>Prazo de aprovação: <strong>até 24 horas</strong></span>
+            </div>
+            <div class="info-item">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                <span>Notificação por e-mail quando aprovado</span>
+            </div>
+            <div class="info-item">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                <span>Dúvidas? Fale com a gente em <a href="/contato">contato</a></span>
+            </div>
+        </div>
+
+        <div class="pending-actions">
+            <a href="/" class="btn btn-primary">Voltar para o início</a>
+            <a href="/login" class="btn btn-secondary">Entrar na minha conta</a>
+        </div>
+
+        <p class="pending-note">
+            Quando seu perfil for aprovado, você poderá fazer login normalmente
+            e seu cadastro ficará visível para os tutores da plataforma.
+        </p>
+    </div>
+</section>
+
+<style>
+.pending-page {
+    min-height: calc(100vh - 72px - 300px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-4);
+    background: linear-gradient(135deg, #EFF4F9 0%, #F0FDF9 100%);
+}
+
+.pending-container {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-12) var(--space-12);
+    max-width: 620px;
+    width: 100%;
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+}
+
+.pending-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto var(--space-5);
+}
+
+.pending-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--info-light);
+    color: var(--azul-intermediario);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 14px;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-4);
+}
+
+.pending-title {
+    font-size: 1.75rem;
+    margin-bottom: var(--space-3);
+    color: var(--text-primary);
+}
+
+.pending-subtitle {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-8);
+}
+
+.pending-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: var(--space-8);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 1;
+    text-align: center;
+}
+
+.step-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.step-icon.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.step-text strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 2px;
+}
+
+.step-text span {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    display: block;
+}
+
+.step-connector {
+    flex: 0 0 32px;
+    height: 2px;
+    background: var(--border-light);
+    margin-top: 20px;
+    align-self: flex-start;
+}
+
+.step.pending .step-text strong,
+.step.pending .step-text span {
+    color: var(--text-tertiary);
+}
+
+.pending-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin-bottom: var(--space-8);
+    text-align: left;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.info-item svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: var(--azul-intermediario);
+}
+
+.info-item a {
+    color: var(--azul-intermediario);
+    font-weight: 600;
+}
+
+.pending-actions {
+    display: flex;
+    gap: var(--space-3);
+    justify-content: center;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.pending-note {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+    .pending-container { padding: var(--space-8) var(--space-5); }
+    .pending-title { font-size: 1.375rem; }
+    .pending-steps { flex-direction: column; align-items: stretch; }
+    .step { flex-direction: row; text-align: left; }
+    .step-connector { width: 2px; height: 20px; align-self: center; margin: 0 0 0 19px; }
+    .pending-actions { flex-direction: column; }
+    .pending-actions .btn { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}

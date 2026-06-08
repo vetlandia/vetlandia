@@ -35,6 +35,7 @@ class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user_type: Optional[str] = None
+    pending: bool = False  # True quando vet/clínica aguarda aprovação
 
 
 class TokenData(BaseModel):

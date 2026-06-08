@@ -6,6 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.core.config import settings
 from app.routers import auth, pages
 from app.routers import admin as admin_router
+from app.routers import perfil as perfil_router
 
 
 class WWWRedirectMiddleware(BaseHTTPMiddleware):
@@ -32,6 +33,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(pages.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(admin_router.router)
+app.include_router(perfil_router.router, prefix="/api/perfil", tags=["perfil"])
 
 
 @app.get("/health")

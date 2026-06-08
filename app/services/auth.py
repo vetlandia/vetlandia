@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
@@ -19,45 +18,51 @@ from app.utils.slugify import slugify
 
 def authenticate_user(db: Session, credentials: UserLogin) -> Optional[User]:
     user = db.query(User).filter(User.email == credentials.email).first()
-
     if not user:
         return None
-
     if not verify_password(credentials.password, user.password_hash):
         return None
-
     if not user.is_active:
         return None
-
     return user
 
 
-def create_token_for_user(user: User) -> Token:
+def _is_pending(user: User, db: Session) -> bool:
+    if user.user_type == UserType.VETERINARIAN:
+        vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+        return vet is not None and not vet.is_approved
+    if user.user_type == UserType.CLINIC:
+        clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+        return clinic is not None and not clinic.is_approved
+    return False
+
+
+def create_token_for_user(user: User, db: Session = None, pending: bool = False) -> Token:
     access_token = create_access_token(
         data={"sub": str(user.id), "user_type": user.user_type.value}
     )
-    return Token(access_token=access_token, user_type=user.user_type.value)
+    return Token(
+        access_token=access_token,
+        user_type=user.user_type.value,
+        pending=pending,
+    )
 
 
 def login(db: Session, credentials: UserLogin) -> Token:
     user = authenticate_user(db, credentials)
-
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email ou senha incorretos",
         )
-
-    return create_token_for_user(user)
+    pending = _is_pending(user, db)
+    return create_token_for_user(user, pending=pending)
 
 
 def register_tutor(db: Session, data: TutorCreate) -> Token:
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email já cadastrado",
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
 
     user = User(
         email=data.email,
@@ -70,29 +75,28 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
     tutor = Tutor(
         user_id=user.id,
         full_name=data.full_name,
+        cpf=data.cpf,
         phone=data.phone,
+        state=data.state,
+        city=data.city,
+        address=data.address,
+        complement=data.complement,
+        pets=data.pets,
     )
     db.add(tutor)
     db.commit()
     db.refresh(user)
-
-    return create_token_for_user(user)
+    return create_token_for_user(user, pending=False)
 
 
 def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email já cadastrado",
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
 
     existing_crmv = db.query(Veterinarian).filter(Veterinarian.crmv == data.crmv).first()
     if existing_crmv:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="CRMV já cadastrado",
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="CRMV já cadastrado")
 
     user = User(
         email=data.email,
@@ -112,29 +116,29 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
     veterinarian = Veterinarian(
         user_id=user.id,
         full_name=data.full_name,
+        cpf=data.cpf,
         crmv=data.crmv,
         specialty=data.specialty,
         bio=data.bio,
         phone=data.phone,
+        whatsapp=data.whatsapp,
         city=data.city,
         state=data.state,
+        complement=data.complement,
+        animal_species=data.animal_species,
         slug=slug,
         clinic_id=data.clinic_id,
     )
     db.add(veterinarian)
     db.commit()
     db.refresh(user)
-
-    return create_token_for_user(user)
+    return create_token_for_user(user, pending=True)
 
 
 def register_clinic(db: Session, data: ClinicCreate) -> Token:
     existing = db.query(User).filter(User.email == data.email_user).first()
     if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Email já cadastrado",
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
 
     user = User(
         email=data.email_user,
@@ -154,18 +158,24 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
     clinic = Clinic(
         user_id=user.id,
         name=data.name,
+        razao_social=data.razao_social,
+        cnpj=data.cnpj,
         description=data.description,
         address=data.address,
+        complement=data.complement,
         city=data.city,
         state=data.state,
         zip_code=data.zip_code,
         phone=data.phone,
+        whatsapp=data.whatsapp,
         email=data.email,
         website=data.website,
+        convenios=data.convenios,
+        animal_species=data.animal_species,
+        specialties=data.specialties,
         slug=slug,
     )
     db.add(clinic)
     db.commit()
     db.refresh(user)
-
-    return create_token_for_user(user)
+    return create_token_for_user(user, pending=True)
