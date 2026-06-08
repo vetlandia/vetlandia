@@ -11,6 +11,8 @@
                 <p>Escolha o tipo de cadastro</p>
             </div>
 
+            <div id="formStatus" class="alert hidden" style="margin-bottom: var(--space-5)"></div>
+
             <!-- Tipo de Usuário -->
             <div class="user-type-selector">
                 <button class="user-type-btn active" data-type="tutor">
@@ -236,64 +238,94 @@
 </style>
 
 <script>
-// Toggle user type
-const typeBtns = document.querySelectorAll('.user-type-btn');
-const forms = {
-    tutor: document.getElementById('formTutor'),
-    veterinarian: document.getElementById('formVeterinarian'),
-    clinic: document.getElementById('formClinic')
-};
+// Script autossuficiente — não depende de main.js (evita falha de timing no mobile)
+(function () {
+    const typeBtns = document.querySelectorAll('.user-type-btn');
+    const forms = {
+        tutor: document.getElementById('formTutor'),
+        veterinarian: document.getElementById('formVeterinarian'),
+        clinic: document.getElementById('formClinic')
+    };
+    const statusBox = document.getElementById('formStatus');
 
-typeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        typeBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+    const endpoints = {
+        tutor: '/api/auth/register/tutor',
+        veterinarian: '/api/auth/register/veterinarian',
+        clinic: '/api/auth/register/clinic'
+    };
+    const successMsg = {
+        tutor: 'Conta criada com sucesso! Entrando...',
+        veterinarian: 'Cadastro enviado! Seu perfil está em análise e será publicado após aprovação do administrador.',
+        clinic: 'Cadastro enviado! Sua clínica está em análise e será publicada após aprovação do administrador.'
+    };
 
-        const type = btn.dataset.type;
-        Object.keys(forms).forEach(key => {
-            forms[key].classList.add('hidden');
-        });
-        forms[type].classList.remove('hidden');
-    });
-});
-
-// Submit handlers
-async function handleSubmit(e, endpoint, errorId) {
-    e.preventDefault();
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const errorDiv = document.getElementById(errorId);
-
-    errorDiv.classList.add('hidden');
-    setButtonLoading(submitBtn, true);
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData);
-
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.detail || 'Erro ao cadastrar');
+    function setLoading(btn, loading) {
+        if (loading) {
+            btn.disabled = true;
+            btn.dataset.label = btn.textContent;
+            btn.textContent = 'Enviando...';
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.label) btn.textContent = btn.dataset.label;
         }
-
-        window.location.href = '/';
-
-    } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        setButtonLoading(submitBtn, false);
     }
-}
 
-forms.tutor.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/tutor', 'errorTutor'));
-forms.veterinarian.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/veterinarian', 'errorVet'));
-forms.clinic.addEventListener('submit', (e) => handleSubmit(e, '/api/auth/register/clinic', 'errorClinic'));
+    function showStatus(kind, msg) {
+        statusBox.className = 'alert alert-' + kind;
+        statusBox.textContent = msg;
+        statusBox.classList.remove('hidden');
+        statusBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function parseError(detail) {
+        if (typeof detail === 'string') return detail;
+        if (Array.isArray(detail)) return detail.map(d => d.msg || JSON.stringify(d)).join('; ');
+        return 'Erro ao cadastrar. Verifique os dados e tente novamente.';
+    }
+
+    // Alterna entre tutor / veterinário / clínica
+    typeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            typeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            statusBox.classList.add('hidden');
+            const type = btn.dataset.type;
+            Object.keys(forms).forEach(key => forms[key].classList.add('hidden'));
+            forms[type].classList.remove('hidden');
+        });
+    });
+
+    async function handleSubmit(e, type) {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type="submit"]');
+        setLoading(btn, true);
+
+        const data = Object.fromEntries(new FormData(form));
+
+        try {
+            const resp = await fetch(endpoints[type], {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                throw new Error(parseError(result.detail));
+            }
+
+            showStatus('success', successMsg[type]);
+            setTimeout(() => { window.location.href = '/'; }, 1800);
+        } catch (err) {
+            showStatus('error', err.message || 'Erro de conexão. Tente novamente.');
+            setLoading(btn, false);
+        }
+    }
+
+    forms.tutor.addEventListener('submit', (e) => handleSubmit(e, 'tutor'));
+    forms.veterinarian.addEventListener('submit', (e) => handleSubmit(e, 'veterinarian'));
+    forms.clinic.addEventListener('submit', (e) => handleSubmit(e, 'clinic'));
+})();
 </script>
 {% endblock %}
