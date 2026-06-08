@@ -19,7 +19,7 @@
     </div>
     <div class="topbar-actions" style="display:flex;gap:10px;align-items:center">
       {% if current_user %}
-      <div class="topbar-avatar">{{ current_user.full_name[0] }}</div>
+      <div class="topbar-avatar">{{ current_user.display_name[0] }}</div>
       {% else %}
       <a href="/login" class="topbar-avatar" style="text-decoration:none;font-size:0.75rem;font-weight:700">Entrar</a>
       {% endif %}
@@ -41,7 +41,7 @@
   <div class="home-greeting">
     <div class="greeting-text">
       {% if current_user %}
-      <h2>Olá, {{ current_user.full_name.split()[0] }} 👋</h2>
+      <h2>Olá, {{ current_user.display_name.split()[0] }} 👋</h2>
       {% else %}
       <h2>Olá! 👋</h2>
       {% endif %}

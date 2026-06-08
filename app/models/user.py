@@ -25,3 +25,24 @@ class User(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    @property
+    def display_name(self) -> str:
+        """Nome de exibição resolvido a partir do perfil relacionado."""
+
+        def _first(rel):
+            value = getattr(self, rel, None)
+            if isinstance(value, list):
+                return value[0] if value else None
+            return value
+
+        for rel in ("tutor", "veterinarian", "administrator"):
+            profile = _first(rel)
+            if profile and getattr(profile, "full_name", None):
+                return profile.full_name
+
+        clinic = _first("clinic")
+        if clinic and getattr(clinic, "name", None):
+            return clinic.name
+
+        return self.email
