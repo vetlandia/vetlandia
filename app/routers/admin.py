@@ -35,11 +35,12 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
     vets = db.query(Veterinarian).filter(Veterinarian.is_approved == False).order_by(Veterinarian.created_at.desc()).all()
     clinics = db.query(Clinic).filter(Clinic.is_approved == False).order_by(Clinic.created_at.desc()).all()
     reviews = db.query(Review).filter(Review.status == ReviewStatus.PENDING).order_by(Review.created_at.desc()).all()
+    published_reviews = db.query(Review).filter(Review.status == ReviewStatus.APPROVED).order_by(Review.created_at.desc()).all()
     users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).limit(20).all()
 
     return templates.TemplateResponse(
         "admin/dashboard.html",
-        _admin_context(request, db, vets=vets, clinics=clinics, reviews=reviews, users=users, admin=admin),
+        _admin_context(request, db, vets=vets, clinics=clinics, reviews=reviews, published_reviews=published_reviews, users=users, admin=admin),
     )
 
 
@@ -107,6 +108,16 @@ def reject_review(review_id: str, db: Session = Depends(get_db), admin=Depends(r
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
     review.status = ReviewStatus.REJECTED
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/reviews/{review_id}/delete")
+def delete_review(review_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    review = db.query(Review).filter(Review.id == review_id).first()
+    if not review:
+        raise HTTPException(status_code=404, detail="Avaliação não encontrada")
+    db.delete(review)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

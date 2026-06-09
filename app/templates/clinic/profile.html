@@ -163,7 +163,10 @@
 
         <!-- Lista de avaliações -->
         <div class="section-card">
-            <h2 class="section-card-title">Avaliações ({{ reviews|length }})</h2>
+            <div class="reviews-header">
+                <span class="reviews-header-label">⭐ Avaliações</span>
+                <span class="reviews-header-count">{{ reviews|length }}</span>
+            </div>
             {% if reviews %}
             <div class="reviews-list">
                 {% for review in reviews %}
@@ -533,6 +536,30 @@ function submitReview(revieweeType, revieweeId) {
 
 /* ── Review form ── */
 .review-form-card h3.section-card-title { margin-bottom: var(--space-5); }
+.reviews-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+}
+.reviews-header-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+}
+.reviews-header-count {
+    background: var(--brand, #088395);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 9px;
+    border-radius: 999px;
+    line-height: 1.7;
+}
 .star-rating-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
 .star-rating-label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
 .star-selector { display: flex; gap: 2px; }

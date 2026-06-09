@@ -227,11 +227,49 @@
                             <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/reject" style="margin-left:6px">
                                 <button class="btn-reject">Rejeitar</button>
                             </form>
+                            <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/delete" style="margin-left:6px">
+                                <button class="btn-delete" onclick="return confirm('Deletar esta avaliação permanentemente?')">Deletar</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
                     <tr class="empty-row"><td colspan="5">Nenhuma avaliação pendente ✅</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <!-- Avaliações publicadas -->
+    <div class="admin-section">
+        <h2>✅ Avaliações publicadas <span style="font-size:0.8rem;font-weight:400;color:var(--text-secondary)">(aprovadas)</span></h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nota</th>
+                    <th>Comentário</th>
+                    <th>Para</th>
+                    <th>Data</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if published_reviews %}
+                    {% for review in published_reviews %}
+                    <tr>
+                        <td>{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</td>
+                        <td style="max-width:320px">{{ review.comment[:120] }}{% if review.comment|length > 120 %}...{% endif %}</td>
+                        <td>{{ review.reviewee_type.value }}</td>
+                        <td>{{ review.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td>
+                            <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/delete">
+                                <button class="btn-delete" onclick="return confirm('Deletar esta avaliação publicada permanentemente?')">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="5">Nenhuma avaliação publicada ainda</td></tr>
                 {% endif %}
             </tbody>
         </table></div>
