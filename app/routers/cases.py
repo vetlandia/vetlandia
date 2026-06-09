@@ -15,12 +15,12 @@ router = APIRouter()
 
 def _get_approved_vet(current_user: User, db: Session) -> Veterinarian:
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Faça login como veterinário")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Faça login como veterinário(a)")
     if current_user.user_type.value != "veterinarian":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Apenas veterinários podem realizar esta ação")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Apenas veterinários(as) podem realizar esta ação")
     vet = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
     if not vet:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil de veterinário não encontrado")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil de veterinário(a) não encontrado")
     if not vet.is_approved:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Seu perfil precisa ser aprovado para publicar casos clínicos")
     return vet

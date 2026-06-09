@@ -89,7 +89,6 @@
                 <p class="text-secondary text-sm">Comentando como <strong>{{ vet_profile.full_name }}</strong> · {{ vet_profile.crmv }}</p>
                 <form id="commentForm" class="comment-form">
                     <textarea name="content" class="form-textarea" rows="4" placeholder="Compartilhe sua experiência ou opinião sobre este caso…" required></textarea>
-                    <div id="commentError" class="alert alert-error hidden"></div>
                     <button type="submit" class="btn btn-primary">Publicar Comentário</button>
                 </form>
                 {% endif %}
@@ -304,13 +303,32 @@
 
 <script>
 (function () {
+    function showToast(kind, msg) {
+        var t = document.getElementById('_dt_toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = '_dt_toast';
+            t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(90px);padding:13px 28px;border-radius:10px;font-weight:600;font-size:0.93rem;z-index:99999;transition:transform 0.28s ease,opacity 0.28s ease;box-shadow:0 4px 20px rgba(0,0,0,0.2);max-width:90vw;text-align:center;pointer-events:none;opacity:0;';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.background = (kind === 'success') ? '#065F46' : '#991B1B';
+        t.style.color = '#fff';
+        t.getBoundingClientRect();
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        t.style.opacity = '1';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function () {
+            t.style.transform = 'translateX(-50%) translateY(90px)';
+            t.style.opacity = '0';
+        }, 4500);
+    }
+
     var form = document.getElementById('commentForm');
     if (!form) return;
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
         var submitBtn = form.querySelector('button[type="submit"]');
-        var errorDiv  = document.getElementById('commentError');
-        errorDiv.classList.add('hidden');
         submitBtn.disabled = true;
         submitBtn.textContent = 'Publicando…';
         try {
@@ -326,8 +344,7 @@
             }
             window.location.reload();
         } catch (err) {
-            errorDiv.textContent = err.message;
-            errorDiv.classList.remove('hidden');
+            showToast('error', err.message || 'Erro ao publicar comentário');
             submitBtn.disabled = false;
             submitBtn.textContent = 'Publicar Comentário';
         }

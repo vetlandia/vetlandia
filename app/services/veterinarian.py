@@ -69,7 +69,7 @@ def update_veterinarian(
     if not vet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Veterinário não encontrado",
+            detail="Veterinário(a) não encontrado(a)",
         )
 
     if vet.user_id != user_id:

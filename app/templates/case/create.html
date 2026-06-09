@@ -21,35 +21,37 @@
         <div class="access-card">
             <div class="access-icon">⚕️</div>
             <h3>Exclusivo para veterinários</h3>
-            <p>Somente veterinários cadastrados e aprovados na plataforma podem publicar casos clínicos.</p>
+            <p>Somente veterinários cadastrados e aprovados podem publicar casos clínicos.</p>
             <a href="/casos-clinicos" class="btn btn-outline">Ver casos publicados</a>
         </div>
         {% elif not vet_profile or not vet_profile.is_approved %}
         <div class="access-card">
             <div class="access-icon">⏳</div>
             <h3>Perfil em análise</h3>
-            <p>Seu cadastro ainda está aguardando aprovação. Assim que for aprovado, você poderá publicar casos clínicos.</p>
+            <p>Seu cadastro ainda aguarda aprovação. Assim que aprovado, você poderá publicar.</p>
             <a href="/minha-conta" class="btn btn-outline">Ver meu perfil</a>
         </div>
         {% else %}
         <div class="form-card">
+
             <div class="author-banner">
                 <div class="author-avatar-sm">{{ vet_profile.full_name[0] }}</div>
                 <div>
                     <div class="author-name">{{ vet_profile.full_name }}</div>
-                    <div class="author-crmv">{{ vet_profile.crmv }}</div>
+                    <div class="author-crmv">{{ vet_profile.crmv }}{% if vet_profile.specialty %} · {{ vet_profile.specialty }}{% endif %}</div>
                 </div>
             </div>
 
-            <form id="createCaseForm">
+            <form id="createCaseForm" novalidate>
 
                 <div class="form-group">
                     <label class="form-label form-label-required">Título do Caso</label>
-                    <input type="text" name="title" class="form-input" maxlength="255" placeholder="Ex: Diagnóstico de carcinoma mamário em cadela…" required>
+                    <input type="text" name="title" id="f-title" class="form-input cc-input" maxlength="255"
+                           placeholder="Ex: Diagnóstico de linfoma em cadela de 8 anos…">
                     <p class="form-help">Mínimo 10 caracteres. Seja claro e descritivo.</p>
                 </div>
 
-                <!-- Espécie (chips) -->
+                <!-- Espécie -->
                 <div class="form-group">
                     <label class="form-label">Espécie</label>
                     <div class="species-chips" id="species-chips">
@@ -65,51 +67,54 @@
                     <input type="hidden" name="species" id="species-hidden">
                 </div>
 
-                <!-- Raça (aparece após selecionar espécie) -->
+                <!-- Raça (cascata) -->
                 <div class="form-group" id="breed-group" style="display:none">
                     <label class="form-label">Raça</label>
-                    <select name="breed" id="breed-select" class="form-select">
-                        <option value="">Selecione a raça…</option>
-                    </select>
+                    <div class="cc-select-wrap">
+                        <select name="breed" id="breed-select" class="cc-select">
+                            <option value="">Selecione a raça…</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Especialidade -->
                 <div class="form-group">
                     <label class="form-label">Especialidade</label>
-                    <select name="specialty" class="form-select">
-                        <option value="">Selecione…</option>
-                        <option value="Clínica Geral">Clínica Geral</option>
-                        <option value="Dermatologia">Dermatologia</option>
-                        <option value="Cirurgia">Cirurgia</option>
-                        <option value="Ortopedia">Ortopedia</option>
-                        <option value="Cardiologia">Cardiologia</option>
-                        <option value="Oftalmologia">Oftalmologia</option>
-                        <option value="Oncologia">Oncologia</option>
-                        <option value="Neurologia">Neurologia</option>
-                        <option value="Endocrinologia">Endocrinologia</option>
-                        <option value="Nefrologia">Nefrologia</option>
-                        <option value="Anestesiologia">Anestesiologia</option>
-                        <option value="Diagnóstico por Imagem">Diagnóstico por Imagem</option>
-                        <option value="Reprodução Animal">Reprodução Animal</option>
-                        <option value="Nutrição">Nutrição</option>
-                        <option value="Fisioterapia">Fisioterapia</option>
-                        <option value="Comportamento Animal">Comportamento Animal</option>
-                        <option value="Animais Exóticos">Animais Exóticos</option>
-                    </select>
+                    <div class="cc-select-wrap">
+                        <select name="specialty" class="cc-select">
+                            <option value="">Selecione a especialidade…</option>
+                            <option value="Clínica Geral">Clínica Geral</option>
+                            <option value="Dermatologia">Dermatologia</option>
+                            <option value="Cirurgia">Cirurgia</option>
+                            <option value="Ortopedia">Ortopedia</option>
+                            <option value="Cardiologia">Cardiologia</option>
+                            <option value="Oftalmologia">Oftalmologia</option>
+                            <option value="Oncologia">Oncologia</option>
+                            <option value="Neurologia">Neurologia</option>
+                            <option value="Endocrinologia">Endocrinologia</option>
+                            <option value="Nefrologia">Nefrologia</option>
+                            <option value="Anestesiologia">Anestesiologia</option>
+                            <option value="Diagnóstico por Imagem">Diagnóstico por Imagem</option>
+                            <option value="Reprodução Animal">Reprodução Animal</option>
+                            <option value="Nutrição">Nutrição</option>
+                            <option value="Fisioterapia">Fisioterapia</option>
+                            <option value="Comportamento Animal">Comportamento Animal</option>
+                            <option value="Animais Exóticos">Animais Exóticos</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Conteúdo -->
                 <div class="form-group">
                     <label class="form-label form-label-required">Descrição do Caso</label>
-                    <textarea name="content" class="form-textarea" rows="14" placeholder="Descreva: histórico clínico, sinais e sintomas, exames realizados, diagnóstico, tratamento e evolução do paciente…" required></textarea>
+                    <textarea name="content" id="f-content" class="cc-textarea" rows="14"
+                              placeholder="Descreva: histórico clínico, sinais e sintomas, exames, diagnóstico, tratamento e evolução do paciente…"></textarea>
                     <p class="form-help">Mínimo 100 caracteres.</p>
                 </div>
 
-                <div class="alert alert-info">
-                    <strong>⚠️ Importante:</strong> Não inclua informações que identifiquem o tutor ou paciente. Foque nos aspectos técnicos do caso.
+                <div class="cc-notice">
+                    <strong>⚠️ Importante:</strong> Não inclua informações que identifiquem o tutor ou paciente. Foque nos aspectos técnicos.
                 </div>
-
-                <div id="caseError" class="alert alert-error hidden"></div>
 
                 <div class="form-actions">
                     <a href="/casos-clinicos" class="btn btn-ghost">Cancelar</a>
@@ -122,6 +127,7 @@
 </section>
 
 <style>
+/* ── Layout ── */
 .create-case-page { padding: var(--space-8) 0; min-height: calc(100vh - 400px); }
 
 .access-card {
@@ -137,6 +143,7 @@
     box-shadow: var(--shadow-md); margin-top: var(--space-8);
 }
 
+/* ── Banner do autor ── */
 .author-banner {
     display: flex; align-items: center; gap: var(--space-4);
     padding: var(--space-4) var(--space-5); background: var(--surface-secondary);
@@ -152,32 +159,96 @@
 .author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
 .author-crmv { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
 
-/* ── Chips de espécie ── */
-.species-chips {
-    display: flex; flex-wrap: wrap; gap: 10px; margin-top: var(--space-2);
+/* ── Inputs e selects — visual idêntico ao cadastro ── */
+.cc-input,
+.cc-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border-medium);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: white;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
 }
+.cc-input:focus,
+.cc-textarea:focus {
+    border-color: var(--azul-intermediario);
+    box-shadow: 0 0 0 3px rgba(8, 131, 149, 0.12);
+}
+.cc-input::placeholder,
+.cc-textarea::placeholder { color: var(--text-tertiary); }
+.cc-textarea { resize: vertical; line-height: 1.7; min-height: 180px; }
+
+.cc-select-wrap {
+    position: relative;
+}
+.cc-select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394A3B8' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    pointer-events: none;
+}
+.cc-select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 40px 11px 14px;
+    border: 1.5px solid var(--border-medium);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: white;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+.cc-select:focus {
+    border-color: var(--azul-intermediario);
+    box-shadow: 0 0 0 3px rgba(8, 131, 149, 0.12);
+}
+.cc-select:disabled {
+    background: var(--surface-secondary);
+    color: var(--text-tertiary);
+    cursor: not-allowed;
+}
+
+/* ── Chips de espécie ── */
+.species-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-2); }
 .sp-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 8px 16px; border-radius: 999px; font-size: 0.875rem;
-    font-weight: 600; border: 2px solid var(--border-medium);
+    padding: 8px 15px; border-radius: 999px; font-size: 0.875rem;
+    font-weight: 600; border: 1.5px solid var(--border-medium);
     background: white; color: var(--text-secondary);
-    cursor: pointer; transition: all 0.15s; line-height: 1;
+    cursor: pointer; transition: all 0.14s; line-height: 1;
+    white-space: nowrap;
 }
 .sp-chip:hover { border-color: var(--brand); color: var(--brand); background: #F0FAFB; }
 .sp-chip.active {
     background: var(--brand); color: white; border-color: var(--brand);
-    box-shadow: 0 2px 8px rgba(8,131,149,0.3);
+    box-shadow: 0 2px 8px rgba(8,131,149,0.25);
 }
 
-.form-textarea {
-    width: 100%; box-sizing: border-box;
-    border: 1.5px solid var(--border-medium); border-radius: var(--radius-lg);
-    padding: var(--space-3) var(--space-4); font-size: 0.95rem;
-    font-family: inherit; resize: vertical; color: var(--text-primary);
-    transition: border-color 0.15s; line-height: 1.7;
+/* ── Aviso ── */
+.cc-notice {
+    padding: 12px 16px; border-radius: var(--radius-lg);
+    background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE;
+    font-size: 0.875rem; margin-bottom: var(--space-6);
 }
-.form-textarea:focus { outline: none; border-color: var(--brand); }
 
+/* ── Ações ── */
 .form-actions {
     display: flex; gap: var(--space-4); justify-content: flex-end;
     margin-top: var(--space-8); padding-top: var(--space-6);
@@ -187,21 +258,56 @@
 @media (max-width: 768px) {
     .form-card { padding: var(--space-5); }
     .form-actions { flex-direction: column-reverse; }
-    .form-actions .btn { width: 100%; text-align: center; }
+    .form-actions .btn { width: 100%; text-align: center; justify-content: center; }
     .create-case-page { padding: var(--space-4) 0; }
+    .species-chips { gap: 6px; }
+    .sp-chip { padding: 7px 12px; font-size: 0.82rem; }
 }
 </style>
+{% endblock %}
 
 {% block extra_js %}
 <script>
 (function () {
+    /* ── Toast (não usa .alert para evitar auto-remove do main.js) ── */
+    function showToast(kind, msg) {
+        var t = document.getElementById('_cc_toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = '_cc_toast';
+            t.style.cssText = [
+                'position:fixed;bottom:28px;left:50%;',
+                'transform:translateX(-50%) translateY(90px);',
+                'padding:13px 28px;border-radius:10px;font-weight:600;',
+                'font-size:0.93rem;z-index:99999;',
+                'transition:transform 0.28s ease,opacity 0.28s ease;',
+                'box-shadow:0 4px 20px rgba(0,0,0,0.2);',
+                'max-width:90vw;text-align:center;',
+                'pointer-events:none;opacity:0;'
+            ].join('');
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.style.background = (kind === 'success') ? '#065F46' : '#991B1B';
+        t.style.color = '#fff';
+        t.getBoundingClientRect(); /* force reflow */
+        t.style.transform = 'translateX(-50%) translateY(0)';
+        t.style.opacity = '1';
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function () {
+            t.style.transform = 'translateX(-50%) translateY(90px)';
+            t.style.opacity = '0';
+        }, 4500);
+    }
+
+    /* ── Raças por espécie ── */
     var BREEDS = {
         'Canino': ['Labrador Retriever','Golden Retriever','Bulldog Francês','Poodle','Pastor Alemão',
                    'Shih Tzu','Yorkshire Terrier','Beagle','Husky Siberiano','Dachshund',
                    'Rottweiler','Pit Bull','Border Collie','Maltês','Schnauzer Miniatura',
                    'Pinscher','Boxer','Spitz Alemão','Chow-Chow','Akita','Cocker Spaniel',
                    'Weimaraner','Dálmata','SRD (Sem Raça Definida)'],
-        'Felino': ['Persa','Siamês','Maine Coon','Ragdoll','Bengal','Sphynx','Angorá',
+        'Felino': ['Persa','Siamês','Maine Coon','Ragdoll','Bengal','Sphynx','Angorá Turco',
                    'British Shorthair','Abissínio','Azul Russo','Birmanês','Scottish Fold',
                    'SRD (Sem Raça Definida)'],
         'Equino': ['Quarto de Milha','Lusitano','Árabe','PSI (Puro Sangue Inglês)',
@@ -210,18 +316,18 @@
                    'Simental','Limousin','Charolês','SRD'],
         'Suíno':  ['Large White','Landrace','Duroc','Pietrain','Caipira','SRD'],
         'Ave':    ['Papagaio','Calopsita','Canário','Periquito','Cacatua','Arara',
-                   'Pombo','Galinha','Peru','Pato','SRD'],
+                   'Galinha','Peru','Pato','Pombo','SRD'],
         'Réptil': ['Iguana','Jabuti','Tartaruga','Cobra','Lagarto','Gecko','Camaleão','SRD'],
         'Outro':  [],
     };
 
-    var chips      = document.querySelectorAll('.sp-chip');
-    var hidden     = document.getElementById('species-hidden');
+    var chips      = document.querySelectorAll('#species-chips .sp-chip');
+    var hiddenSp   = document.getElementById('species-hidden');
     var breedGroup = document.getElementById('breed-group');
     var breedSel   = document.getElementById('breed-select');
 
-    function updateBreeds(species) {
-        var list = BREEDS[species] || [];
+    function updateBreeds(sp) {
+        var list = BREEDS[sp] || [];
         breedSel.innerHTML = '<option value="">Selecione a raça…</option>';
         list.forEach(function (r) {
             var o = document.createElement('option');
@@ -229,60 +335,83 @@
             breedSel.appendChild(o);
         });
         if (list.length > 0) {
-            breedSel.innerHTML += '<option value="Outra">Outra</option>';
+            var other = document.createElement('option');
+            other.value = 'Outra'; other.textContent = 'Outra';
+            breedSel.appendChild(other);
         }
-        breedGroup.style.display = (list.length > 0) ? '' : 'none';
+        breedGroup.style.display = list.length > 0 ? '' : 'none';
     }
 
     chips.forEach(function (chip) {
         chip.addEventListener('click', function () {
             chips.forEach(function (c) { c.classList.remove('active'); });
             chip.classList.add('active');
-            var sp = chip.dataset.sp;
-            hidden.value = sp;
-            updateBreeds(sp);
+            hiddenSp.value = chip.dataset.sp;
+            updateBreeds(chip.dataset.sp);
         });
     });
 
+    /* ── Submit ── */
     var form = document.getElementById('createCaseForm');
     if (!form) return;
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        var submitBtn = document.getElementById('submitBtn');
-        var errorDiv  = document.getElementById('caseError');
-        errorDiv.classList.add('hidden');
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Publicando…';
 
-        var data = {
-            title:     form.querySelector('[name="title"]').value.trim(),
-            species:   hidden.value || null,
+        var titleEl   = document.getElementById('f-title');
+        var contentEl = document.getElementById('f-content');
+        var btn       = document.getElementById('submitBtn');
+        var specialty = form.querySelector('[name="specialty"]');
+
+        var title   = titleEl   ? titleEl.value.trim()   : '';
+        var content = contentEl ? contentEl.value.trim() : '';
+
+        if (title.length < 10) {
+            showToast('error', 'O título precisa ter pelo menos 10 caracteres.');
+            titleEl && titleEl.focus();
+            return;
+        }
+        if (content.length < 100) {
+            showToast('error', 'A descrição precisa ter pelo menos 100 caracteres (atual: ' + content.length + ').');
+            contentEl && contentEl.focus();
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Publicando…';
+
+        var payload = {
+            title:     title,
+            species:   hiddenSp.value || null,
             breed:     (breedSel && breedSel.value) ? breedSel.value : null,
-            specialty: form.querySelector('[name="specialty"]').value || null,
-            content:   form.querySelector('[name="content"]').value.trim(),
+            specialty: (specialty && specialty.value) ? specialty.value : null,
+            content:   content,
         };
 
         try {
-            var resp = await fetch('/api/casos-clinicos/', {
-                method: 'POST',
+            var resp   = await fetch('/api/casos-clinicos/', {
+                method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
+                body:    JSON.stringify(payload),
             });
-            var result = await resp.json();
+            var result = await resp.json().catch(function () { return {}; });
+
             if (!resp.ok) {
                 if (resp.status === 401) { window.location.href = '/login'; return; }
-                throw new Error(result.detail || 'Erro ao publicar');
+                throw new Error(result.detail || ('Erro ' + resp.status));
             }
-            window.location.href = '/casos-clinicos/' + result.id;
+
+            showToast('success', '✓ Caso publicado com sucesso!');
+            setTimeout(function () {
+                window.location.href = '/casos-clinicos/' + result.id;
+            }, 800);
+
         } catch (err) {
-            errorDiv.textContent = err.message;
-            errorDiv.classList.remove('hidden');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Publicar Caso Clínico';
+            showToast('error', err.message || 'Erro de conexão. Tente novamente.');
+            btn.disabled = false;
+            btn.textContent = 'Publicar Caso Clínico';
         }
     });
 })();
 </script>
-{% endblock %}
 {% endblock %}

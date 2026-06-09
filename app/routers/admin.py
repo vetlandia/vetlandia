@@ -50,7 +50,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
 def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
-        raise HTTPException(status_code=404, detail="Veterinário não encontrado")
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_approved = True
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
@@ -60,7 +60,7 @@ def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(requir
 def reject_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
-        raise HTTPException(status_code=404, detail="Veterinário não encontrado")
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     db.query(Review).filter(Review.reviewee_id == vet.id).delete()
     db.delete(vet)
     db.commit()
