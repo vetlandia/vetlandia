@@ -196,8 +196,10 @@
 <div class="profile-header">
     <div class="container">
         <div class="profile-header-inner">
-            <div class="profile-avatar">
-                {% if current_user.user_type.value == 'tutor' %}🐾
+            <div class="profile-avatar" id="header-avatar">
+                {% if profile and profile.photo_url %}
+                <img src="{{ profile.photo_url }}" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                {% elif current_user.user_type.value == 'tutor' %}🐾
                 {% elif current_user.user_type.value == 'veterinarian' %}⚕️
                 {% else %}🏥{% endif %}
             </div>
@@ -626,6 +628,16 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
             const data = await resp.json().catch(() => ({}));
             if (!resp.ok) throw new Error(data.detail || 'Erro ao salvar');
             showStatus('success', '✓ Perfil atualizado com sucesso!');
+            // Atualiza avatar do header com a foto recém-salva
+            const photoId = userType === 'tutor' ? 'pc-tutor-photo-data'
+                          : userType === 'veterinarian' ? 'pc-vet-photo-data'
+                          : 'pc-clinic-photo-data';
+            const photoEl = document.getElementById(photoId);
+            const savedPhoto = photoEl ? (photoEl.value || null) : null;
+            if (savedPhoto) {
+                const av = document.getElementById('header-avatar');
+                if (av) av.innerHTML = '<img src="' + savedPhoto + '" alt="Foto" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            }
         } catch (err) {
             showStatus('error', err.message || 'Erro de conexão. Tente novamente.');
         } finally {
