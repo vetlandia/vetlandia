@@ -70,6 +70,7 @@
                     </div>
 
                     <span class="crmv-badge">{{ vet.crmv }}</span>
+                    {% if vet.is_24h %}<span class="badge-24h-inline">🕐 24h</span>{% endif %}
                 </div>
 
                 <div class="vet-card-arrow">→</div>
@@ -128,6 +129,11 @@
 }
 .chip:hover, .chip.active {
     background: var(--brand, #088395); color: white; border-color: var(--brand, #088395);
+}
+.badge-24h-inline {
+    display: inline-block; padding: 2px 8px; border-radius: 999px;
+    background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;
+    font-size: 0.75rem; font-weight: 700; margin-top: 4px;
 }
 
 .results-count {

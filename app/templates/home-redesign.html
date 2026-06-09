@@ -33,10 +33,6 @@
           <input type="text" name="cidade" placeholder="Sua cidade">
         </div>
         <button type="submit" class="search-hero-button">Buscar →</button>
-        <label class="search-24h-toggle">
-          <input type="checkbox" name="somente_24h" value="1" id="home-24h">
-          <span>🕐 Somente 24h</span>
-        </label>
       </form>
 
       <div class="hero-stats">
@@ -71,21 +67,22 @@
           <a href="/buscar/veterinarios" class="section-link">Ver todos</a>
         </div>
         <div class="chips-scroll" style="padding:0 0 16px" id="specialty-chips">
-          <button class="chip active" data-esp="">🏥 Todos</button>
-          <button class="chip" data-esp="clinica-geral">🩺 Clínica Geral</button>
-          <button class="chip" data-esp="dermatologia">🔬 Dermatologia</button>
-          <button class="chip" data-esp="cirurgia">⚕️ Cirurgia</button>
-          <button class="chip" data-esp="ortopedia">🦴 Ortopedia</button>
-          <button class="chip" data-esp="cardiologia">❤️ Cardiologia</button>
-          <button class="chip" data-esp="oftalmologia">👁️ Oftalmologia</button>
-          <button class="chip" data-esp="emergencia">🚨 Emergência</button>
+          <button class="chip active" data-esp="" data-24h="">🏥 Todos</button>
+          <button class="chip" data-esp="clinica-geral" data-24h="">🩺 Clínica Geral</button>
+          <button class="chip" data-esp="dermatologia" data-24h="">🔬 Dermatologia</button>
+          <button class="chip" data-esp="cirurgia" data-24h="">⚕️ Cirurgia</button>
+          <button class="chip" data-esp="ortopedia" data-24h="">🦴 Ortopedia</button>
+          <button class="chip" data-esp="cardiologia" data-24h="">❤️ Cardiologia</button>
+          <button class="chip" data-esp="oftalmologia" data-24h="">👁️ Oftalmologia</button>
+          <button class="chip" data-esp="emergencia" data-24h="">🚨 Emergência</button>
+          <button class="chip chip-24h" id="chip-24h" data-esp="" data-24h="1">🕐 24h</button>
         </div>
 
         <!-- Grid de vets (filtrado por JS) -->
         <div class="desktop-vet-grid" id="vets-grid">
           {% if veterinarians %}
             {% for vet in veterinarians[:6] %}
-            <a href="/veterinario/{{ vet.slug }}" class="vet-card" data-esp="{{ (vet.specialty or 'clinica-geral') | lower | replace(' ', '-') }}">
+            <a href="/veterinario/{{ vet.slug }}" class="vet-card" data-esp="{{ (vet.specialty or 'clinica-geral') | lower | replace(' ', '-') }}" data-24h="{{ '1' if vet.is_24h else '0' }}">
               <div class="vet-card-thumb {% if not vet.photo_url %}{% if loop.index % 3 == 1 %}teal{% elif loop.index % 3 == 2 %}purple{% else %}red{% endif %}{% endif %}">
                 {% if vet.photo_url %}
                 <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="vet-card-photo">
@@ -94,6 +91,7 @@
                 {% endif %}
                 {% if loop.index == 1 %}<span class="vet-card-tag top">Top</span>{% endif %}
                 {% if loop.index == 2 %}<span class="vet-card-tag pro">Pro</span>{% endif %}
+                {% if vet.is_24h %}<span class="vet-card-tag-24h">24h</span>{% endif %}
               </div>
               <div class="vet-card-body">
                 <div class="vet-card-name">{{ vet.full_name }}</div>
@@ -188,7 +186,7 @@
           {% if vet.photo_url %}<img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">{% else %}{{ vet.full_name[0] }}{% endif %}
         </div>
         <div class="sidebar-vet-info">
-          <div class="sidebar-vet-name">{{ vet.full_name }}</div>
+          <div class="sidebar-vet-name">{{ vet.full_name }}{% if vet.is_24h %} <span style="font-size:0.6rem;background:#FEF3C7;color:#92400E;padding:1px 5px;border-radius:999px;border:1px solid #FDE68A;font-weight:800;vertical-align:middle">24h</span>{% endif %}</div>
           <div class="sidebar-vet-spec">{{ vet.specialty or 'Clínico Geral' }}</div>
           {% if vet.review_count %}
           <div class="sidebar-vet-stars">★ {{ vet.avg_rating }} · {{ vet.review_count }} avaliações</div>
@@ -214,10 +212,15 @@
 {% block extra_js %}
 <script>
 (function() {
-  const chips = document.querySelectorAll('#specialty-chips .chip');
-  const cards = document.querySelectorAll('#vets-grid .vet-card');
-  const empty = document.getElementById('vets-empty');
-  const title = document.getElementById('vets-section-title');
+  const allChips = document.querySelectorAll('#specialty-chips .chip');
+  const chip24h  = document.getElementById('chip-24h');
+  const espChips = document.querySelectorAll('#specialty-chips .chip:not(.chip-24h)');
+  const cards    = document.querySelectorAll('#vets-grid .vet-card');
+  const empty    = document.getElementById('vets-empty');
+  const title    = document.getElementById('vets-section-title');
+
+  let activeEsp = '';
+  let only24h   = false;
 
   const labels = {
     '': 'Veterinários em destaque',
@@ -230,31 +233,43 @@
     'emergencia': 'Emergência',
   };
 
-  chips.forEach(chip => {
+  function applyFilters() {
+    let visible = 0;
+    cards.forEach(card => {
+      const cardEsp = card.dataset.esp || '';
+      const card24h = card.dataset['24h'] === '1';
+      const espOk = !activeEsp || cardEsp.includes(activeEsp);
+      const h24Ok = !only24h || card24h;
+      const show = espOk && h24Ok;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+
+    const base = activeEsp ? 'Especialidade: ' + (labels[activeEsp] || activeEsp) : 'Veterinários em destaque';
+    if (title) title.textContent = only24h ? base + ' · 24h' : base;
+  }
+
+  // Chips de especialidade (mutuamente exclusivos)
+  espChips.forEach(chip => {
     chip.addEventListener('click', function(e) {
       e.preventDefault();
-      const esp = this.dataset.esp;
-
-      // Atualiza chips ativos
-      chips.forEach(c => c.classList.remove('active'));
+      activeEsp = this.dataset.esp;
+      espChips.forEach(c => c.classList.remove('active'));
       this.classList.add('active');
-
-      // Atualiza título
-      if (title) title.textContent = esp ? 'Especialidade: ' + labels[esp] : 'Veterinários em destaque';
-
-      // Filtra cards
-      let visible = 0;
-      cards.forEach(card => {
-        const cardEsp = card.dataset.esp || '';
-        const show = !esp || cardEsp.includes(esp);
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
-      });
-
-      // Mostra/oculta estado vazio
-      if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
+      applyFilters();
     });
   });
+
+  // Chip 24h (toggle independente)
+  if (chip24h) {
+    chip24h.addEventListener('click', function(e) {
+      e.preventDefault();
+      only24h = !only24h;
+      this.classList.toggle('active', only24h);
+      applyFilters();
+    });
+  }
 })();
 </script>
 {% endblock %}

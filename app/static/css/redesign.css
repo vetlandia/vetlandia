@@ -194,15 +194,6 @@
 }
 .search-hero-button:hover { background: var(--brand-dark); }
 
-.search-24h-toggle {
-  grid-column: 1 / -1;
-  display: inline-flex; align-items: center; gap: 8px;
-  color: rgba(255,255,255,0.85); font-size: 0.875rem; font-weight: 600;
-  cursor: pointer; user-select: none;
-}
-.search-24h-toggle input[type="checkbox"] {
-  width: 16px; height: 16px; accent-color: var(--brand); cursor: pointer;
-}
 
 /* ════════════════════════════════════
    HERO STATS
@@ -323,6 +314,22 @@
 .vet-card-tag.top    { background: var(--brand); }
 .vet-card-tag.pro    { background: var(--purple); }
 .vet-card-tag.new    { background: var(--action); }
+
+.vet-card-tag-24h {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #92400E;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  letter-spacing: 0.3px;
+}
+
+.chip-24h { border-color: #FDE68A; color: #92400E; background: #FFFBEB; }
+.chip-24h.active, .chip-24h:hover { background: #F59E0B; color: white; border-color: #F59E0B; }
 
 .vet-card-body { padding: 11px; }
 .vet-card-name {
