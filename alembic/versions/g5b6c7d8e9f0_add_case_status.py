@@ -13,13 +13,19 @@ down_revision = 'f4a5b6c7d8e9'
 branch_labels = None
 depends_on = None
 
+_casestatus = sa.Enum('pending', 'approved', 'rejected', name='casestatus')
+
 
 def upgrade():
-    op.execute("CREATE TYPE casestatus AS ENUM ('pending', 'approved', 'rejected')")
+    _casestatus.create(op.get_bind(), checkfirst=True)
     op.add_column(
         'clinical_cases',
-        sa.Column('status', sa.Enum('pending', 'approved', 'rejected', name='casestatus'),
-                  nullable=False, server_default='pending')
+        sa.Column(
+            'status',
+            sa.Enum('pending', 'approved', 'rejected', name='casestatus', create_type=False),
+            nullable=False,
+            server_default='pending',
+        )
     )
     op.create_index('ix_clinical_cases_status', 'clinical_cases', ['status'])
 
@@ -27,4 +33,4 @@ def upgrade():
 def downgrade():
     op.drop_index('ix_clinical_cases_status', table_name='clinical_cases')
     op.drop_column('clinical_cases', 'status')
-    op.execute("DROP TYPE casestatus")
+    _casestatus.drop(op.get_bind(), checkfirst=True)

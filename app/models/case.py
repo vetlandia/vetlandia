@@ -1,15 +1,15 @@
-import enum
 import uuid
 from datetime import datetime
+from enum import Enum as PyEnum
 
-from sqlalchemy import Column, DateTime, Enum as SAEnum, ForeignKey, String, Text
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
 
-class CaseStatus(enum.Enum):
+class CaseStatus(str, PyEnum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -25,7 +25,7 @@ class ClinicalCase(Base):
     breed = Column(String(100))
     specialty = Column(String(100), index=True)
     content = Column(Text, nullable=False)
-    status = Column(SAEnum(CaseStatus), default=CaseStatus.PENDING, nullable=False, index=True)
+    status = Column(Enum(CaseStatus), default=CaseStatus.PENDING, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
