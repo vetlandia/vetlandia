@@ -25,7 +25,12 @@ class ClinicalCase(Base):
     breed = Column(String(100))
     specialty = Column(String(100), index=True)
     content = Column(Text, nullable=False)
-    status = Column(Enum(CaseStatus), default=CaseStatus.PENDING, nullable=False, index=True)
+    status = Column(
+        Enum(CaseStatus, values_callable=lambda e: [m.value for m in e]),
+        default=CaseStatus.PENDING,
+        nullable=False,
+        index=True,
+    )
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
