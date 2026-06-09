@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
@@ -286,6 +287,14 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
         db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).all()
     )
 
+    def _parse_json_list(val):
+        if not val:
+            return []
+        try:
+            return json.loads(val)
+        except Exception:
+            return [v.strip() for v in val.split(",") if v.strip()]
+
     return templates.TemplateResponse(
         "clinic/profile.html",
         {
@@ -294,6 +303,9 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "clinic": clinic,
             "reviews": reviews,
             "veterinarians": veterinarians,
+            "clinic_specialties": _parse_json_list(clinic.specialties),
+            "clinic_species": _parse_json_list(clinic.animal_species),
+            "clinic_convenios": _parse_json_list(clinic.convenios),
         },
     )
 

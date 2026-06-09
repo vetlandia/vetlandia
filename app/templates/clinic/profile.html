@@ -35,20 +35,14 @@
                 {% endif %}
 
                 <!-- Badges: especialidades e espécies -->
-                {% if clinic.specialties or clinic.animal_species %}
+                {% if clinic_specialties or clinic_species %}
                 <div class="profile-badges">
-                    {% if clinic.specialties %}
-                        {% for sp in clinic.specialties | replace('[','') | replace(']','') | replace('"','') | split(',') %}
-                            {% set sp = sp.strip() %}
-                            {% if sp %}<span class="badge badge-blue">{{ sp }}</span>{% endif %}
-                        {% endfor %}
-                    {% endif %}
-                    {% if clinic.animal_species %}
-                        {% for sp in clinic.animal_species | replace('[','') | replace(']','') | replace('"','') | split(',') %}
-                            {% set sp = sp.strip() %}
-                            {% if sp %}<span class="badge badge-green">{{ sp }}</span>{% endif %}
-                        {% endfor %}
-                    {% endif %}
+                    {% for sp in clinic_specialties %}
+                        <span class="badge badge-blue">{{ sp }}</span>
+                    {% endfor %}
+                    {% for sp in clinic_species %}
+                        <span class="badge badge-green">{{ sp }}</span>
+                    {% endfor %}
                 </div>
                 {% endif %}
 
@@ -75,13 +69,12 @@
                 </div>
 
                 <!-- Convênios -->
-                {% if clinic.convenios %}
+                {% if clinic_convenios %}
                 <div class="profile-convenios">
                     <h4>Convênios aceitos</h4>
                     <div class="convenios-list">
-                        {% for cv in clinic.convenios | replace('[','') | replace(']','') | replace('"','') | split(',') %}
-                            {% set cv = cv.strip() %}
-                            {% if cv %}<span class="convenio-tag">{{ cv }}</span>{% endif %}
+                        {% for cv in clinic_convenios %}
+                            <span class="convenio-tag">{{ cv }}</span>
                         {% endfor %}
                     </div>
                 </div>
