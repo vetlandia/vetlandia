@@ -30,7 +30,8 @@
         </div>
         <div class="search-hero-input">
           <span class="search-icon-lg">📍</span>
-          <input type="text" name="cidade" placeholder="Sua cidade">
+          <input type="text" name="cidade" placeholder="Sua cidade" id="home-cidade-input" autocomplete="off" list="cidades-list">
+          <datalist id="cidades-list"></datalist>
         </div>
         <button type="submit" class="search-hero-button">Buscar →</button>
       </form>
@@ -75,7 +76,8 @@
           <button class="chip" data-esp="cardiologia" data-24h="">❤️ Cardiologia</button>
           <button class="chip" data-esp="oftalmologia" data-24h="">👁️ Oftalmologia</button>
           <button class="chip" data-esp="emergencia" data-24h="">🚨 Emergência</button>
-          <button class="chip chip-24h" id="chip-24h" data-esp="" data-24h="1">🕐 24h</button>
+          <span class="chips-divider">|</span>
+          <button class="chip chip-24h" id="chip-24h" data-esp="" data-24h="1">🚨 Atendimento 24h</button>
         </div>
 
         <!-- Grid de vets (filtrado por JS) -->
@@ -186,7 +188,7 @@
           {% if vet.photo_url %}<img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">{% else %}{{ vet.full_name[0] }}{% endif %}
         </div>
         <div class="sidebar-vet-info">
-          <div class="sidebar-vet-name">{{ vet.full_name }}{% if vet.is_24h %} <span style="font-size:0.6rem;background:#FEF3C7;color:#92400E;padding:1px 5px;border-radius:999px;border:1px solid #FDE68A;font-weight:800;vertical-align:middle">24h</span>{% endif %}</div>
+          <div class="sidebar-vet-name">{{ vet.full_name }}{% if vet.is_24h %} <span style="font-size:0.6rem;background:#EF4444;color:#fff;padding:1px 5px;border-radius:999px;border:1px solid #DC2626;font-weight:800;vertical-align:middle">24h</span>{% endif %}</div>
           <div class="sidebar-vet-spec">{{ vet.specialty or 'Clínico Geral' }}</div>
           {% if vet.review_count %}
           <div class="sidebar-vet-stars">★ {{ vet.avg_rating }} · {{ vet.review_count }} avaliações</div>
@@ -210,6 +212,32 @@
 </div><!-- /vt -->
 
 {% block extra_js %}
+<script>
+(function() {
+  // City autocomplete from BR_CITIES
+  const cidadeInput = document.getElementById('home-cidade-input');
+  const cidadeList  = document.getElementById('cidades-list');
+  if (cidadeInput && cidadeList && typeof BR_CITIES !== 'undefined') {
+    const allCities = [];
+    Object.values(BR_CITIES).forEach(function(arr) {
+      arr.forEach(function(c) { allCities.push(c); });
+    });
+    cidadeInput.addEventListener('input', function() {
+      const val = this.value.trim().toLowerCase();
+      cidadeList.innerHTML = '';
+      if (val.length < 2) return;
+      const matches = allCities.filter(function(c) {
+        return c.toLowerCase().includes(val);
+      }).slice(0, 12);
+      matches.forEach(function(c) {
+        const opt = document.createElement('option');
+        opt.value = c;
+        cidadeList.appendChild(opt);
+      });
+    });
+  }
+})();
+</script>
 <script>
 (function() {
   const allChips = document.querySelectorAll('#specialty-chips .chip');

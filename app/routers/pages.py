@@ -1,4 +1,5 @@
 import json
+import unicodedata
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
@@ -19,6 +20,50 @@ from app.models.veterinarian import Veterinarian
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 templates.env.globals["asset_v"] = ASSET_VERSION
+
+# ── Busca inteligente ──────────────────────────────────────────────────────
+
+def _norm(s: str) -> str:
+    """Remove acentos e coloca em minúsculas para comparação."""
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', s)
+        if unicodedata.category(c) != 'Mn'
+    ).lower().strip()
+
+_24H_TERMS = {'24h', '24 h', 'plantao', 'plantão', 'emergencia', 'emergência',
+              'urgencia', 'urgência', 'urgente', 'noturno', 'noite'}
+
+_SPECIALTY_MAP = {
+    'geral': 'geral', 'clinico': 'geral', 'clinica': 'geral',
+    'derma': 'dermatologia', 'pele': 'dermatologia',
+    'cirurgi': 'cirurgia', 'operar': 'cirurgia', 'operacao': 'cirurgia',
+    'ortop': 'ortopedia', 'osso': 'ortopedia', 'fratura': 'ortopedia',
+    'cardio': 'cardiologia', 'coracao': 'cardiologia', 'coração': 'cardiologia',
+    'oftalmo': 'oftalmologia', 'olho': 'oftalmologia', 'visao': 'oftalmologia',
+    'emergencia': 'emergência', 'urgencia': 'emergência',
+    'oncolog': 'oncologia', 'cancer': 'oncologia', 'tumor': 'oncologia',
+    'nutri': 'nutrição', 'dieta': 'nutrição',
+    'fisio': 'fisioterapia', 'reabili': 'fisioterapia',
+    'compor': 'comportamento', 'comportament': 'comportamento',
+    'acupun': 'acupuntura',
+    'neuro': 'neurologia',
+    'reprod': 'reprodução', 'reproducao': 'reprodução',
+    'exo': 'animais exóticos', 'exoti': 'animais exóticos', 'silvestr': 'animais silvestres',
+    'gato': 'felinos', 'felino': 'felinos',
+    'cao': 'cães', 'cachorro': 'cães', 'caes': 'cães',
+    'coelho': 'pequenos animais', 'hamster': 'pequenos animais',
+}
+
+def _is_24h_query(term: str) -> bool:
+    n = _norm(term)
+    return any(t in n or n in t for t in {_norm(x) for x in _24H_TERMS})
+
+def _specialty_from_query(term: str):
+    n = _norm(term)
+    for alias, real in _SPECIALTY_MAP.items():
+        if alias in n or n in alias:
+            return real
+    return None
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -139,10 +184,26 @@ def buscar_veterinarios(
     )
 
     if query:
-        q = q.filter(
-            (Veterinarian.full_name.ilike(f"%{query}%"))
-            | (Veterinarian.crmv.ilike(f"%{query}%"))
-        )
+        if _is_24h_query(query):
+            q = q.filter(Veterinarian.is_24h == True)
+        else:
+            sp = _specialty_from_query(query)
+            like = f"%{query}%"
+            if sp:
+                q = q.filter(
+                    Veterinarian.specialty.ilike(f"%{sp}%")
+                    | Veterinarian.full_name.ilike(like)
+                    | Veterinarian.bio.ilike(like)
+                )
+            else:
+                q = q.filter(
+                    Veterinarian.full_name.ilike(like)
+                    | Veterinarian.specialty.ilike(like)
+                    | Veterinarian.bio.ilike(like)
+                    | Veterinarian.city.ilike(like)
+                    | Veterinarian.crmv.ilike(like)
+                    | Veterinarian.animal_species.ilike(like)
+                )
 
     if especialidade:
         q = q.filter(Veterinarian.specialty.ilike(f"%{especialidade}%"))
@@ -201,7 +262,26 @@ def buscar_clinicas(
     )
 
     if query:
-        q = q.filter(Clinic.name.ilike(f"%{query}%"))
+        if _is_24h_query(query):
+            q = q.filter(Clinic.is_24h == True)
+        else:
+            sp = _specialty_from_query(query)
+            like = f"%{query}%"
+            if sp:
+                q = q.filter(
+                    Clinic.specialties.ilike(f"%{sp}%")
+                    | Clinic.name.ilike(like)
+                    | Clinic.description.ilike(like)
+                )
+            else:
+                q = q.filter(
+                    Clinic.name.ilike(like)
+                    | Clinic.razao_social.ilike(like)
+                    | Clinic.specialties.ilike(like)
+                    | Clinic.description.ilike(like)
+                    | Clinic.city.ilike(like)
+                    | Clinic.animal_species.ilike(like)
+                )
 
     if cidade:
         q = q.filter(Clinic.city.ilike(f"%{cidade}%"))
