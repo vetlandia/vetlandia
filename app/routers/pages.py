@@ -152,7 +152,7 @@ def buscar_veterinarios(
 
     if estado:
         q = q.filter(Veterinarian.state == estado.upper())
-    if somente_24h == "1":
+    if somente_24h in ("1", "on"):
         q = q.filter(Veterinarian.is_24h == True)
 
     results = (
@@ -208,7 +208,7 @@ def buscar_clinicas(
 
     if estado:
         q = q.filter(Clinic.state == estado.upper())
-    if somente_24h == "1":
+    if somente_24h in ("1", "on"):
         q = q.filter(Clinic.is_24h == True)
 
     results = (

@@ -961,13 +961,35 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         });
     }
 
-    // ── Status global ──
-    const statusBox = document.getElementById('formStatus');
+    // ── Status global (toast fixo sempre visível) ──
     function showStatus(kind, msg) {
-        statusBox.className = 'alert alert-' + kind;
-        statusBox.textContent = msg;
-        statusBox.classList.remove('hidden');
-        statusBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        let toast = document.getElementById('_toastAlert');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = '_toastAlert';
+            toast.style.cssText = [
+                'position:fixed', 'top:18px', 'left:50%', 'transform:translateX(-50%)',
+                'z-index:99999', 'max-width:520px', 'width:calc(100% - 32px)',
+                'padding:14px 20px', 'border-radius:12px', 'font-weight:600',
+                'font-size:0.95rem', 'box-shadow:0 8px 32px rgba(0,0,0,0.18)',
+                'cursor:pointer', 'line-height:1.45'
+            ].join(';');
+            toast.addEventListener('click', () => { toast.style.display = 'none'; });
+            document.body.appendChild(toast);
+        }
+        if (kind === 'error') {
+            toast.style.background = '#FEE2E2';
+            toast.style.color = '#991B1B';
+            toast.style.border = '1.5px solid #FCA5A5';
+        } else {
+            toast.style.background = '#D1FAE5';
+            toast.style.color = '#065F46';
+            toast.style.border = '1.5px solid #6EE7B7';
+        }
+        toast.textContent = msg;
+        toast.style.display = 'block';
+        clearTimeout(toast._t);
+        if (kind === 'success') toast._t = setTimeout(() => { toast.style.display = 'none'; }, 4000);
     }
 
     function parseError(detail) {

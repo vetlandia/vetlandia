@@ -17,10 +17,11 @@
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
             <div class="filter-chips" style="margin-top:12px">
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}somente_24h={% if somente_24h == '1' %}{% else %}1{% endif %}"
-                   class="chip {% if somente_24h == '1' %}active{% endif %}">
-                    🕐 Atendimento 24h
-                </a>
+                {% if somente_24h == '1' %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}{% endif %}" class="chip active">🕐 Atendimento 24h ✕</a>
+                {% else %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
+                {% endif %}
             </div>
         </div>
 
