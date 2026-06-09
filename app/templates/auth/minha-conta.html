@@ -592,19 +592,21 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
             };
         }
         if (userType === 'clinic') {
-            return {
+            const _st = g('state'), _ct = g('city');
+            const payload = {
                 name: g('name'),
                 razao_social: g('razao_social'),
                 cnpj: g('cnpj'),
                 description: g('description'),
-                state: g('state'),
-                city: g('city'),
                 phone: g('phone'),
                 whatsapp: g('whatsapp'),
                 website: g('website'),
                 photo_url: gId('pc-clinic-photo-data'),
                 is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
             };
+            if (_st) payload.state = _st;
+            if (_ct) payload.city = _ct;
+            return payload;
         }
         return {};
     }

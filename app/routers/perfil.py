@@ -47,7 +47,10 @@ def update_clinic_profile(data: ClinicUpdate, db: Session = Depends(get_db), cur
     clinic = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Perfil não encontrado")
+    not_null = {'name', 'city', 'state'}
     for field, value in data.model_dump(exclude_unset=True).items():
+        if value is None and field in not_null:
+            continue
         setattr(clinic, field, value)
     db.commit()
     return {"ok": True}
