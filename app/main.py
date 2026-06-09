@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 
 from app.core.config import settings
 from app.routers import auth, pages
@@ -31,6 +32,7 @@ app = FastAPI(
     description="Confiança para quem cuida. Conhecimento para quem trata.",
 )
 
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(WWWRedirectMiddleware)
 
 

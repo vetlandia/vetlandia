@@ -120,19 +120,25 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
         clinic.review_count = review_count
         clinics.append(clinic)
 
-    # Buscar casos clínicos recentes (sem filter, já que não tem is_approved ainda)
+    # Casos recentes aprovados para a home (só exibido para vet/admin no template)
     recent_cases = (
         db.query(ClinicalCase)
         .options(joinedload(ClinicalCase.author))
+        .filter(ClinicalCase.status == CaseStatus.APPROVED)
         .order_by(ClinicalCase.created_at.desc())
         .limit(3)
         .all()
     )
 
-    # Contagens reais para estatísticas do hero
-    vet_count = db.query(Veterinarian).filter(Veterinarian.is_approved == True).count()
-    clinic_count = db.query(Clinic).filter(Clinic.is_approved == True).count()
-    review_count = db.query(Review).count()
+    # Três COUNTs em uma única ida ao banco
+    from sqlalchemy import text as _text
+    _counts = db.execute(_text(
+        "SELECT "
+        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true) AS vc,"
+        "(SELECT COUNT(*) FROM clinics WHERE is_approved = true) AS cc,"
+        "(SELECT COUNT(*) FROM reviews) AS rc"
+    )).one()
+    vet_count, clinic_count, review_count = _counts.vc, _counts.cc, _counts.rc
 
     return templates.TemplateResponse(
         "home-redesign.html",
