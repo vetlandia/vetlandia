@@ -447,6 +447,20 @@
                             <input type="tel" name="phone" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Foto de perfil</label>
+                        <div class="photo-upload-widget" id="tutor-photo-widget">
+                            <div class="photo-preview" id="tutor-photo-preview">
+                                <span class="photo-preview-placeholder">🐾</span>
+                            </div>
+                            <div class="photo-upload-actions">
+                                <label class="btn btn-secondary btn-sm photo-upload-btn" for="tutor-photo-input">📷 Escolher foto</label>
+                                <input type="file" id="tutor-photo-input" accept="image/*" class="photo-file-input">
+                                <input type="hidden" name="photo_url" id="tutor-photo-data">
+                                <p class="form-help">JPG, PNG ou WEBP. Opcional.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-section">
@@ -874,6 +888,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
 }
 
 (function () {
+    setupPhotoUpload('tutor-photo-input',  'tutor-photo-preview',  'tutor-photo-data');
     setupPhotoUpload('vet-photo-input',    'vet-photo-preview',    'vet-photo-data');
     setupPhotoUpload('clinic-photo-input', 'clinic-photo-preview', 'clinic-photo-data');
 })();
@@ -1119,6 +1134,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 state: form.querySelector('[name="state"]').value || null,
                 city: form.querySelector('[name="city"]').value || null,
                 pets: pets.length ? JSON.stringify(pets) : null,
+                photo_url: form.querySelector('[name="photo_url"]').value || null,
             };
 
             try {

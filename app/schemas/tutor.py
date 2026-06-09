@@ -19,6 +19,7 @@ class TutorBase(BaseModel):
     address: Optional[str] = Field(None, max_length=500)
     complement: Optional[str] = Field(None, max_length=200)
     pets: Optional[str] = None  # JSON string
+    photo_url: Optional[str] = None
 
 
 class TutorCreate(TutorBase):
@@ -35,6 +36,7 @@ class TutorUpdate(BaseModel):
     address: Optional[str] = Field(None, max_length=500)
     complement: Optional[str] = Field(None, max_length=200)
     pets: Optional[str] = None
+    photo_url: Optional[str] = None
 
 
 class TutorResponse(TutorBase):

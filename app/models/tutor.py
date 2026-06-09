@@ -21,6 +21,7 @@ class Tutor(Base):
     address = Column(String(500), nullable=True)
     complement = Column(String(200), nullable=True)
     pets = Column(Text(), nullable=True)  # JSON: [{name, species}]
+    photo_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", backref="tutor", uselist=False)

@@ -81,6 +81,7 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
         state=data.state,
         city=data.city,
         pets=data.pets,
+        photo_url=data.photo_url,
     )
     db.add(tutor)
     db.commit()

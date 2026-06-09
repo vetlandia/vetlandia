@@ -287,6 +287,24 @@
                                 </select>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Foto de perfil</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview" id="pc-tutor-preview">
+                                    {% if profile and profile.photo_url %}
+                                    <img src="{{ profile.photo_url }}" alt="Foto atual">
+                                    {% else %}
+                                    <span class="photo-preview-placeholder">🐾</span>
+                                    {% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-tutor-photo-input">📷 Trocar foto</label>
+                                    <input type="file" id="pc-tutor-photo-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="photo_url" id="pc-tutor-photo-data" value="{{ profile.photo_url if profile and profile.photo_url else '' }}">
+                                    <p class="form-help">JPG, PNG ou WEBP. Opcional.</p>
+                                </div>
+                            </div>
+                        </div>
 
                         {% elif current_user.user_type.value == 'veterinarian' %}
                         <!-- VETERINÁRIO -->
@@ -493,6 +511,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
     });
 }
 
+setupPhotoUpload('pc-tutor-photo-input',  'pc-tutor-preview',  'pc-tutor-photo-data');
 setupPhotoUpload('pc-vet-photo-input',    'pc-vet-preview',    'pc-vet-photo-data');
 setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-data');
 </script>
@@ -555,6 +574,7 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
                 phone: g('phone'),
                 state: g('state'),
                 city: g('city'),
+                photo_url: gId('pc-tutor-photo-data'),
             };
         }
         if (userType === 'veterinarian') {
