@@ -287,14 +287,6 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Endereço</label>
-                            <input type="text" name="address" class="form-input" value="{{ profile.address if profile and profile.address else '' }}" placeholder="Rua, número">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Complemento</label>
-                            <input type="text" name="complement" class="form-input" value="{{ profile.complement if profile and profile.complement else '' }}" placeholder="Apto, bloco">
-                        </div>
 
                         {% elif current_user.user_type.value == 'veterinarian' %}
                         <!-- VETERINÁRIO -->
@@ -366,6 +358,12 @@
                                     <p class="form-help">JPG, PNG ou WEBP. Máx 400×400px após compressão.</p>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="terms-check" style="margin-bottom:0">
+                                <input type="checkbox" name="is_24h" {% if profile and profile.is_24h %}checked{% endif %}>
+                                <span>Ofereço atendimento <strong>24 horas</strong></span>
+                            </label>
                         </div>
 
                         {% elif current_user.user_type.value == 'clinic' %}
@@ -439,7 +437,12 @@
                                     <p class="form-help">JPG, PNG ou WEBP. Fachada ou interior da clínica.</p>
                                 </div>
                             </div>
-                            <p class="form-help">Cole o link de uma foto da clínica</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="terms-check" style="margin-bottom:0">
+                                <input type="checkbox" name="is_24h" {% if profile and profile.is_24h %}checked{% endif %}>
+                                <span>Clínica com atendimento <strong>24 horas</strong></span>
+                            </label>
                         </div>
                         {% endif %}
 
@@ -542,21 +545,61 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
         clinic: '/api/perfil/clinic',
     };
 
+    function buildPayload() {
+        const g = (name) => { const el = form.querySelector('[name="' + name + '"]'); return el ? (el.value || null) : null; };
+        const gId = (id) => { const el = document.getElementById(id); return el ? (el.value || null) : null; };
+        if (userType === 'tutor') {
+            return {
+                full_name: g('full_name'),
+                cpf: g('cpf'),
+                phone: g('phone'),
+                state: g('state'),
+                city: g('city'),
+            };
+        }
+        if (userType === 'veterinarian') {
+            return {
+                full_name: g('full_name'),
+                cpf: g('cpf'),
+                specialty: g('specialty'),
+                bio: g('bio'),
+                phone: g('phone'),
+                whatsapp: g('whatsapp'),
+                state: g('state'),
+                city: g('city'),
+                photo_url: gId('pc-vet-photo-data'),
+                is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
+            };
+        }
+        if (userType === 'clinic') {
+            return {
+                name: g('name'),
+                razao_social: g('razao_social'),
+                cnpj: g('cnpj'),
+                description: g('description'),
+                state: g('state'),
+                city: g('city'),
+                phone: g('phone'),
+                whatsapp: g('whatsapp'),
+                website: g('website'),
+                photo_url: gId('pc-clinic-photo-data'),
+                is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
+            };
+        }
+        return {};
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
         btn.textContent = 'Salvando...';
 
-        const formData = new FormData(form);
-        const payload = {};
-        formData.forEach((v, k) => { payload[k] = v || null; });
-
         try {
             const resp = await fetch(endpoints[userType], {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(buildPayload()),
             });
             const data = await resp.json().catch(() => ({}));
             if (!resp.ok) throw new Error(data.detail || 'Erro ao salvar');

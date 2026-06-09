@@ -461,14 +461,6 @@
                             <select name="city" class="form-select" id="tutor-city" disabled></select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Endereço</label>
-                        <input type="text" name="address" class="form-input" placeholder="Rua, número">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Complemento</label>
-                        <input type="text" name="complement" class="form-input" placeholder="Apto, bloco, referência (opcional)">
-                    </div>
                 </div>
 
                 <div class="form-section">
@@ -629,6 +621,13 @@
                             <input type="tel" name="whatsapp" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
                         </div>
                     </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="terms-check" style="margin-bottom:0">
+                        <input type="checkbox" name="is_24h" id="vet-is-24h" value="true">
+                        <span>Ofereço atendimento <strong>24 horas</strong> (plantão / emergência)</span>
+                    </label>
                 </div>
 
                 <div class="form-section">
@@ -806,6 +805,13 @@
                         <p class="form-help">Mínimo 8 caracteres. Use letras e números para maior segurança.</p>
                         <span class="field-error" id="err-clinic-password">⚠ A senha deve ter pelo menos 8 caracteres</span>
                     </div>
+                </div>
+
+                <div class="form-section">
+                    <label class="terms-check" style="margin-bottom:0">
+                        <input type="checkbox" name="is_24h" id="clinic-is-24h" value="true">
+                        <span>Clínica com atendimento <strong>24 horas</strong> (plantão / emergência)</span>
+                    </label>
                 </div>
 
                 <div class="terms-check">
@@ -1090,8 +1096,6 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 password: passEl.value,
                 state: form.querySelector('[name="state"]').value || null,
                 city: form.querySelector('[name="city"]').value || null,
-                address: form.querySelector('[name="address"]').value || null,
-                complement: form.querySelector('[name="complement"]').value || null,
                 pets: pets.length ? JSON.stringify(pets) : null,
             };
 
@@ -1161,6 +1165,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 complement: form.querySelector('[name="complement"]').value || null,
                 animal_species: species.length ? JSON.stringify(species) : null,
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
+                is_24h: document.getElementById('vet-is-24h').checked,
             };
 
             try {
@@ -1231,6 +1236,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 specialties: specialties.length ? JSON.stringify(specialties) : null,
                 convenios: convenios.length ? JSON.stringify(convenios) : null,
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
+                is_24h: document.getElementById('clinic-is-24h').checked,
             };
 
             try {

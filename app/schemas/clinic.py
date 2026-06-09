@@ -25,6 +25,7 @@ class ClinicBase(BaseModel):
     animal_species: Optional[str] = None  # JSON string
     specialties: Optional[str] = None     # JSON string
     photo_url: Optional[str] = None  # data URL ou https URL
+    is_24h: bool = False
 
     @field_validator("state")
     @classmethod
@@ -58,6 +59,7 @@ class ClinicUpdate(BaseModel):
     convenios: Optional[str] = None
     animal_species: Optional[str] = None
     specialties: Optional[str] = None
+    is_24h: Optional[bool] = None
 
 
 class ClinicResponse(ClinicBase):

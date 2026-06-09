@@ -26,12 +26,13 @@ class Clinic(Base):
     whatsapp = Column(String(20), nullable=True)
     email = Column(String(255))
     website = Column(String(500))
-    logo_url = Column(String(500))
-    photo_url = Column(String(500), nullable=True)
+    logo_url = Column(Text, nullable=True)
+    photo_url = Column(Text, nullable=True)
     slug = Column(String(255), unique=True, nullable=False, index=True)
     convenios = Column(Text(), nullable=True)       # JSON array
     animal_species = Column(Text(), nullable=True)  # JSON array
     specialties = Column(Text(), nullable=True)     # JSON array
+    is_24h = Column(Boolean, default=False, nullable=False)
     is_approved = Column(Boolean, default=False, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

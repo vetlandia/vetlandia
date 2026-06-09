@@ -16,6 +16,12 @@
                 <input type="text" name="especialidade" class="form-input" placeholder="Especialidade..." value="{{ especialidade or '' }}">
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
+            <div class="filter-chips" style="margin-top:12px">
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}somente_24h={% if somente_24h == '1' %}{% else %}1{% endif %}"
+                   class="chip {% if somente_24h == '1' %}active{% endif %}">
+                    🕐 Atendimento 24h
+                </a>
+            </div>
         </div>
 
         {% if veterinarians %}
@@ -109,6 +115,18 @@
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: var(--space-3);
+}
+.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 999px; font-size: 0.8125rem;
+    font-weight: 600; border: 1.5px solid var(--border-light);
+    background: white; color: var(--text-secondary);
+    cursor: pointer; text-decoration: none; transition: all 0.15s;
+    white-space: nowrap;
+}
+.chip:hover, .chip.active {
+    background: var(--brand, #088395); color: white; border-color: var(--brand, #088395);
 }
 
 .results-count {

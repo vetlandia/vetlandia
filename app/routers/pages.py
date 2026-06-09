@@ -124,6 +124,7 @@ def buscar_veterinarios(
     especialidade: str = None,
     cidade: str = None,
     estado: str = None,
+    somente_24h: str = None,
 ):
     q = db.query(
         Veterinarian,
@@ -151,6 +152,8 @@ def buscar_veterinarios(
 
     if estado:
         q = q.filter(Veterinarian.state == estado.upper())
+    if somente_24h == "1":
+        q = q.filter(Veterinarian.is_24h == True)
 
     results = (
         q.group_by(Veterinarian.id)
@@ -172,6 +175,7 @@ def buscar_veterinarios(
             "veterinarians": veterinarians,
             "query": query,
             "especialidade": especialidade,
+            "somente_24h": somente_24h,
         },
     )
 
@@ -184,6 +188,7 @@ def buscar_clinicas(
     query: str = None,
     cidade: str = None,
     estado: str = None,
+    somente_24h: str = None,
 ):
     q = db.query(
         Clinic,
@@ -203,6 +208,8 @@ def buscar_clinicas(
 
     if estado:
         q = q.filter(Clinic.state == estado.upper())
+    if somente_24h == "1":
+        q = q.filter(Clinic.is_24h == True)
 
     results = (
         q.group_by(Clinic.id)
@@ -218,7 +225,7 @@ def buscar_clinicas(
 
     return templates.TemplateResponse(
         "clinic/search.html",
-        {"request": request, "current_user": current_user, "clinics": clinics, "query": query},
+        {"request": request, "current_user": current_user, "clinics": clinics, "query": query, "somente_24h": somente_24h},
     )
 
 

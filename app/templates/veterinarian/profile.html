@@ -35,6 +35,9 @@
                     {% if veterinarian.specialty %}
                     <span class="badge badge-orange">{{ veterinarian.specialty }}</span>
                     {% endif %}
+                    {% if veterinarian.is_24h %}
+                    <span class="badge badge-24h">🕐 24h</span>
+                    {% endif %}
                 </div>
 
                 <div class="profile-details">
@@ -164,6 +167,12 @@
     justify-content: center;
     margin-bottom: var(--space-6);
     flex-wrap: wrap;
+}
+.badge-24h {
+    background: #FEF3C7; color: #92400E;
+    padding: 4px 12px; border-radius: var(--radius-full);
+    font-size: 0.8rem; font-weight: 700;
+    border: 1px solid #FDE68A;
 }
 
 .profile-details {

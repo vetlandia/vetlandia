@@ -35,8 +35,9 @@
                 {% endif %}
 
                 <!-- Badges: especialidades e espécies -->
-                {% if clinic_specialties or clinic_species %}
+                {% if clinic_specialties or clinic_species or clinic.is_24h %}
                 <div class="profile-badges">
+                    {% if clinic.is_24h %}<span class="badge badge-24h">🕐 24h</span>{% endif %}
                     {% for sp in clinic_specialties %}
                         <span class="badge badge-blue">{{ sp }}</span>
                     {% endfor %}
@@ -242,6 +243,12 @@
     border-radius: var(--radius-full);
     font-size: 0.8rem;
     font-weight: 600;
+}
+.badge-24h {
+    background: #FEF3C7; color: #92400E;
+    padding: 4px 12px; border-radius: var(--radius-full);
+    font-size: 0.8rem; font-weight: 700;
+    border: 1px solid #FDE68A;
 }
 
 /* ── Detalhes ── */

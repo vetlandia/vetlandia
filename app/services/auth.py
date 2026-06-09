@@ -60,9 +60,10 @@ def login(db: Session, credentials: UserLogin) -> Token:
 
 
 def register_tutor(db: Session, data: TutorCreate) -> Token:
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
+    if db.query(User).filter(User.email == data.email).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
+    if data.cpf and db.query(Tutor).filter(Tutor.cpf == data.cpf).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CPF já está cadastrado.")
 
     user = User(
         email=data.email,
@@ -79,8 +80,6 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
         phone=data.phone,
         state=data.state,
         city=data.city,
-        address=data.address,
-        complement=data.complement,
         pets=data.pets,
     )
     db.add(tutor)
@@ -90,13 +89,12 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
 
 
 def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
-    existing = db.query(User).filter(User.email == data.email).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
-
-    existing_crmv = db.query(Veterinarian).filter(Veterinarian.crmv == data.crmv).first()
-    if existing_crmv:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="CRMV já cadastrado")
+    if db.query(User).filter(User.email == data.email).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
+    if db.query(Veterinarian).filter(Veterinarian.crmv == data.crmv).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CRMV já está cadastrado na plataforma.")
+    if data.cpf and db.query(Veterinarian).filter(Veterinarian.cpf == data.cpf).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CPF já está cadastrado.")
 
     user = User(
         email=data.email,
@@ -127,6 +125,7 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         complement=data.complement,
         animal_species=data.animal_species,
         photo_url=data.photo_url,
+        is_24h=data.is_24h,
         slug=slug,
         clinic_id=data.clinic_id,
     )
@@ -137,9 +136,10 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
 
 
 def register_clinic(db: Session, data: ClinicCreate) -> Token:
-    existing = db.query(User).filter(User.email == data.email_user).first()
-    if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email já cadastrado")
+    if db.query(User).filter(User.email == data.email_user).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
+    if data.cnpj and db.query(Clinic).filter(Clinic.cnpj == data.cnpj).first():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CNPJ já está cadastrado na plataforma.")
 
     user = User(
         email=data.email_user,
@@ -175,6 +175,7 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
         animal_species=data.animal_species,
         specialties=data.specialties,
         photo_url=data.photo_url,
+        is_24h=data.is_24h,
         slug=slug,
     )
     db.add(clinic)
