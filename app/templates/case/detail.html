@@ -68,15 +68,31 @@
             <p class="text-secondary">Nenhum comentário ainda. Seja o primeiro a contribuir!</p>
             {% endif %}
 
-            <!-- Form comentário (só para veterinários logados) -->
+            <!-- Form comentário -->
             <div class="comment-form-section">
+                {% set utype = current_user.user_type.value if current_user else '' %}
+                {% if not current_user %}
+                <div class="comment-gate">
+                    <p>Faça login como <strong>veterinário(a)</strong> para participar da discussão.</p>
+                    <a href="/login" class="btn btn-outline btn-sm">Fazer login</a>
+                </div>
+                {% elif utype != 'veterinarian' %}
+                <div class="comment-gate">
+                    <p>Somente veterinários(as) podem comentar em casos clínicos.</p>
+                </div>
+                {% elif not vet_profile or not vet_profile.is_approved %}
+                <div class="comment-gate">
+                    <p>Seu perfil ainda está em análise. Após aprovação você poderá comentar.</p>
+                </div>
+                {% else %}
                 <h3>Adicionar Comentário</h3>
-                <p class="text-secondary text-sm">Apenas veterinários podem comentar</p>
+                <p class="text-secondary text-sm">Comentando como <strong>{{ vet_profile.full_name }}</strong> · {{ vet_profile.crmv }}</p>
                 <form id="commentForm" class="comment-form">
-                    <textarea name="content" class="form-textarea" rows="4" placeholder="Compartilhe sua experiência ou opinião sobre este caso..." required></textarea>
+                    <textarea name="content" class="form-textarea" rows="4" placeholder="Compartilhe sua experiência ou opinião sobre este caso…" required></textarea>
                     <div id="commentError" class="alert alert-error hidden"></div>
                     <button type="submit" class="btn btn-primary">Publicar Comentário</button>
                 </form>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -233,13 +249,27 @@
     border-top: 2px solid var(--border-light);
 }
 
-.comment-form-section h3 {
-    margin-bottom: var(--space-3);
-}
+.comment-form-section h3 { margin-bottom: var(--space-3); }
+.comment-form { margin-top: var(--space-5); }
 
-.comment-form {
-    margin-top: var(--space-5);
+.comment-gate {
+    padding: var(--space-5) var(--space-6);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-lg);
+    color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-4); flex-wrap: wrap;
 }
+.comment-gate p { margin: 0; }
+
+.form-textarea {
+    width: 100%; box-sizing: border-box;
+    border: 1.5px solid var(--border-medium); border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4); font-size: 0.95rem;
+    font-family: inherit; resize: vertical; color: var(--text-primary);
+    transition: border-color 0.15s; line-height: 1.7; display: block;
+}
+.form-textarea:focus { outline: none; border-color: var(--brand); }
 
 @media (max-width: 768px) {
     .case-detail-header h1 {
@@ -273,49 +303,35 @@
 </style>
 
 <script>
-document.getElementById('commentForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const errorDiv = document.getElementById('commentError');
-
-    if (!isAuthenticated()) {
-        errorDiv.textContent = 'Você precisa estar logado para comentar';
-        errorDiv.classList.remove('hidden');
-        return;
-    }
-
-    errorDiv.classList.add('hidden');
-    setButtonLoading(submitBtn, true);
-
-    const formData = {
-        content: form.content.value
-    };
-
-    try {
-        const response = await fetch('/api/casos-clinicos/{{ case.id }}/comentarios', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            },
-            body: JSON.stringify(formData)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.detail || 'Erro ao publicar comentário');
+(function () {
+    var form = document.getElementById('commentForm');
+    if (!form) return;
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var submitBtn = form.querySelector('button[type="submit"]');
+        var errorDiv  = document.getElementById('commentError');
+        errorDiv.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Publicando…';
+        try {
+            var resp = await fetch('/api/casos-clinicos/{{ case.id }}/comentarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: form.content.value }),
+            });
+            var data = await resp.json();
+            if (!resp.ok) {
+                if (resp.status === 401) { window.location.href = '/login'; return; }
+                throw new Error(data.detail || 'Erro ao publicar comentário');
+            }
+            window.location.reload();
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Publicar Comentário';
         }
-
-        window.location.reload();
-
-    } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        setButtonLoading(submitBtn, false);
-    }
-});
+    });
+})();
 </script>
 {% endblock %}

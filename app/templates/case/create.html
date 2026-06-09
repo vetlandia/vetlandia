@@ -10,40 +10,75 @@
             <p>Compartilhe conhecimento com a comunidade veterinária</p>
         </div>
 
+        {% if not current_user %}
+        <div class="access-card">
+            <div class="access-icon">🔐</div>
+            <h3>Acesso restrito</h3>
+            <p>Você precisa estar logado como <strong>veterinário(a) aprovado(a)</strong> para publicar casos clínicos.</p>
+            <a href="/login" class="btn btn-primary">Fazer login</a>
+        </div>
+        {% elif current_user.user_type.value != 'veterinarian' %}
+        <div class="access-card">
+            <div class="access-icon">⚕️</div>
+            <h3>Exclusivo para veterinários</h3>
+            <p>Somente veterinários cadastrados e aprovados na plataforma podem publicar casos clínicos.</p>
+            <a href="/casos-clinicos" class="btn btn-outline">Ver casos publicados</a>
+        </div>
+        {% elif not vet_profile or not vet_profile.is_approved %}
+        <div class="access-card">
+            <div class="access-icon">⏳</div>
+            <h3>Perfil em análise</h3>
+            <p>Seu cadastro ainda está aguardando aprovação. Assim que for aprovado, você poderá publicar casos clínicos.</p>
+            <a href="/minha-conta" class="btn btn-outline">Ver meu perfil</a>
+        </div>
+        {% else %}
         <div class="form-card">
+            <div class="author-banner">
+                <div class="author-avatar-sm">{{ vet_profile.full_name[0] }}</div>
+                <div>
+                    <div class="author-name">{{ vet_profile.full_name }}</div>
+                    <div class="author-crmv">{{ vet_profile.crmv }}</div>
+                </div>
+            </div>
+
             <form id="createCaseForm">
+
                 <div class="form-group">
                     <label class="form-label form-label-required">Título do Caso</label>
-                    <input type="text" name="title" class="form-input" maxlength="255" required>
-                    <p class="form-help">Seja claro e descritivo</p>
+                    <input type="text" name="title" class="form-input" maxlength="255" placeholder="Ex: Diagnóstico de carcinoma mamário em cadela…" required>
+                    <p class="form-help">Mínimo 10 caracteres. Seja claro e descritivo.</p>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">Espécie</label>
-                        <select name="species" class="form-select">
-                            <option value="">Selecione...</option>
-                            <option value="Canino">Canino</option>
-                            <option value="Felino">Felino</option>
-                            <option value="Equino">Equino</option>
-                            <option value="Bovino">Bovino</option>
-                            <option value="Suíno">Suíno</option>
-                            <option value="Ave">Ave</option>
-                            <option value="Réptil">Réptil</option>
-                            <option value="Outro">Outro</option>
-                        </select>
+                <!-- Espécie (chips) -->
+                <div class="form-group">
+                    <label class="form-label">Espécie</label>
+                    <div class="species-chips" id="species-chips">
+                        <button type="button" class="sp-chip" data-sp="Canino">🐕 Canino</button>
+                        <button type="button" class="sp-chip" data-sp="Felino">🐈 Felino</button>
+                        <button type="button" class="sp-chip" data-sp="Equino">🐴 Equino</button>
+                        <button type="button" class="sp-chip" data-sp="Bovino">🐄 Bovino</button>
+                        <button type="button" class="sp-chip" data-sp="Suíno">🐷 Suíno</button>
+                        <button type="button" class="sp-chip" data-sp="Ave">🦜 Ave</button>
+                        <button type="button" class="sp-chip" data-sp="Réptil">🦎 Réptil</button>
+                        <button type="button" class="sp-chip" data-sp="Outro">🐾 Outro</button>
                     </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Raça</label>
-                        <input type="text" name="breed" class="form-input" maxlength="100">
-                    </div>
+                    <input type="hidden" name="species" id="species-hidden">
                 </div>
 
+                <!-- Raça (aparece após selecionar espécie) -->
+                <div class="form-group" id="breed-group" style="display:none">
+                    <label class="form-label">Raça</label>
+                    <select name="breed" id="breed-select" class="form-select">
+                        <option value="">Selecione a raça…</option>
+                    </select>
+                </div>
+
+                <!-- Especialidade -->
                 <div class="form-group">
                     <label class="form-label">Especialidade</label>
                     <select name="specialty" class="form-select">
-                        <option value="">Selecione...</option>
+                        <option value="">Selecione…</option>
+                        <option value="Clínica Geral">Clínica Geral</option>
                         <option value="Dermatologia">Dermatologia</option>
                         <option value="Cirurgia">Cirurgia</option>
                         <option value="Ortopedia">Ortopedia</option>
@@ -55,132 +90,199 @@
                         <option value="Nefrologia">Nefrologia</option>
                         <option value="Anestesiologia">Anestesiologia</option>
                         <option value="Diagnóstico por Imagem">Diagnóstico por Imagem</option>
-                        <option value="Clínica Geral">Clínica Geral</option>
+                        <option value="Reprodução Animal">Reprodução Animal</option>
+                        <option value="Nutrição">Nutrição</option>
+                        <option value="Fisioterapia">Fisioterapia</option>
+                        <option value="Comportamento Animal">Comportamento Animal</option>
+                        <option value="Animais Exóticos">Animais Exóticos</option>
                     </select>
                 </div>
 
+                <!-- Conteúdo -->
                 <div class="form-group">
                     <label class="form-label form-label-required">Descrição do Caso</label>
-                    <textarea name="content" class="form-textarea" rows="12" required></textarea>
-                    <p class="form-help">Mínimo 100 caracteres. Descreva: histórico, sintomas, diagnóstico, tratamento e evolução</p>
+                    <textarea name="content" class="form-textarea" rows="14" placeholder="Descreva: histórico clínico, sinais e sintomas, exames realizados, diagnóstico, tratamento e evolução do paciente…" required></textarea>
+                    <p class="form-help">Mínimo 100 caracteres.</p>
                 </div>
 
                 <div class="alert alert-info">
-                    <strong>⚠️ Importante:</strong> Não inclua informações que possam identificar o tutor ou o paciente. Foque apenas nos aspectos técnicos do caso.
+                    <strong>⚠️ Importante:</strong> Não inclua informações que identifiquem o tutor ou paciente. Foque nos aspectos técnicos do caso.
                 </div>
 
                 <div id="caseError" class="alert alert-error hidden"></div>
 
                 <div class="form-actions">
                     <a href="/casos-clinicos" class="btn btn-ghost">Cancelar</a>
-                    <button type="submit" class="btn btn-primary btn-lg">Publicar Caso Clínico</button>
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Publicar Caso Clínico</button>
                 </div>
             </form>
         </div>
+        {% endif %}
     </div>
 </section>
 
 <style>
-.create-case-page {
-    padding: var(--space-8) 0;
-    min-height: calc(100vh - 400px);
+.create-case-page { padding: var(--space-8) 0; min-height: calc(100vh - 400px); }
+
+.access-card {
+    background: white; border-radius: var(--radius-xl); padding: var(--space-12);
+    box-shadow: var(--shadow-md); text-align: center; margin-top: var(--space-8);
 }
+.access-icon { font-size: 3rem; margin-bottom: var(--space-4); }
+.access-card h3 { font-size: 1.5rem; margin-bottom: var(--space-3); }
+.access-card p { color: var(--text-secondary); margin-bottom: var(--space-6); }
 
 .form-card {
-    background: white;
-    padding: var(--space-10);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
-    margin-top: var(--space-8);
+    background: white; padding: var(--space-10); border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md); margin-top: var(--space-8);
 }
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
+.author-banner {
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: var(--space-4) var(--space-5); background: var(--surface-secondary);
+    border-radius: var(--radius-lg); margin-bottom: var(--space-8);
+    border-left: 4px solid var(--brand);
 }
+.author-avatar-sm {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem;
+}
+.author-name { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); }
+.author-crmv { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Chips de espécie ── */
+.species-chips {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: var(--space-2);
+}
+.sp-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 999px; font-size: 0.875rem;
+    font-weight: 600; border: 2px solid var(--border-medium);
+    background: white; color: var(--text-secondary);
+    cursor: pointer; transition: all 0.15s; line-height: 1;
+}
+.sp-chip:hover { border-color: var(--brand); color: var(--brand); background: #F0FAFB; }
+.sp-chip.active {
+    background: var(--brand); color: white; border-color: var(--brand);
+    box-shadow: 0 2px 8px rgba(8,131,149,0.3);
+}
+
+.form-textarea {
+    width: 100%; box-sizing: border-box;
+    border: 1.5px solid var(--border-medium); border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4); font-size: 0.95rem;
+    font-family: inherit; resize: vertical; color: var(--text-primary);
+    transition: border-color 0.15s; line-height: 1.7;
+}
+.form-textarea:focus { outline: none; border-color: var(--brand); }
 
 .form-actions {
-    display: flex;
-    gap: var(--space-4);
-    justify-content: flex-end;
-    margin-top: var(--space-8);
-    padding-top: var(--space-6);
+    display: flex; gap: var(--space-4); justify-content: flex-end;
+    margin-top: var(--space-8); padding-top: var(--space-6);
     border-top: 1px solid var(--border-light);
 }
 
 @media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .form-card {
-        padding: var(--space-5);
-    }
-
-    .form-actions {
-        flex-direction: column-reverse;
-    }
-
-    .form-actions .btn {
-        width: 100%;
-    }
-
-    .create-case-page {
-        padding: var(--space-4) 0;
-    }
+    .form-card { padding: var(--space-5); }
+    .form-actions { flex-direction: column-reverse; }
+    .form-actions .btn { width: 100%; text-align: center; }
+    .create-case-page { padding: var(--space-4) 0; }
 }
 </style>
 
+{% block extra_js %}
 <script>
-document.getElementById('createCaseForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const form = e.target;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const errorDiv = document.getElementById('caseError');
-
-    if (!isAuthenticated()) {
-        errorDiv.textContent = 'Você precisa estar logado como veterinário para publicar casos clínicos';
-        errorDiv.classList.remove('hidden');
-        return;
-    }
-
-    errorDiv.classList.add('hidden');
-    setButtonLoading(submitBtn, true);
-
-    const formData = new FormData(form);
-    const data = {
-        title: formData.get('title'),
-        species: formData.get('species') || null,
-        breed: formData.get('breed') || null,
-        specialty: formData.get('specialty') || null,
-        content: formData.get('content')
+(function () {
+    var BREEDS = {
+        'Canino': ['Labrador Retriever','Golden Retriever','Bulldog Francês','Poodle','Pastor Alemão',
+                   'Shih Tzu','Yorkshire Terrier','Beagle','Husky Siberiano','Dachshund',
+                   'Rottweiler','Pit Bull','Border Collie','Maltês','Schnauzer Miniatura',
+                   'Pinscher','Boxer','Spitz Alemão','Chow-Chow','Akita','Cocker Spaniel',
+                   'Weimaraner','Dálmata','SRD (Sem Raça Definida)'],
+        'Felino': ['Persa','Siamês','Maine Coon','Ragdoll','Bengal','Sphynx','Angorá',
+                   'British Shorthair','Abissínio','Azul Russo','Birmanês','Scottish Fold',
+                   'SRD (Sem Raça Definida)'],
+        'Equino': ['Quarto de Milha','Lusitano','Árabe','PSI (Puro Sangue Inglês)',
+                   'Mangalarga Marchador','Haflinger','Appaloosa','Crioulo','Campolina','SRD'],
+        'Bovino': ['Nelore','Gir','Girolando','Angus','Hereford','Brahman',
+                   'Simental','Limousin','Charolês','SRD'],
+        'Suíno':  ['Large White','Landrace','Duroc','Pietrain','Caipira','SRD'],
+        'Ave':    ['Papagaio','Calopsita','Canário','Periquito','Cacatua','Arara',
+                   'Pombo','Galinha','Peru','Pato','SRD'],
+        'Réptil': ['Iguana','Jabuti','Tartaruga','Cobra','Lagarto','Gecko','Camaleão','SRD'],
+        'Outro':  [],
     };
 
-    try {
-        const response = await fetch('/api/casos-clinicos', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-            },
-            body: JSON.stringify(data)
+    var chips      = document.querySelectorAll('.sp-chip');
+    var hidden     = document.getElementById('species-hidden');
+    var breedGroup = document.getElementById('breed-group');
+    var breedSel   = document.getElementById('breed-select');
+
+    function updateBreeds(species) {
+        var list = BREEDS[species] || [];
+        breedSel.innerHTML = '<option value="">Selecione a raça…</option>';
+        list.forEach(function (r) {
+            var o = document.createElement('option');
+            o.value = r; o.textContent = r;
+            breedSel.appendChild(o);
         });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.detail || 'Erro ao publicar caso clínico');
+        if (list.length > 0) {
+            breedSel.innerHTML += '<option value="Outra">Outra</option>';
         }
-
-        window.location.href = `/casos-clinicos/${result.id}`;
-
-    } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.remove('hidden');
-        setButtonLoading(submitBtn, false);
+        breedGroup.style.display = (list.length > 0) ? '' : 'none';
     }
-});
+
+    chips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            chips.forEach(function (c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+            var sp = chip.dataset.sp;
+            hidden.value = sp;
+            updateBreeds(sp);
+        });
+    });
+
+    var form = document.getElementById('createCaseForm');
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var submitBtn = document.getElementById('submitBtn');
+        var errorDiv  = document.getElementById('caseError');
+        errorDiv.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Publicando…';
+
+        var data = {
+            title:     form.querySelector('[name="title"]').value.trim(),
+            species:   hidden.value || null,
+            breed:     (breedSel && breedSel.value) ? breedSel.value : null,
+            specialty: form.querySelector('[name="specialty"]').value || null,
+            content:   form.querySelector('[name="content"]').value.trim(),
+        };
+
+        try {
+            var resp = await fetch('/api/casos-clinicos/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            var result = await resp.json();
+            if (!resp.ok) {
+                if (resp.status === 401) { window.location.href = '/login'; return; }
+                throw new Error(result.detail || 'Erro ao publicar');
+            }
+            window.location.href = '/casos-clinicos/' + result.id;
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Publicar Caso Clínico';
+        }
+    });
+})();
 </script>
+{% endblock %}
 {% endblock %}

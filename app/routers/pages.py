@@ -521,8 +521,11 @@ def casos_clinicos(
 
 
 @router.get("/casos-clinicos/criar", response_class=HTMLResponse)
-def criar_caso_clinico(request: Request, current_user: Optional[User] = Depends(get_current_user)):
-    return templates.TemplateResponse("case/create.html", {"request": request, "current_user": current_user})
+def criar_caso_clinico(request: Request, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
+    vet_profile = None
+    if current_user and current_user.user_type.value == "veterinarian":
+        vet_profile = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
+    return templates.TemplateResponse("case/create.html", {"request": request, "current_user": current_user, "vet_profile": vet_profile})
 
 
 @router.get("/casos-clinicos/{case_id}", response_class=HTMLResponse)
@@ -547,7 +550,11 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
         .all()
     )
 
+    vet_profile = None
+    if current_user and current_user.user_type.value == "veterinarian":
+        vet_profile = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
+
     return templates.TemplateResponse(
         "case/detail.html",
-        {"request": request, "current_user": current_user, "case": case, "comments": comments},
+        {"request": request, "current_user": current_user, "case": case, "comments": comments, "vet_profile": vet_profile},
     )
