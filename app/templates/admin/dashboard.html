@@ -112,10 +112,10 @@
                 <div class="stat-label">Avaliações pendentes</div>
             </div>
         </div>
-        <div class="stat-card {% if pending_cases > 0 %}warn{% else %}ok{% endif %}">
+        <div class="stat-card {% if pending_cases_count > 0 %}warn{% else %}ok{% endif %}">
             <div class="stat-icon">📋</div>
             <div>
-                <div class="stat-num">{{ pending_cases }}</div>
+                <div class="stat-num">{{ pending_cases_count }}</div>
                 <div class="stat-label">Casos pendentes</div>
             </div>
         </div>
@@ -253,7 +253,7 @@
     <div class="admin-section">
         <h2>
             📋 Casos Clínicos aguardando aprovação
-            {% if pending_cases > 0 %}<span class="badge-count">{{ pending_cases }}</span>{% endif %}
+            {% if pending_cases_count > 0 %}<span class="badge-count">{{ pending_cases_count }}</span>{% endif %}
         </h2>
         <div class="table-scroll"><table class="admin-table">
             <thead>

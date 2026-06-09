@@ -21,13 +21,13 @@ def _admin_context(request: Request, db: Session, **kwargs):
     pending_vets = db.query(Veterinarian).filter(Veterinarian.is_approved == False).count()
     pending_clinics = db.query(Clinic).filter(Clinic.is_approved == False).count()
     pending_reviews = db.query(Review).filter(Review.status == ReviewStatus.PENDING).count()
-    pending_cases = db.query(ClinicalCase).filter(ClinicalCase.status == CaseStatus.PENDING).count()
+    pending_cases_count = db.query(ClinicalCase).filter(ClinicalCase.status == CaseStatus.PENDING).count()
     return {
         "request": request,
         "pending_vets": pending_vets,
         "pending_clinics": pending_clinics,
         "pending_reviews": pending_reviews,
-        "pending_cases": pending_cases,
+        "pending_cases_count": pending_cases_count,
         **kwargs,
     }
 
