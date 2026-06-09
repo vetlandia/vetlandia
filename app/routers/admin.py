@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import require_admin
-from app.models.case import CaseStatus, ClinicalCase
+from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.review import Review, ReviewStatus
 from app.models.user import User, UserType
@@ -22,12 +22,14 @@ def _admin_context(request: Request, db: Session, **kwargs):
     pending_clinics = db.query(Clinic).filter(Clinic.is_approved == False).count()
     pending_reviews = db.query(Review).filter(Review.status == ReviewStatus.PENDING).count()
     pending_cases_count = db.query(ClinicalCase).filter(ClinicalCase.status == CaseStatus.PENDING).count()
+    pending_comments_count = db.query(CaseComment).filter(CaseComment.status == CaseStatus.PENDING).count()
     return {
         "request": request,
         "pending_vets": pending_vets,
         "pending_clinics": pending_clinics,
         "pending_reviews": pending_reviews,
         "pending_cases_count": pending_cases_count,
+        "pending_comments_count": pending_comments_count,
         **kwargs,
     }
 
@@ -45,6 +47,13 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         .order_by(ClinicalCase.created_at.desc())
         .all()
     )
+    pending_comments = (
+        db.query(CaseComment)
+        .options(joinedload(CaseComment.author), joinedload(CaseComment.case))
+        .filter(CaseComment.status == CaseStatus.PENDING)
+        .order_by(CaseComment.created_at.desc())
+        .all()
+    )
     users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).limit(20).all()
 
     return templates.TemplateResponse(
@@ -54,6 +63,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             vets=vets, clinics=clinics,
             reviews=reviews, published_reviews=published_reviews,
             pending_cases=pending_cases,
+            pending_comments=pending_comments,
             users=users, admin=admin,
         ),
     )
@@ -162,6 +172,36 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
 
 
 # ── Casos Clínicos ────────────────────────────────────────────────────────────
+
+@router.post("/comments/{comment_id}/approve")
+def approve_comment(comment_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    comment = db.query(CaseComment).filter(CaseComment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comentário não encontrado")
+    comment.status = CaseStatus.APPROVED
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/comments/{comment_id}/reject")
+def reject_comment(comment_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    comment = db.query(CaseComment).filter(CaseComment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comentário não encontrado")
+    comment.status = CaseStatus.REJECTED
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/comments/{comment_id}/delete")
+def delete_comment(comment_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    comment = db.query(CaseComment).filter(CaseComment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comentário não encontrado")
+    db.delete(comment)
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
 
 @router.post("/cases/{case_id}/approve")
 def approve_case(case_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):

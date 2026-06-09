@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models.case import CaseStatus, ClinicalCase
+from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
@@ -532,8 +532,6 @@ def criar_caso_clinico(request: Request, db: Session = Depends(get_db), current_
 
 @router.get("/casos-clinicos/{case_id}", response_class=HTMLResponse)
 def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
-    from app.models.case import CaseComment
-
     case = (
         db.query(ClinicalCase)
         .options(joinedload(ClinicalCase.author))
@@ -548,7 +546,10 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
     comments = (
         db.query(CaseComment)
         .options(joinedload(CaseComment.author))
-        .filter(CaseComment.case_id == case_id)
+        .filter(
+            CaseComment.case_id == case_id,
+            CaseComment.status == CaseStatus.APPROVED,
+        )
         .order_by(CaseComment.created_at.desc())
         .all()
     )

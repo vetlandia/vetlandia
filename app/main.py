@@ -1,5 +1,8 @@
+import re
+
 from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -29,6 +32,30 @@ app = FastAPI(
 )
 
 app.add_middleware(WWWRedirectMiddleware)
+
+
+def _traduzir_erro(msg: str) -> str:
+    msg = msg.strip()
+    m = re.search(r"at least (\d+) character", msg)
+    if m:
+        return f"Mínimo de {m.group(1)} caracteres"
+    m = re.search(r"at most (\d+) character", msg)
+    if m:
+        return f"Máximo de {m.group(1)} caracteres"
+    if "field required" in msg.lower() or "missing" in msg.lower():
+        return "Campo obrigatório"
+    if "value is not a valid" in msg.lower():
+        return "Valor inválido"
+    return msg
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_handler(request: Request, exc: RequestValidationError):
+    msgs = []
+    for e in exc.errors():
+        msgs.append(_traduzir_erro(e.get("msg", "Erro de validação")))
+    detail = "; ".join(msgs) if msgs else "Dados inválidos"
+    return JSONResponse(status_code=422, content={"detail": detail})
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 

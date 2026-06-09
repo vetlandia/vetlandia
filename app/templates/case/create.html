@@ -401,10 +401,10 @@
                 throw new Error(result.detail || ('Erro ' + resp.status));
             }
 
-            showToast('success', '✓ Caso publicado com sucesso!');
+            showToast('success', '✓ Caso enviado! Ficará visível após aprovação.');
             setTimeout(function () {
-                window.location.href = '/casos-clinicos/' + result.id;
-            }, 800);
+                window.location.href = '/casos-clinicos';
+            }, 2200);
 
         } catch (err) {
             showToast('error', err.message || 'Erro de conexão. Tente novamente.');

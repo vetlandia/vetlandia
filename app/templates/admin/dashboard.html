@@ -120,6 +120,15 @@
             </div>
         </div>
     </div>
+    <div class="admin-stats" style="grid-template-columns:repeat(4,1fr);margin-top:-16px">
+        <div class="stat-card {% if pending_comments_count > 0 %}warn{% else %}ok{% endif %}">
+            <div class="stat-icon">💬</div>
+            <div>
+                <div class="stat-num">{{ pending_comments_count }}</div>
+                <div class="stat-label">Comentários pendentes</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Veterinários pendentes -->
     <div class="admin-section">
@@ -325,6 +334,50 @@
                     {% endfor %}
                 {% else %}
                     <tr class="empty-row"><td colspan="5">Nenhuma avaliação publicada ainda</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <!-- Comentários pendentes -->
+    <div class="admin-section">
+        <h2>
+            💬 Comentários aguardando aprovação
+            {% if pending_comments_count > 0 %}<span class="badge-count">{{ pending_comments_count }}</span>{% endif %}
+        </h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Caso</th>
+                    <th>Veterinário(a)</th>
+                    <th>Comentário</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pending_comments %}
+                    {% for comment in pending_comments %}
+                    <tr>
+                        <td style="max-width:180px">{{ comment.case.title[:50] }}{% if comment.case.title|length > 50 %}…{% endif %}</td>
+                        <td>{{ comment.author.full_name }}</td>
+                        <td style="max-width:260px">{{ comment.content[:100] }}{% if comment.content|length > 100 %}…{% endif %}</td>
+                        <td>{{ comment.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td style="white-space:nowrap">
+                            <form class="action-form" method="POST" action="/admin/comments/{{ comment.id }}/approve">
+                                <button class="btn-approve">Aprovar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/comments/{{ comment.id }}/reject" style="margin-left:6px">
+                                <button class="btn-reject">Rejeitar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/comments/{{ comment.id }}/delete" style="margin-left:6px">
+                                <button class="btn-delete" onclick="return confirm('Deletar este comentário permanentemente?')">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="5">Nenhum comentário pendente ✅</td></tr>
                 {% endif %}
             </tbody>
         </table></div>

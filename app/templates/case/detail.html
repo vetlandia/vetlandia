@@ -334,6 +334,11 @@
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
         var submitBtn = form.querySelector('button[type="submit"]');
+        var content = (form.content.value || '').trim();
+        if (content.length < 10) {
+            showToast('error', 'O comentário precisa ter pelo menos 10 caracteres.');
+            return;
+        }
         submitBtn.disabled = true;
         submitBtn.textContent = 'Publicando…';
         try {
@@ -351,7 +356,8 @@
                         : 'Erro ao publicar comentário';
                 throw new Error(msg);
             }
-            window.location.reload();
+            showToast('success', '✓ Comentário enviado e aguardando aprovação.');
+            setTimeout(function () { window.location.reload(); }, 2000);
         } catch (err) {
             showToast('error', err.message || 'Erro ao publicar comentário');
             submitBtn.disabled = false;

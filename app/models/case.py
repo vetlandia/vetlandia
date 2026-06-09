@@ -45,6 +45,12 @@ class CaseComment(Base):
     case_id = Column(UUID(as_uuid=True), ForeignKey("clinical_cases.id"), nullable=False, index=True)
     author_id = Column(UUID(as_uuid=True), ForeignKey("veterinarians.id"), nullable=False, index=True)
     content = Column(Text, nullable=False)
+    status = Column(
+        Enum(CaseStatus, values_callable=lambda e: [m.value for m in e]),
+        default=CaseStatus.PENDING,
+        nullable=False,
+        index=True,
+    )
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
