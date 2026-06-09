@@ -6,9 +6,10 @@ from app.core.config import settings
 
 engine = create_engine(
     settings.db_url,
+    pool_pre_ping=True,   # detecta conexões mortas antes do query (Railway mata idle connections)
     pool_size=5,
     max_overflow=10,
-    pool_recycle=1800,   # recicla conexões a cada 30 min — evita conexões mortas sem ping extra
+    pool_recycle=300,     # recicla antes do Railway desconectar (Railway timeout ~5-10 min)
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
