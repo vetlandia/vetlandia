@@ -66,7 +66,7 @@
         .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
         @media (max-width: 640px) {
-            .admin-stats { grid-template-columns: 1fr; }
+            .admin-stats { grid-template-columns: repeat(2, 1fr) !important; }
             .admin-wrap { padding: 16px 12px 80px; }
             .admin-table { font-size: 0.8rem; min-width: 480px; }
             .admin-section { padding: 16px; }
@@ -90,7 +90,7 @@
     </div>
 
     <!-- Estatísticas -->
-    <div class="admin-stats">
+    <div class="admin-stats" style="grid-template-columns:repeat(4,1fr)">
         <div class="stat-card {% if pending_vets > 0 %}warn{% else %}ok{% endif %}">
             <div class="stat-icon">⚕️</div>
             <div>
@@ -110,6 +110,13 @@
             <div>
                 <div class="stat-num">{{ pending_reviews }}</div>
                 <div class="stat-label">Avaliações pendentes</div>
+            </div>
+        </div>
+        <div class="stat-card {% if pending_cases > 0 %}warn{% else %}ok{% endif %}">
+            <div class="stat-icon">📋</div>
+            <div>
+                <div class="stat-num">{{ pending_cases }}</div>
+                <div class="stat-label">Casos pendentes</div>
             </div>
         </div>
     </div>
@@ -237,6 +244,52 @@
                     {% endfor %}
                 {% else %}
                     <tr class="empty-row"><td colspan="5">Nenhuma avaliação pendente ✅</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <!-- Casos Clínicos pendentes -->
+    <div class="admin-section">
+        <h2>
+            📋 Casos Clínicos aguardando aprovação
+            {% if pending_cases > 0 %}<span class="badge-count">{{ pending_cases }}</span>{% endif %}
+        </h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Veterinário(a)</th>
+                    <th>Espécie</th>
+                    <th>Especialidade</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pending_cases %}
+                    {% for case in pending_cases %}
+                    <tr>
+                        <td style="max-width:220px"><strong>{{ case.title[:60] }}{% if case.title|length > 60 %}…{% endif %}</strong></td>
+                        <td>{{ case.author.full_name }}</td>
+                        <td>{{ case.species or '—' }}</td>
+                        <td>{{ case.specialty or '—' }}</td>
+                        <td>{{ case.created_at.strftime('%d/%m/%Y') }}</td>
+                        <td style="white-space:nowrap">
+                            <form class="action-form" method="POST" action="/admin/cases/{{ case.id }}/approve">
+                                <button class="btn-approve">Aprovar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/cases/{{ case.id }}/reject" style="margin-left:6px">
+                                <button class="btn-reject">Rejeitar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/cases/{{ case.id }}/delete" style="margin-left:6px">
+                                <button class="btn-delete" onclick="return confirm('Deletar este caso permanentemente?')">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="6">Nenhum caso clínico pendente ✅</td></tr>
                 {% endif %}
             </tbody>
         </table></div>

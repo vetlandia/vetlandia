@@ -42,7 +42,10 @@
 
         <!-- Comentários -->
         <div class="comments-section">
-            <h2>Discussão ({{ comments|length }})</h2>
+            <div class="reviews-header" style="margin-bottom:var(--space-6)">
+                <span class="reviews-header-label">💬 Discussão</span>
+                <span class="reviews-header-count">{{ comments|length }}</span>
+            </div>
 
             {% if comments %}
             <div class="comments-list">
@@ -89,7 +92,9 @@
                 <p class="text-secondary text-sm">Comentando como <strong>{{ vet_profile.full_name }}</strong> · {{ vet_profile.crmv }}</p>
                 <form id="commentForm" class="comment-form">
                     <textarea name="content" class="form-textarea" rows="4" placeholder="Compartilhe sua experiência ou opinião sobre este caso…" required></textarea>
-                    <button type="submit" class="btn btn-primary">Publicar Comentário</button>
+                    <div style="margin-top:var(--space-4)">
+                        <button type="submit" class="btn btn-primary">Publicar Comentário</button>
+                    </div>
                 </form>
                 {% endif %}
             </div>
@@ -337,10 +342,14 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: form.content.value }),
             });
-            var data = await resp.json();
+            var data = await resp.json().catch(function () { return {}; });
             if (!resp.ok) {
                 if (resp.status === 401) { window.location.href = '/login'; return; }
-                throw new Error(data.detail || 'Erro ao publicar comentário');
+                var det = data.detail;
+                var msg = typeof det === 'string' ? det
+                        : Array.isArray(det) ? det.map(function(e){ return e.msg || JSON.stringify(e); }).join('; ')
+                        : 'Erro ao publicar comentário';
+                throw new Error(msg);
             }
             window.location.reload();
         } catch (err) {

@@ -482,6 +482,31 @@
 .block { display: block; }
 .inline-block { display: inline-block; }
 
+/* ── Section header reutilizável (Avaliações, Discussão, etc.) ── */
+.reviews-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--border-light);
+}
+.reviews-header-label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary);
+}
+.reviews-header-count {
+    background: var(--brand, #088395);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 1px 9px;
+    border-radius: 999px;
+    line-height: 1.7;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
     .btn {

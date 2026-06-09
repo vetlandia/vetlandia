@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import get_current_user
-from app.models.case import ClinicalCase
+from app.models.case import CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
@@ -507,7 +507,9 @@ def casos_clinicos(
     current_user: Optional[User] = Depends(get_current_user),
     especialidade: str = None,
 ):
-    q = db.query(ClinicalCase).options(joinedload(ClinicalCase.author))
+    q = db.query(ClinicalCase).options(joinedload(ClinicalCase.author)).filter(
+        ClinicalCase.status == CaseStatus.APPROVED
+    )
 
     if especialidade:
         q = q.filter(ClinicalCase.specialty.ilike(f"%{especialidade}%"))
@@ -539,7 +541,8 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
         .first()
     )
 
-    if not case:
+    is_admin = current_user and current_user.user_type.value == "admin"
+    if not case or (case.status != CaseStatus.APPROVED and not is_admin):
         return RedirectResponse("/casos-clinicos")
 
     comments = (

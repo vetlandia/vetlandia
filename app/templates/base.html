@@ -31,7 +31,9 @@
                 <nav class="nav">
                     <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
                     <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
+                    {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
                     <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
+                    {% endif %}
 
                     {% if current_user %}
                         {% if current_user.user_type.value == 'admin' %}
@@ -64,7 +66,9 @@
         <div class="mobile-menu-content">
             <a href="/buscar/veterinarios" class="mobile-menu-link">Veterinários</a>
             <a href="/buscar/clinicas" class="mobile-menu-link">Clínicas</a>
+            {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
             <a href="/casos-clinicos" class="mobile-menu-link">Casos Clínicos</a>
+            {% endif %}
 
             {% if current_user %}
                 {% if current_user.user_type.value == 'admin' %}
