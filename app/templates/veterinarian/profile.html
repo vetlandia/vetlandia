@@ -58,7 +58,51 @@
             </div>
         </div>
 
-        <!-- Avaliações -->
+        <!-- Formulário de avaliação -->
+        {% set utype = current_user.user_type.value if current_user else '' %}
+        {% if utype == 'tutor' %}
+            {% if tutor_review %}
+                {% if tutor_review.status.value == 'pending' %}
+                <div class="review-submitted-notice pending">
+                    🕐 Sua avaliação foi enviada e está em análise. Ela aparecerá aqui após aprovação.
+                </div>
+                {% elif tutor_review.status.value == 'approved' %}
+                <div class="review-submitted-notice approved">
+                    ✓ Você já avaliou este veterinário.
+                </div>
+                {% elif tutor_review.status.value == 'rejected' %}
+                <div class="review-submitted-notice rejected">
+                    ✗ Sua avaliação anterior foi reprovada. Você pode enviar uma nova.
+                </div>
+                {% endif %}
+            {% endif %}
+            {% if not tutor_review or tutor_review.status.value == 'rejected' %}
+            <div class="review-form-card" id="review-form-card">
+                <h3>Deixar avaliação</h3>
+                <div class="star-rating-row">
+                    <span class="star-rating-label">Nota:</span>
+                    <div class="star-selector" id="star-selector">
+                        <button type="button" class="star-btn" data-v="1">★</button>
+                        <button type="button" class="star-btn" data-v="2">★</button>
+                        <button type="button" class="star-btn" data-v="3">★</button>
+                        <button type="button" class="star-btn" data-v="4">★</button>
+                        <button type="button" class="star-btn" data-v="5">★</button>
+                    </div>
+                    <span class="star-label-text" id="star-label-text"></span>
+                </div>
+                <textarea id="review-comment" class="review-textarea" placeholder="Conte sua experiência (mínimo 50 caracteres)..." rows="4" maxlength="2000"></textarea>
+                <div class="review-char-count"><span id="char-count">0</span>/50 caracteres mínimos</div>
+                <div id="review-form-msg" class="review-form-msg hidden"></div>
+                <button type="button" class="btn btn-primary review-submit-btn" id="review-submit-btn" onclick="submitReview('{{ reviewee_type }}', '{{ reviewee_id }}')">Enviar avaliação</button>
+            </div>
+            {% endif %}
+        {% elif not current_user %}
+        <div class="review-login-prompt">
+            <a href="/login" class="btn btn-outline">Faça login para avaliar</a>
+        </div>
+        {% endif %}
+
+        <!-- Lista de avaliações -->
         <div class="reviews-section">
             <h2>Avaliações ({{ reviews|length }})</h2>
 
@@ -70,18 +114,106 @@
                         <div class="review-rating">
                             {% for i in range(review.rating) %}⭐{% endfor %}
                         </div>
-                        <span class="review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
+                        <div class="review-meta">
+                            <span class="review-author">{{ review.author.display_name }}</span>
+                            <span class="review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
+                        </div>
                     </div>
                     <p class="review-comment">{{ review.comment }}</p>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p class="text-secondary">Nenhuma avaliação ainda. Seja o primeiro!</p>
+            <p class="text-secondary">Nenhuma avaliação aprovada ainda. Seja o primeiro!</p>
             {% endif %}
         </div>
     </div>
 </section>
+
+{% block extra_js %}
+<script>
+(function() {
+    var selected = 0;
+    var labels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
+    var btns = document.querySelectorAll('#star-selector .star-btn');
+    var labelEl = document.getElementById('star-label-text');
+    var charCountEl = document.getElementById('char-count');
+    var commentEl = document.getElementById('review-comment');
+
+    function paint(n) {
+        btns.forEach(function(b, i) {
+            b.classList.toggle('lit', i < n);
+        });
+        if (labelEl) labelEl.textContent = n ? labels[n] : '';
+    }
+
+    btns.forEach(function(btn) {
+        btn.addEventListener('mouseenter', function() { paint(+this.dataset.v); });
+        btn.addEventListener('mouseleave', function() { paint(selected); });
+        btn.addEventListener('click', function() {
+            selected = +this.dataset.v;
+            paint(selected);
+        });
+    });
+
+    var sel = document.getElementById('star-selector');
+    if (sel) sel.addEventListener('mouseleave', function() { paint(selected); });
+
+    if (commentEl) {
+        commentEl.addEventListener('input', function() {
+            if (charCountEl) charCountEl.textContent = this.value.length;
+        });
+    }
+})();
+
+function submitReview(revieweeType, revieweeId) {
+    var btn = document.getElementById('review-submit-btn');
+    var msgEl = document.getElementById('review-form-msg');
+    var commentEl = document.getElementById('review-comment');
+    var btns = document.querySelectorAll('#star-selector .star-btn');
+
+    var rating = 0;
+    btns.forEach(function(b) { if (b.classList.contains('lit')) rating = +b.dataset.v; });
+
+    function showMsg(kind, text) {
+        msgEl.className = 'review-form-msg review-msg-' + kind;
+        msgEl.textContent = text;
+        msgEl.classList.remove('hidden');
+    }
+
+    if (!rating) { showMsg('error', 'Selecione uma nota de 1 a 5 estrelas.'); return; }
+    var comment = commentEl ? commentEl.value.trim() : '';
+    if (comment.length < 50) { showMsg('error', 'O comentário precisa ter pelo menos 50 caracteres.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    fetch('/api/reviews/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            reviewee_type: revieweeType,
+            reviewee_id: revieweeId,
+            rating: rating,
+            comment: comment
+        })
+    })
+    .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
+    .then(function(res) {
+        if (!res.ok) throw new Error(res.data.detail || 'Erro ao enviar avaliação');
+        var card = document.getElementById('review-form-card');
+        if (card) {
+            card.outerHTML = '<div class="review-submitted-notice pending">🕐 Sua avaliação foi enviada e está em análise. Ela aparecerá aqui após aprovação.</div>';
+        }
+    })
+    .catch(function(err) {
+        showMsg('error', err.message || 'Erro de conexão. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar avaliação';
+    });
+}
+</script>
+{% endblock %}
 
 <style>
 .profile-page {
@@ -244,5 +376,72 @@
     line-height: 1.6;
     margin: 0;
 }
+
+/* ── Review form ── */
+.review-form-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--space-7);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+    margin-bottom: var(--space-6);
+}
+.review-form-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-5);
+    color: var(--text-primary);
+}
+.star-rating-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
+}
+.star-rating-label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
+.star-selector { display: flex; gap: 2px; }
+.star-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #D1D5DB;
+    padding: 0 1px;
+    line-height: 1;
+    transition: color 0.1s, transform 0.1s;
+}
+.star-btn.lit, .star-btn:hover { color: #F59E0B; transform: scale(1.15); }
+.star-label-text { font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; min-width: 70px; }
+.review-textarea {
+    width: 100%;
+    border: 1.5px solid var(--border-medium);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+    color: var(--text-primary);
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.review-textarea:focus { outline: none; border-color: var(--brand); }
+.review-char-count { font-size: 0.78rem; color: var(--text-tertiary); margin: 4px 0 var(--space-4); }
+.review-submit-btn { width: 100%; justify-content: center; }
+.review-form-msg { padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.88rem; font-weight: 500; margin-bottom: var(--space-3); }
+.review-form-msg.hidden { display: none; }
+.review-msg-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+.review-msg-success { background: #F0FDF4; color: #065F46; border: 1px solid #BBF7D0; }
+.review-submitted-notice {
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-6);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.review-submitted-notice.pending { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+.review-submitted-notice.approved { background: #F0FDF4; color: #065F46; border: 1px solid #BBF7D0; }
+.review-submitted-notice.rejected { background: #FFF1F2; color: #9F1239; border: 1px solid #FECDD3; }
+.review-login-prompt { margin-bottom: var(--space-6); text-align: center; }
+.review-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.review-author { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
 </style>
 {% endblock %}

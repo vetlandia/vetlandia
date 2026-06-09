@@ -13,7 +13,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.case import ClinicalCase
 from app.models.clinic import Clinic
-from app.models.review import Review, RevieweeType
+from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
@@ -79,7 +79,8 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
         .outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
-            & (Review.reviewee_type == RevieweeType.VETERINARIAN),
+            & (Review.reviewee_type == RevieweeType.VETERINARIAN)
+            & (Review.status == ReviewStatus.APPROVED),
         )
         .group_by(Veterinarian.id)
         .order_by(func.coalesce(func.avg(Review.rating), 0).desc(), Veterinarian.created_at.desc())
@@ -103,7 +104,9 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
         .filter(Clinic.is_approved == True)
         .outerjoin(
             Review,
-            (Review.reviewee_id == Clinic.id) & (Review.reviewee_type == RevieweeType.CLINIC),
+            (Review.reviewee_id == Clinic.id)
+            & (Review.reviewee_type == RevieweeType.CLINIC)
+            & (Review.status == ReviewStatus.APPROVED),
         )
         .group_by(Clinic.id)
         .order_by(func.coalesce(func.avg(Review.rating), 0).desc(), Clinic.created_at.desc())
@@ -180,7 +183,8 @@ def buscar_veterinarios(
     ).outerjoin(
         Review,
         (Review.reviewee_id == Veterinarian.id)
-        & (Review.reviewee_type == RevieweeType.VETERINARIAN),
+        & (Review.reviewee_type == RevieweeType.VETERINARIAN)
+        & (Review.status == ReviewStatus.APPROVED),
     )
 
     if query:
@@ -258,7 +262,10 @@ def buscar_clinicas(
     ).filter(
         Clinic.is_approved == True
     ).outerjoin(
-        Review, (Review.reviewee_id == Clinic.id) & (Review.reviewee_type == RevieweeType.CLINIC)
+        Review,
+        (Review.reviewee_id == Clinic.id)
+        & (Review.reviewee_type == RevieweeType.CLINIC)
+        & (Review.status == ReviewStatus.APPROVED),
     )
 
     if query:
@@ -316,11 +323,13 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     if not vet:
         return RedirectResponse("/buscar/veterinarios")
 
-    # Calcular rating
+    # Calcular rating (apenas aprovadas)
     rating_data = (
         db.query(func.avg(Review.rating), func.count(Review.id))
         .filter(
-            Review.reviewee_id == vet.id, Review.reviewee_type == RevieweeType.VETERINARIAN
+            Review.reviewee_id == vet.id,
+            Review.reviewee_type == RevieweeType.VETERINARIAN,
+            Review.status == ReviewStatus.APPROVED,
         )
         .first()
     )
@@ -328,19 +337,44 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     vet.avg_rating = round(rating_data[0], 1) if rating_data[0] else 0
     vet.review_count = rating_data[1]
 
-    # Buscar avaliações
+    # Buscar avaliações aprovadas com autor
+    from sqlalchemy.orm import joinedload as jl
     reviews = (
         db.query(Review)
+        .options(jl(Review.author))
         .filter(
-            Review.reviewee_id == vet.id, Review.reviewee_type == RevieweeType.VETERINARIAN
+            Review.reviewee_id == vet.id,
+            Review.reviewee_type == RevieweeType.VETERINARIAN,
+            Review.status == ReviewStatus.APPROVED,
         )
         .order_by(Review.created_at.desc())
         .all()
     )
 
+    # Avaliação do tutor logado (qualquer status)
+    tutor_review = None
+    if current_user and current_user.user_type.value == "tutor":
+        tutor_review = (
+            db.query(Review)
+            .filter(
+                Review.author_id == current_user.id,
+                Review.reviewee_id == vet.id,
+                Review.reviewee_type == RevieweeType.VETERINARIAN,
+            )
+            .first()
+        )
+
     return templates.TemplateResponse(
         "veterinarian/profile.html",
-        {"request": request, "current_user": current_user, "veterinarian": vet, "reviews": reviews},
+        {
+            "request": request,
+            "current_user": current_user,
+            "veterinarian": vet,
+            "reviews": reviews,
+            "tutor_review": tutor_review,
+            "reviewee_type": "veterinarian",
+            "reviewee_id": str(vet.id),
+        },
     )
 
 
@@ -351,23 +385,46 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
     if not clinic:
         return RedirectResponse("/buscar/clinicas")
 
-    # Calcular rating
+    # Calcular rating (apenas aprovadas)
     rating_data = (
         db.query(func.avg(Review.rating), func.count(Review.id))
-        .filter(Review.reviewee_id == clinic.id, Review.reviewee_type == RevieweeType.CLINIC)
+        .filter(
+            Review.reviewee_id == clinic.id,
+            Review.reviewee_type == RevieweeType.CLINIC,
+            Review.status == ReviewStatus.APPROVED,
+        )
         .first()
     )
 
     clinic.avg_rating = round(rating_data[0], 1) if rating_data[0] else 0
     clinic.review_count = rating_data[1]
 
-    # Buscar avaliações
+    # Buscar avaliações aprovadas com autor
+    from sqlalchemy.orm import joinedload as jl
     reviews = (
         db.query(Review)
-        .filter(Review.reviewee_id == clinic.id, Review.reviewee_type == RevieweeType.CLINIC)
+        .options(jl(Review.author))
+        .filter(
+            Review.reviewee_id == clinic.id,
+            Review.reviewee_type == RevieweeType.CLINIC,
+            Review.status == ReviewStatus.APPROVED,
+        )
         .order_by(Review.created_at.desc())
         .all()
     )
+
+    # Avaliação do tutor logado (qualquer status)
+    tutor_review = None
+    if current_user and current_user.user_type.value == "tutor":
+        tutor_review = (
+            db.query(Review)
+            .filter(
+                Review.author_id == current_user.id,
+                Review.reviewee_id == clinic.id,
+                Review.reviewee_type == RevieweeType.CLINIC,
+            )
+            .first()
+        )
 
     # Buscar veterinários da clínica
     veterinarians = (
@@ -393,6 +450,9 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "clinic_specialties": _parse_json_list(clinic.specialties),
             "clinic_species": _parse_json_list(clinic.animal_species),
             "clinic_convenios": _parse_json_list(clinic.convenios),
+            "tutor_review": tutor_review,
+            "reviewee_type": "clinic",
+            "reviewee_id": str(clinic.id),
         },
     )
 

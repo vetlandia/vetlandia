@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.routers import auth, pages
 from app.routers import admin as admin_router
 from app.routers import perfil as perfil_router
+from app.routers import reviews as reviews_router
 
 
 class WWWRedirectMiddleware(BaseHTTPMiddleware):
@@ -34,6 +35,7 @@ app.include_router(pages.router)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(admin_router.router)
 app.include_router(perfil_router.router, prefix="/api/perfil", tags=["perfil"])
+app.include_router(reviews_router.router, prefix="/api/reviews", tags=["reviews"])
 
 
 @app.get("/health")

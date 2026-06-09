@@ -527,10 +527,24 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
     const currentCity = '{{ profile.city if profile and profile.city else "" }}';
 
     function showStatus(kind, msg) {
-        statusBox.className = 'alert alert-' + kind;
-        statusBox.textContent = msg;
-        statusBox.classList.remove('hidden');
-        statusBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        let toast = document.getElementById('_mc_toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = '_mc_toast';
+            toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);padding:13px 28px;border-radius:10px;font-weight:600;font-size:0.95rem;z-index:99999;transition:transform 0.3s ease,opacity 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.18);white-space:nowrap;pointer-events:none;opacity:0;';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.background = kind === 'success' ? '#065F46' : '#991B1B';
+        toast.style.color = '#fff';
+        toast.getBoundingClientRect();
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        toast.style.opacity = '1';
+        clearTimeout(toast._t);
+        toast._t = setTimeout(function() {
+            toast.style.transform = 'translateX(-50%) translateY(80px)';
+            toast.style.opacity = '0';
+        }, 3500);
     }
 
     function maskPhone(v) {
