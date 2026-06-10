@@ -425,7 +425,7 @@
             </div>
 
             <!-- Alerta global -->
-            <div id="formStatus" class="alert hidden"></div>
+            <div id="formStatus" class="form-status-box hidden"></div>
 
             <!-- ══════════════ FORM TUTOR ══════════════ -->
             <form id="formTutor" class="cadastro-form" novalidate>
@@ -1021,6 +1021,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
 
     // ── Troca de abas ──
     const typeBtns = document.querySelectorAll('.type-tab');
+    const statusBox = document.getElementById('formStatus');
     const forms = {
         tutor: document.getElementById('formTutor'),
         veterinarian: document.getElementById('formVeterinarian'),
@@ -1031,9 +1032,9 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         btn.addEventListener('click', () => {
             typeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            statusBox.classList.add('hidden');
-            Object.keys(forms).forEach(k => forms[k].classList.add('hidden'));
-            forms[btn.dataset.type].classList.remove('hidden');
+            if (statusBox) statusBox.classList.add('hidden');
+            Object.keys(forms).forEach(k => { if (forms[k]) forms[k].classList.add('hidden'); });
+            if (forms[btn.dataset.type]) forms[btn.dataset.type].classList.remove('hidden');
         });
     });
 
