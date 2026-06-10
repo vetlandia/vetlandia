@@ -407,17 +407,17 @@
 
             <!-- Seletor de tipo -->
             <div class="type-tabs" role="tablist">
-                <button class="type-tab active" data-type="tutor" role="tab">
+                <button type="button" class="type-tab active" data-type="tutor" role="tab">
                     <span class="tab-icon">🐾</span>
                     <span class="tab-label">Tutor</span>
                     <span class="tab-desc">Tenho pets e busco veterinários</span>
                 </button>
-                <button class="type-tab" data-type="veterinarian" role="tab">
+                <button type="button" class="type-tab" data-type="veterinarian" role="tab">
                     <span class="tab-icon">⚕️</span>
                     <span class="tab-label">Veterinário(a)</span>
                     <span class="tab-desc">Sou médico(a) veterinário(a)</span>
                 </button>
-                <button class="type-tab" data-type="clinic" role="tab">
+                <button type="button" class="type-tab" data-type="clinic" role="tab">
                     <span class="tab-icon">🏥</span>
                     <span class="tab-label">Clínica</span>
                     <span class="tab-desc">Represento uma clínica</span>
@@ -849,6 +849,36 @@
 
 {% block extra_js %}
 <script>
+// ── Troca de abas (script isolado, sem dependências) ──
+(function() {
+    var FORM_IDS = { tutor: 'formTutor', veterinarian: 'formVeterinarian', clinic: 'formClinic' };
+
+    function switchTab(tipo) {
+        // Atualiza botões
+        document.querySelectorAll('.type-tab').forEach(function(b) {
+            b.classList.toggle('active', b.dataset.type === tipo);
+        });
+        // Atualiza formulários
+        Object.keys(FORM_IDS).forEach(function(k) {
+            var el = document.getElementById(FORM_IDS[k]);
+            if (el) el.classList.toggle('hidden', k !== tipo);
+        });
+    }
+
+    // Registra click em cada botão
+    document.querySelectorAll('.type-tab').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            switchTab(btn.dataset.type);
+        });
+    });
+
+    // Auto-seleciona aba via ?tipo= na URL
+    var tipo = new URLSearchParams(window.location.search).get('tipo');
+    if (tipo && FORM_IDS[tipo]) switchTab(tipo);
+})();
+</script>
+
+<script>
 // ── Upload de foto: resize + preview + base64 ──
 function setupPhotoUpload(inputId, previewId, hiddenId) {
     const input = document.getElementById(inputId);
@@ -1018,34 +1048,6 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         if (on) { btn.dataset.label = btn.textContent; btn.textContent = 'Enviando...'; }
         else if (btn.dataset.label) btn.textContent = btn.dataset.label;
     }
-
-    // ── Troca de abas ──
-    const typeBtns = document.querySelectorAll('.type-tab');
-    const statusBox = document.getElementById('formStatus');
-    const forms = {
-        tutor: document.getElementById('formTutor'),
-        veterinarian: document.getElementById('formVeterinarian'),
-        clinic: document.getElementById('formClinic'),
-    };
-
-    typeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            typeBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            if (statusBox) statusBox.classList.add('hidden');
-            Object.keys(forms).forEach(k => { if (forms[k]) forms[k].classList.add('hidden'); });
-            if (forms[btn.dataset.type]) forms[btn.dataset.type].classList.remove('hidden');
-        });
-    });
-
-    // ── Selecionar aba via ?tipo= na URL ──
-    (function() {
-        var tipo = new URLSearchParams(window.location.search).get('tipo');
-        if (tipo && forms[tipo]) {
-            var btn = document.querySelector('.type-tab[data-type="' + tipo + '"]');
-            if (btn) btn.click();
-        }
-    })();
 
     // ── Chips: coletar valores marcados ──
     function collectChips(groupId) {
