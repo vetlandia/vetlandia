@@ -13,7 +13,15 @@
         <div class="search-filters">
             <form method="get" class="filter-form">
                 <input type="text" name="query" class="form-input" placeholder="Nome da clínica..." value="{{ query or '' }}">
-                <input type="text" name="cidade" class="form-input" placeholder="Cidade..." value="{{ cidade or '' }}">
+                <div class="sel-wrap">
+                    <select name="cidade" class="form-input sel-input">
+                        <option value="">Todas as cidades</option>
+                        {% for c in cidades_disponiveis %}
+                        <option value="{{ c }}" {% if cidade == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="sel-arrow">▾</span>
+                </div>
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
             <div class="filter-chips" style="margin-top:12px">
@@ -113,6 +121,24 @@
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: var(--space-3);
+}
+.sel-wrap {
+    position: relative;
+}
+.sel-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2rem;
+    cursor: pointer;
+}
+.sel-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
 }
 .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip {

@@ -11,16 +11,33 @@
         </div>
 
         <div class="search-filters">
-            <form method="get" class="filter-form">
+            <form method="get" class="filter-form filter-form-4col">
                 <input type="text" name="query" class="form-input" placeholder="Nome ou CRMV..." value="{{ query or '' }}">
-                <input type="text" name="especialidade" class="form-input" placeholder="Especialidade..." value="{{ especialidade or '' }}">
+                <div class="sel-wrap">
+                    <select name="especialidade" class="form-input sel-input">
+                        <option value="">Todas as especialidades</option>
+                        {% for esp in especialidades_disponiveis %}
+                        <option value="{{ esp }}" {% if especialidade == esp %}selected{% endif %}>{{ esp }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="sel-arrow">▾</span>
+                </div>
+                <div class="sel-wrap">
+                    <select name="cidade" class="form-input sel-input">
+                        <option value="">Todas as cidades</option>
+                        {% for c in cidades_disponiveis %}
+                        <option value="{{ c }}" {% if cidade == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="sel-arrow">▾</span>
+                </div>
                 <button type="submit" class="btn btn-primary">Buscar</button>
             </form>
             <div class="filter-chips" style="margin-top:12px">
                 {% if somente_24h == '1' %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}{% endif %}" class="chip active">🕐 Atendimento 24h ✕</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}{% endif %}" class="chip active">🕐 Atendimento 24h ✕</a>
                 {% else %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
                 {% endif %}
             </div>
         </div>
@@ -117,6 +134,27 @@
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: var(--space-3);
+}
+.filter-form-4col {
+    grid-template-columns: 1.2fr 1fr 1fr auto;
+}
+.sel-wrap {
+    position: relative;
+}
+.sel-input {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 2rem;
+    cursor: pointer;
+}
+.sel-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
 }
 .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip {

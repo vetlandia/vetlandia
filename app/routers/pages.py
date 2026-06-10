@@ -219,7 +219,13 @@ def buscar_veterinarios(
         q = q.filter(Veterinarian.specialty.ilike(f"%{especialidade}%"))
 
     if cidade:
-        q = q.filter(Veterinarian.city.ilike(f"%{cidade}%"))
+        if "/" in cidade:
+            partes = cidade.split("/", 1)
+            q = q.filter(Veterinarian.city.ilike(f"%{partes[0].strip()}%"))
+            if partes[1].strip():
+                q = q.filter(Veterinarian.state == partes[1].strip().upper())
+        else:
+            q = q.filter(Veterinarian.city.ilike(f"%{cidade}%"))
 
     if estado:
         q = q.filter(Veterinarian.state == estado.upper())
@@ -238,6 +244,20 @@ def buscar_veterinarios(
         vet.review_count = review_count
         veterinarians.append(vet)
 
+    # Combos dinâmicos: apenas especialidades e cidades com vets aprovados
+    especialidades_disponiveis = sorted([
+        r[0] for r in
+        db.query(Veterinarian.specialty)
+        .filter(Veterinarian.is_approved == True, Veterinarian.specialty != None, Veterinarian.specialty != "")
+        .distinct().all()
+    ])
+    cidades_disponiveis = sorted([
+        f"{r[0]}/{r[1]}" for r in
+        db.query(Veterinarian.city, Veterinarian.state)
+        .filter(Veterinarian.is_approved == True, Veterinarian.city != None, Veterinarian.city != "")
+        .distinct().all()
+    ])
+
     return templates.TemplateResponse(
         "veterinarian/search.html",
         {
@@ -246,7 +266,10 @@ def buscar_veterinarios(
             "veterinarians": veterinarians,
             "query": query,
             "especialidade": especialidade,
+            "cidade": cidade,
             "somente_24h": somente_24h,
+            "especialidades_disponiveis": especialidades_disponiveis,
+            "cidades_disponiveis": cidades_disponiveis,
         },
     )
 
@@ -297,7 +320,13 @@ def buscar_clinicas(
                 )
 
     if cidade:
-        q = q.filter(Clinic.city.ilike(f"%{cidade}%"))
+        if "/" in cidade:
+            partes = cidade.split("/", 1)
+            q = q.filter(Clinic.city.ilike(f"%{partes[0].strip()}%"))
+            if partes[1].strip():
+                q = q.filter(Clinic.state == partes[1].strip().upper())
+        else:
+            q = q.filter(Clinic.city.ilike(f"%{cidade}%"))
 
     if estado:
         q = q.filter(Clinic.state == estado.upper())
@@ -316,9 +345,24 @@ def buscar_clinicas(
         clinic.review_count = review_count
         clinics.append(clinic)
 
+    cidades_disponiveis = sorted([
+        f"{r[0]}/{r[1]}" if r[1] else r[0] for r in
+        db.query(Clinic.city, Clinic.state)
+        .filter(Clinic.is_approved == True, Clinic.city != None, Clinic.city != "")
+        .distinct().all()
+    ])
+
     return templates.TemplateResponse(
         "clinic/search.html",
-        {"request": request, "current_user": current_user, "clinics": clinics, "query": query, "somente_24h": somente_24h},
+        {
+            "request": request,
+            "current_user": current_user,
+            "clinics": clinics,
+            "query": query,
+            "cidade": cidade,
+            "somente_24h": somente_24h,
+            "cidades_disponiveis": cidades_disponiveis,
+        },
     )
 
 

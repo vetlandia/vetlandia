@@ -1037,6 +1037,15 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         });
     });
 
+    // ── Selecionar aba via ?tipo= na URL ──
+    (function() {
+        var tipo = new URLSearchParams(window.location.search).get('tipo');
+        if (tipo && forms[tipo]) {
+            var btn = document.querySelector('.type-tab[data-type="' + tipo + '"]');
+            if (btn) btn.click();
+        }
+    })();
+
     // ── Chips: coletar valores marcados ──
     function collectChips(groupId) {
         const checked = document.querySelectorAll('#' + groupId + ' .chip-option:checked');
