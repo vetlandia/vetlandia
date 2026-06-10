@@ -49,11 +49,21 @@ def create_token_for_user(user: User, db: Session = None, pending: bool = False)
 
 
 def login(db: Session, credentials: UserLogin) -> Token:
-    user = authenticate_user(db, credentials)
+    user = db.query(User).filter(User.email == credentials.email).first()
     if not user:
         raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Nenhuma conta encontrada com este e-mail.",
+        )
+    if not verify_password(credentials.password, user.password_hash):
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Email ou senha incorretos",
+            detail="Senha incorreta.",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Conta desativada. Entre em contato com o suporte.",
         )
     pending = _is_pending(user, db)
     return create_token_for_user(user, pending=pending)
