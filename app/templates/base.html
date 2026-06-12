@@ -39,7 +39,8 @@
                         {% if current_user.user_type.value == 'admin' %}
                             <a href="/admin" class="nav-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Admin</a>
                         {% else %}
-                            <a href="/minha-conta" class="nav-link">Minha Conta</a>
+                            <span class="nav-greeting">Olá, {{ current_user.display_name.split(' ')[0] }}</span>
+                            <a href="/minha-conta" class="nav-link">Perfil</a>
                         {% endif %}
                         <a href="/logout" class="btn btn-outline btn-sm">Sair</a>
                     {% else %}
@@ -74,7 +75,8 @@
                 {% if current_user.user_type.value == 'admin' %}
                     <a href="/admin" class="mobile-menu-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Painel Admin</a>
                 {% else %}
-                    <a href="/minha-conta" class="mobile-menu-link">Minha Conta</a>
+                    <span class="mobile-menu-greeting">Olá, {{ current_user.display_name.split(' ')[0] }}</span>
+                    <a href="/minha-conta" class="mobile-menu-link">Perfil</a>
                 {% endif %}
                 <a href="/logout" class="mobile-menu-link">Sair</a>
             {% else %}

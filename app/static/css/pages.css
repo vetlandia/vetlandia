@@ -144,6 +144,22 @@
     padding: var(--space-6);
 }
 
+.nav-greeting {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.mobile-menu-greeting {
+    display: block;
+    padding: var(--space-4) 0;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-light);
+}
+
 .mobile-menu-link {
     display: block;
     padding: var(--space-4) 0;
