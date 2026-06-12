@@ -414,6 +414,23 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             .first()
         )
 
+    # Casos clínicos aprovados do veterinário
+    vet_cases = (
+        db.query(ClinicalCase)
+        .filter(
+            ClinicalCase.author_id == vet.id,
+            ClinicalCase.status == CaseStatus.APPROVED,
+        )
+        .order_by(ClinicalCase.created_at.desc())
+        .limit(6)
+        .all()
+    )
+
+    try:
+        vet_species = json.loads(vet.animal_species) if vet.animal_species else []
+    except (ValueError, TypeError):
+        vet_species = []
+
     return templates.TemplateResponse(
         "veterinarian/profile.html",
         {
@@ -424,6 +441,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "tutor_review": tutor_review,
             "reviewee_type": "veterinarian",
             "reviewee_id": str(vet.id),
+            "vet_cases": vet_cases,
+            "vet_species": vet_species,
         },
     )
 
