@@ -23,18 +23,23 @@
     <header class="header">
         <div class="container">
             <div class="header-content">
-                <a href="/" class="logo vt-logo">
-                    <img src="{{ url_for('static', path='/images/logo.png') }}" alt="VetLândia logo" class="logo-icon">
-                    <img src="{{ url_for('static', path='/images/vetlandia.png') }}" alt="VetLândia" class="logo-text">
-                </a>
+                <!-- Esquerda: logo + links principais -->
+                <div class="header-left">
+                    <a href="/" class="logo vt-logo">
+                        <img src="{{ url_for('static', path='/images/logo.png') }}" alt="VetLândia logo" class="logo-icon">
+                        <img src="{{ url_for('static', path='/images/vetlandia.png') }}" alt="VetLândia" class="logo-text">
+                    </a>
+                    <nav class="nav nav-primary">
+                        <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
+                        <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
+                        {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
+                        <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
+                        {% endif %}
+                    </nav>
+                </div>
 
-                <nav class="nav">
-                    <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
-                    <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
-                    {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
-                    <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
-                    {% endif %}
-
+                <!-- Direita: user/auth -->
+                <nav class="nav nav-secondary">
                     {% if current_user %}
                         {% if current_user.user_type.value == 'admin' %}
                             <a href="/admin" class="nav-link" style="color:var(--laranja-vibrante);font-weight:700">⚙️ Admin</a>
