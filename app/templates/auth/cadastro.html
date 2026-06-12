@@ -509,7 +509,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-submit">Criar Conta Gratuita</button>
+                <button type="submit" class="btn btn-primary btn-submit">Criar Conta</button>
             </form>
 
             <!-- ══════════════ FORM VETERINÁRIO ══════════════ -->
@@ -1048,6 +1048,13 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         if (on) { btn.dataset.label = btn.textContent; btn.textContent = 'Enviando...'; }
         else if (btn.dataset.label) btn.textContent = btn.dataset.label;
     }
+
+    // ── Referências dos formulários ──
+    const forms = {
+        tutor: document.getElementById('formTutor'),
+        veterinarian: document.getElementById('formVeterinarian'),
+        clinic: document.getElementById('formClinic'),
+    };
 
     // ── Chips: coletar valores marcados ──
     function collectChips(groupId) {
