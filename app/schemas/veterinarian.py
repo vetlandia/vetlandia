@@ -20,6 +20,7 @@ class VeterinarianBase(BaseModel):
     complement: Optional[str] = Field(None, max_length=200)
     animal_species: Optional[str] = None  # JSON string
     photo_url: Optional[str] = None  # data URL ou https URL
+    cover_photo_url: Optional[str] = None
     is_24h: bool = False
 
     @field_validator("crmv")
@@ -51,6 +52,7 @@ class VeterinarianUpdate(BaseModel):
     phone: Optional[str] = Field(None, max_length=20)
     whatsapp: Optional[str] = Field(None, max_length=20)
     photo_url: Optional[str] = None
+    cover_photo_url: Optional[str] = None
     city: Optional[str] = Field(None, max_length=100)
     state: Optional[str] = Field(None, min_length=2, max_length=2)
     complement: Optional[str] = Field(None, max_length=200)

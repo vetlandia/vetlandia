@@ -601,6 +601,22 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Foto de Capa</label>
+                        <div class="photo-upload-widget" id="vet-cover-widget">
+                            <div class="photo-preview" id="vet-cover-preview" style="border-radius:6px;width:120px;height:60px">
+                                <span class="photo-preview-placeholder">🖼</span>
+                            </div>
+                            <div class="photo-upload-actions">
+                                <label class="btn btn-secondary btn-sm photo-upload-btn" for="vet-cover-input">
+                                    🖼 Escolher capa
+                                </label>
+                                <input type="file" id="vet-cover-input" accept="image/*" class="photo-file-input">
+                                <input type="hidden" name="cover_photo_url" id="vet-cover-data">
+                                <p class="form-help">Aparece no topo do seu perfil público.<br>Opcional — pode adicionar depois.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-section">
@@ -706,6 +722,22 @@
                                 <input type="file" id="clinic-photo-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="photo_url" id="clinic-photo-data">
                                 <p class="form-help">JPG, PNG ou WEBP. Fachada ou interior da clínica.<br>Opcional — pode adicionar depois no perfil.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Foto de Capa</label>
+                        <div class="photo-upload-widget" id="clinic-cover-widget">
+                            <div class="photo-preview clinic-preview" id="clinic-cover-preview" style="border-radius:6px;width:120px;height:60px">
+                                <span class="photo-preview-placeholder">🖼</span>
+                            </div>
+                            <div class="photo-upload-actions">
+                                <label class="btn btn-secondary btn-sm photo-upload-btn" for="clinic-cover-input">
+                                    🖼 Escolher capa
+                                </label>
+                                <input type="file" id="clinic-cover-input" accept="image/*" class="photo-file-input">
+                                <input type="hidden" name="cover_photo_url" id="clinic-cover-data">
+                                <p class="form-help">Aparece no topo do perfil público da clínica.<br>Opcional — pode adicionar depois.</p>
                             </div>
                         </div>
                     </div>
@@ -918,9 +950,11 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
 }
 
 (function () {
-    setupPhotoUpload('tutor-photo-input',  'tutor-photo-preview',  'tutor-photo-data');
-    setupPhotoUpload('vet-photo-input',    'vet-photo-preview',    'vet-photo-data');
-    setupPhotoUpload('clinic-photo-input', 'clinic-photo-preview', 'clinic-photo-data');
+    setupPhotoUpload('tutor-photo-input',   'tutor-photo-preview',   'tutor-photo-data');
+    setupPhotoUpload('vet-photo-input',     'vet-photo-preview',     'vet-photo-data');
+    setupPhotoUpload('vet-cover-input',     'vet-cover-preview',     'vet-cover-data');
+    setupPhotoUpload('clinic-photo-input',  'clinic-photo-preview',  'clinic-photo-data');
+    setupPhotoUpload('clinic-cover-input',  'clinic-cover-preview',  'clinic-cover-data');
 })();
 </script>
 
@@ -1222,6 +1256,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 complement: form.querySelector('[name="complement"]').value || null,
                 animal_species: species.length ? JSON.stringify(species) : null,
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
+                cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('vet-is-24h').checked,
             };
 
@@ -1293,6 +1328,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 specialties: specialties.length ? JSON.stringify(specialties) : null,
                 convenios: convenios.length ? JSON.stringify(convenios) : null,
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
+                cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('clinic-is-24h').checked,
             };
 

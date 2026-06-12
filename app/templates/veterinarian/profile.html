@@ -5,208 +5,238 @@
 
 {% block extra_css %}
 <style>
+/* ─ Seal SVG ─────────────────────────────── */
+.seal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: default;
+    line-height: 0;
+}
+.seal-icon svg { display: block; }
+.seal-blue { color: #1D4ED8; }
+.seal-green { color: #059669; }
+
 /* ─ página ─────────────────────────────── */
-.lp-page { background: #F3F2EF; min-height: calc(100vh - 72px); padding-bottom: 48px; }
-.lp-wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.lp-page { background: #F4F2EE; min-height: calc(100vh - 72px); padding-bottom: 56px; }
+.lp-wrap { max-width: 900px; margin: 0 auto; padding: 0 16px; }
 
 /* ─ card genérico ── */
 .lp-card {
     background: #fff;
     border-radius: 8px;
-    border: 1px solid rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.09);
     margin-bottom: 10px;
     overflow: hidden;
 }
 
-/* ─ hero (cover + identidade) ── */
-.lp-cover {
-    height: 150px;
-    background: linear-gradient(160deg, #12394a 0%, #0d5566 55%, #0e7a72 100%);
-}
-.lp-identity { padding: 0 24px 18px; }
-.lp-identity-row {
-    display: flex;
-    align-items: flex-end;
-    gap: 14px;
-    margin-bottom: 10px;
+/* ─ accent top bar ── */
+.lp-card-accent::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: linear-gradient(90deg, #088395 0%, #00C4A7 60%, #F7A400 100%);
 }
 
-/* foto de perfil */
-.lp-photo-wrap { flex-shrink: 0; margin-top: -38px; }
+/* ─ hero ── */
+.lp-cover {
+    height: 160px;
+    background: linear-gradient(160deg, #0d2d3a 0%, #0e5060 45%, #0d7268 100%);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.lp-cover-overlay {
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c5 0 10-5 10-10S25 0 20 0 10 5 10 10s5 10 10 10zm0 20c5 0 10-5 10-10s-5-10-10-10-10 5-10 10 5 10 10 10z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.lp-identity { padding: 0 28px 20px; }
+.lp-identity-top {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+.lp-photo-wrap { flex-shrink: 0; margin-top: -44px; }
 .lp-photo, .lp-photo-init {
-    width: 90px; height: 90px;
+    width: 96px; height: 96px;
     border-radius: 50%;
     border: 3px solid #fff;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.18);
-    display: block;
-    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: block; object-fit: cover;
 }
 .lp-photo-init {
     background: #4B5563;
     display: flex; align-items: center; justify-content: center;
     font-size: 2rem; font-weight: 700; color: #fff;
 }
-
-/* badges (inline, ao lado do nome) */
-.lp-badge {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    vertical-align: middle;
-    flex-shrink: 0;
-}
-.lp-badge svg { width: 9px; height: 9px; display: block; }
-.lp-badge-blue { background: #1D4ED8; }
-.lp-badge-green { background: #059669; }
-
-/* nome + info */
-.lp-name-row {
-    display: flex; align-items: center; gap: 6px;
-    flex-wrap: wrap; margin-bottom: 2px;
-}
-.lp-name { font-size: 1.2rem; font-weight: 700; color: #1C1C1C; margin: 0; line-height: 1.2; }
-.lp-specialty { font-size: 0.875rem; color: #444; margin-bottom: 6px; }
-.lp-meta-row {
-    display: flex; flex-wrap: wrap; gap: 12px;
-    font-size: 0.78rem; color: #666; margin-bottom: 10px;
-}
-.lp-meta-item { display: flex; align-items: center; gap: 4px; }
-.lp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #555; margin-bottom: 12px; }
-.lp-stars { color: #F59E0B; letter-spacing: 0.5px; }
-
-/* contatos */
-.lp-contacts { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.lp-contact-link {
-    display: flex; align-items: center; gap: 7px;
-    text-decoration: none; color: #333;
-    font-size: 0.84rem; font-weight: 500;
-    transition: color .12s;
-}
-.lp-contact-link:hover { color: #0d7a72; }
+.lp-identity-spacer { flex: 1; }
 .lp-share-btn {
-    margin-left: auto;
-    background: none; border: 1px solid #D1D5DB;
+    background: none; border: 1px solid #CBD5E1;
     border-radius: 50%; width: 34px; height: 34px;
     display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; color: #555; transition: all .12s; flex-shrink: 0;
+    cursor: pointer; color: #64748B; transition: all .15s; flex-shrink: 0;
+    align-self: flex-start; margin-top: 10px;
 }
-.lp-share-btn:hover { border-color: #0d7a72; color: #0d7a72; }
+.lp-share-btn:hover { border-color: #088395; color: #088395; }
 
-/* stats bar */
+/* identidade textual */
+.lp-name-row {
+    display: flex; align-items: center; gap: 6px;
+    flex-wrap: wrap; margin-bottom: 3px;
+}
+.lp-name { font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0; line-height: 1.2; }
+.lp-specialty { font-size: 0.875rem; color: #374151; margin-bottom: 6px; font-weight: 400; }
+.lp-meta-row {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 0.775rem; color: #6B7280; margin-bottom: 10px;
+}
+.lp-meta-item { display: flex; align-items: center; gap: 4px; }
+.lp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.775rem; color: #555; margin-bottom: 14px; }
+.lp-stars { color: #F59E0B; letter-spacing: 0.5px; font-size: 0.85rem; }
+
+/* contatos */
+.lp-contacts { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.lp-contact-link {
+    display: flex; align-items: center; gap: 7px;
+    text-decoration: none; color: #1F2937;
+    font-size: 0.84rem; font-weight: 500; transition: color .12s;
+}
+.lp-contact-link:hover { color: #088395; }
+
+/* stats */
 .lp-stats-bar {
-    display: flex; gap: 20px; flex-wrap: wrap;
-    padding: 10px 24px;
-    border-top: 1px solid #F0F0EF;
-    background: #FAFAF9;
+    display: flex; gap: 22px; flex-wrap: wrap;
+    padding: 10px 28px;
+    border-top: 1px solid #F0EFEd;
+    background: #FAFAF8;
     font-size: 0.76rem; color: #555;
 }
 .lp-stat { display: flex; align-items: center; gap: 5px; }
-.lp-stat strong { color: #1C1C1C; }
-.lp-stat-ok { color: #059669; font-weight: 600; }
+.lp-stat strong { color: #111827; }
 
 /* ─ seções ── */
-.lp-section-title {
-    font-size: 0.92rem; font-weight: 700; color: #1C1C1C;
-    padding: 18px 24px 0; margin: 0 0 12px;
+.lp-card-title {
+    font-size: 0.93rem; font-weight: 700; color: #111827;
+    padding: 18px 28px 0; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 8px;
 }
-.lp-section-body { padding: 0 24px 18px; }
+.lp-card-title-rule {
+    display: block; width: 28px; height: 2px;
+    background: #088395; border-radius: 2px;
+    margin: 0 28px 14px;
+}
+.lp-section-body { padding: 0 28px 20px; }
 
 /* bio */
-.lp-bio { font-size: 0.875rem; color: #333; line-height: 1.7; white-space: pre-wrap; margin: 0; }
+.lp-bio { font-size: 0.875rem; color: #374151; line-height: 1.75; white-space: pre-wrap; margin: 0; }
 
 /* espécies */
 .lp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .lp-chip {
-    background: #F4F4F2; border: 1px solid #E5E5E0;
-    border-radius: 999px; padding: 4px 12px;
-    font-size: 0.76rem; color: #444; font-weight: 500;
+    background: #F9FAFB; border: 1px solid #E5E7EB;
+    border-radius: 999px; padding: 4px 13px;
+    font-size: 0.77rem; color: #374151; font-weight: 500;
 }
 
 /* casos */
-.lp-cases-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+.lp-cases-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .lp-case-card {
-    border: 1px solid #E5E5E0; border-radius: 6px;
+    border: 1px solid #E5E7EB; border-radius: 7px;
     padding: 12px 14px; text-decoration: none;
-    display: block; transition: border-color .12s;
+    display: block; transition: border-color .13s, box-shadow .13s;
+    border-left: 3px solid #E5E7EB;
 }
-.lp-case-card:hover { border-color: #0d7a72; }
+.lp-case-card:hover { border-color: #088395; border-left-color: #088395; box-shadow: 0 2px 8px rgba(8,131,149,0.08); }
 .lp-case-tag {
     font-size: 0.67rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .05em; color: #0d7a72; margin-bottom: 4px; display: block;
+    letter-spacing: .06em; color: #088395; margin-bottom: 4px; display: block;
 }
-.lp-case-title { font-size: 0.82rem; font-weight: 600; color: #1C1C1C; line-height: 1.3; margin-bottom: 4px; }
-.lp-case-date { font-size: 0.7rem; color: #9CA3AF; }
-.lp-no-content { font-size: 0.82rem; color: #9CA3AF; }
+.lp-case-title { font-size: 0.82rem; font-weight: 600; color: #111827; line-height: 1.3; margin-bottom: 4px; }
+.lp-case-date { font-size: 0.69rem; color: #9CA3AF; }
+.lp-no-content { font-size: 0.82rem; color: #9CA3AF; padding: 8px 0; }
 
 /* avaliações */
-.lp-reviews { display: flex; flex-direction: column; gap: 0; }
-.lp-review-item { padding: 14px 0; border-bottom: 1px solid #F0F0EF; }
+.lp-reviews { display: flex; flex-direction: column; }
+.lp-review-item { padding: 14px 0; border-bottom: 1px solid #F3F4F6; }
 .lp-review-item:first-child { padding-top: 0; }
 .lp-review-item:last-child { border-bottom: none; padding-bottom: 0; }
 .lp-review-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-.lp-review-author { font-size: 0.8rem; font-weight: 700; color: #333; }
+.lp-review-author { font-size: 0.8rem; font-weight: 700; color: #1F2937; }
 .lp-review-date { font-size: 0.7rem; color: #9CA3AF; }
 .lp-review-stars { color: #F59E0B; font-size: 0.78rem; margin-bottom: 4px; }
-.lp-review-text { font-size: 0.83rem; color: #444; line-height: 1.6; margin: 0; }
+.lp-review-text { font-size: 0.83rem; color: #4B5563; line-height: 1.6; margin: 0; }
 
 /* form avaliação */
-.lp-notice {
-    padding: 9px 13px; border-radius: 6px;
-    font-size: 0.8rem; font-weight: 500; margin-bottom: 12px;
-}
-.lp-notice-pending { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
+.lp-notice { padding: 9px 13px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; margin-bottom: 12px; }
+.lp-notice-pending  { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
 .lp-notice-approved { background:#F0FDF4; color:#065F46; border:1px solid #BBF7D0; }
 .lp-notice-rejected { background:#FFF1F2; color:#9F1239; border:1px solid #FECDD3; }
 .lp-star-row { display:flex; align-items:center; gap:4px; margin-bottom:8px; }
 .lp-star-lbl { font-size:0.78rem; color:#555; font-weight:500; }
 .lp-star-sel { display:flex; gap:1px; }
-.lp-star-btn {
-    background:none; border:none; font-size:1.4rem;
-    cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s;
-    line-height:1;
-}
+.lp-star-btn { background:none; border:none; font-size:1.4rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
 .lp-star-btn.lit, .lp-star-btn:hover { color:#F59E0B; }
-.lp-star-val { font-size:0.76rem; color:#777; font-weight:500; margin-left:4px; }
-.lp-textarea {
-    width:100%; border:1px solid #E5E7EB; border-radius:6px;
-    padding:9px 13px; font-size:0.85rem; resize:vertical;
-    font-family:inherit; color:#1C1C1C; box-sizing:border-box;
-}
-.lp-textarea:focus { outline:none; border-color:#0d7a72; }
+.lp-star-val { font-size:0.76rem; color:#9CA3AF; font-weight:500; margin-left:4px; }
+.lp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:6px; padding:9px 13px; font-size:0.85rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
+.lp-textarea:focus { outline:none; border-color:#088395; }
 .lp-char { font-size:0.7rem; color:#9CA3AF; margin:3px 0 10px; }
 .lp-form-msg { padding:7px 12px; border-radius:5px; font-size:0.78rem; font-weight:500; margin-bottom:9px; }
 .lp-form-msg.hidden { display:none; }
 .lp-form-msg-err { background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; }
-.lp-form-msg-ok  { background:#F0FDF4; color:#065F46; border:1px solid #BBF7D0; }
-.lp-form-divider { border:none; border-top:1px solid #F0F0EF; margin:14px 0; }
-.lp-login-note { font-size:0.8rem; color:#666; }
-.lp-login-note a { color:#0d7a72; text-decoration:none; }
+.lp-form-divider { border:none; border-top:1px solid #F3F4F6; margin:14px 0; }
+.lp-login-note { font-size:0.8rem; color:#6B7280; }
+.lp-login-note a { color:#088395; text-decoration:none; }
 
 /* ─ responsivo ── */
-@media (max-width:600px) {
-    .lp-cover { height:110px; }
+@media (max-width: 700px) {
+    .lp-cover { height: 120px; }
     .lp-identity, .lp-section-body { padding-left:16px; padding-right:16px; }
+    .lp-card-title { padding-left:16px; padding-right:16px; }
+    .lp-card-title-rule { margin-left:16px; }
     .lp-stats-bar { padding-left:16px; padding-right:16px; }
-    .lp-photo-wrap { margin-top:-30px; }
-    .lp-photo, .lp-photo-init { width:76px; height:76px; }
-    .lp-name { font-size:1.05rem; }
-    .lp-cases-grid { grid-template-columns:1fr; }
-    .lp-contacts { gap:10px; }
+    .lp-photo-wrap { margin-top: -32px; }
+    .lp-photo, .lp-photo-init { width: 80px; height: 80px; }
+    .lp-name { font-size: 1.05rem; }
+    .lp-cases-grid { grid-template-columns: 1fr 1fr; }
+    .lp-contacts { gap: 12px; }
+}
+@media (max-width: 480px) {
+    .lp-cases-grid { grid-template-columns: 1fr; }
 }
 </style>
 {% endblock %}
+
+{# ── Seal SVG macro ── #}
+{% macro seal_svg(color_class, title_text) %}
+<span class="seal-icon {{ color_class }}" title="{{ title_text }}">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
+        <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+</span>
+{% endmacro %}
 
 {% block content %}
 <div class="lp-page">
 <div class="lp-wrap">
 
 {# ── HERO CARD ── #}
-<div class="lp-card">
-    <div class="lp-cover"></div>
-    <div class="lp-identity">
+<div class="lp-card lp-card-accent">
+    {# Cover photo #}
+    {% if veterinarian.cover_photo_url %}
+    <div class="lp-cover" style="background-image:url('{{ veterinarian.cover_photo_url }}')">
+        <div class="lp-cover-overlay"></div>
+    </div>
+    {% else %}
+    <div class="lp-cover"><div class="lp-cover-overlay"></div></div>
+    {% endif %}
 
-        {# Linha: foto + ações #}
-        <div class="lp-identity-row">
+    <div class="lp-identity">
+        {# Linha: foto + share #}
+        <div class="lp-identity-top">
             <div class="lp-photo-wrap">
                 {% if veterinarian.photo_url %}
                 <img src="{{ veterinarian.photo_url }}" alt="{{ veterinarian.full_name }}" class="lp-photo">
@@ -214,9 +244,8 @@
                 <div class="lp-photo-init">{{ veterinarian.full_name[0] }}</div>
                 {% endif %}
             </div>
-            {# Espaço flex empurra o share p/ direita #}
-            <div style="flex:1"></div>
-            <button type="button" class="lp-share-btn" id="lp-share-btn" title="Compartilhar perfil" style="align-self:flex-start;margin-top:10px">
+            <div class="lp-identity-spacer"></div>
+            <button type="button" class="lp-share-btn" id="lp-share-btn" title="Compartilhar perfil">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
@@ -224,18 +253,13 @@
             </button>
         </div>
 
-        {# Nome + badges inline (estilo Instagram) #}
+        {# Nome + badge #}
         <div class="lp-name-row">
             <h1 class="lp-name">{{ veterinarian.full_name }}</h1>
-            {% if veterinarian.crmv %}
-            <span class="lp-badge lp-badge-blue" title="CRMV {{ veterinarian.crmv }} — certificado">
-                <svg viewBox="0 0 10 10" fill="none"><path d="M8 2.5L4.2 6.5 2 4.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            {% endif %}
-            {% if veterinarian.is_approved %}
-            <span class="lp-badge lp-badge-green" title="Validado pela VetLândia">
-                <svg viewBox="0 0 10 10" fill="none"><path d="M8 2.5L4.2 6.5 2 4.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
+            {% if veterinarian.is_founder %}
+                {{ seal_svg('seal-blue', 'Perfil Fundador') }}
+            {% elif veterinarian.is_approved %}
+                {{ seal_svg('seal-green', 'Perfil Verificado') }}
             {% endif %}
         </div>
 
@@ -261,12 +285,12 @@
         {% if veterinarian.avg_rating > 0 %}
         <div class="lp-rating-row">
             <span class="lp-stars">{% for i in range(veterinarian.avg_rating|int) %}★{% endfor %}{% for i in range(5 - veterinarian.avg_rating|int) %}☆{% endfor %}</span>
-            <strong style="color:#1C1C1C">{{ veterinarian.avg_rating }}</strong>
+            <strong style="color:#111827">{{ veterinarian.avg_rating }}</strong>
             <span style="color:#9CA3AF">({{ veterinarian.review_count }} avaliação{% if veterinarian.review_count != 1 %}ões{% endif %})</span>
         </div>
         {% endif %}
 
-        {# Contatos: WhatsApp ícone + número, sem botão grande #}
+        {# Contatos #}
         <div class="lp-contacts">
             {% set wpp = veterinarian.whatsapp or veterinarian.phone %}
             {% if wpp %}
@@ -281,16 +305,14 @@
             {% endif %}
             {% if veterinarian.phone and veterinarian.phone != veterinarian.whatsapp %}
             <a href="tel:{{ veterinarian.phone }}" class="lp-contact-link" title="Ligar">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
-                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
                 {{ veterinarian.phone }}
             </a>
             {% endif %}
         </div>
     </div>
 
-    {# Stats bar — discreta #}
+    {# Stats bar #}
     <div class="lp-stats-bar">
         <span class="lp-stat">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -300,34 +322,28 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             <strong>{{ veterinarian.review_count }}</strong> avaliação{% if veterinarian.review_count != 1 %}ões{% endif %}
         </span>
-        {% if veterinarian.is_approved %}
-        <span class="lp-stat lp-stat-ok">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            Perfil verificado
-        </span>
-        {% endif %}
     </div>
 </div>
 
 {# ── SOBRE ── #}
 {% if veterinarian.bio %}
 <div class="lp-card">
-    <h2 class="lp-section-title">Sobre</h2>
+    <h2 class="lp-card-title">Sobre</h2>
+    <span class="lp-card-title-rule"></span>
     <div class="lp-section-body" style="padding-top:0">
         <p class="lp-bio">{{ veterinarian.bio }}</p>
     </div>
 </div>
 {% endif %}
 
-{# ── ESPÉCIES ATENDIDAS ── #}
+{# ── ESPÉCIES ── #}
 {% if vet_species %}
 <div class="lp-card">
-    <h2 class="lp-section-title">Espécies Atendidas</h2>
+    <h2 class="lp-card-title">Espécies Atendidas</h2>
+    <span class="lp-card-title-rule"></span>
     <div class="lp-section-body" style="padding-top:0">
         <div class="lp-chips">
-            {% for sp in vet_species %}
-            <span class="lp-chip">{{ sp }}</span>
-            {% endfor %}
+            {% for sp in vet_species %}<span class="lp-chip">{{ sp }}</span>{% endfor %}
         </div>
     </div>
 </div>
@@ -335,7 +351,11 @@
 
 {# ── CASOS CLÍNICOS ── #}
 <div class="lp-card">
-    <h2 class="lp-section-title">Casos Clínicos{% if vet_cases %} <span style="font-weight:400;color:#9CA3AF;font-size:0.82rem">({{ vet_cases|length }})</span>{% endif %}</h2>
+    <h2 class="lp-card-title">
+        Casos Clínicos
+        {% if vet_cases %}<span style="font-weight:400;color:#9CA3AF;font-size:0.8rem;margin-left:4px">({{ vet_cases|length }})</span>{% endif %}
+    </h2>
+    <span class="lp-card-title-rule"></span>
     <div class="lp-section-body" style="padding-top:0">
         {% if vet_cases %}
         <div class="lp-cases-grid">
@@ -356,7 +376,11 @@
 
 {# ── AVALIAÇÕES ── #}
 <div class="lp-card">
-    <h2 class="lp-section-title">Avaliações{% if reviews %} <span style="font-weight:400;color:#9CA3AF;font-size:0.82rem">({{ reviews|length }})</span>{% endif %}</h2>
+    <h2 class="lp-card-title">
+        Avaliações
+        {% if reviews %}<span style="font-weight:400;color:#9CA3AF;font-size:0.8rem;margin-left:4px">({{ reviews|length }})</span>{% endif %}
+    </h2>
+    <span class="lp-card-title-rule"></span>
     <div class="lp-section-body" style="padding-top:0">
 
         {% set utype = current_user.user_type.value if current_user else '' %}
@@ -430,7 +454,6 @@
     var labelEl = document.getElementById('star-label-text');
     var commentEl = document.getElementById('review-comment');
     var charCountEl = document.getElementById('char-count');
-
     function paint(n) {
         btns.forEach(function(b, i) { b.classList.toggle('lit', i < n); });
         if (labelEl) labelEl.textContent = n ? labels[n] : '';
@@ -442,9 +465,7 @@
     });
     var selEl = document.getElementById('star-selector');
     if (selEl) selEl.addEventListener('mouseleave', function() { paint(selected); });
-    if (commentEl && charCountEl) {
-        commentEl.addEventListener('input', function() { charCountEl.textContent = this.value.length; });
-    }
+    if (commentEl && charCountEl) commentEl.addEventListener('input', function() { charCountEl.textContent = this.value.length; });
 
     var shareBtn = document.getElementById('lp-share-btn');
     var profileUrl = 'https://vetlandia.com.br/veterinario/{{ veterinarian.slug }}';
@@ -454,8 +475,8 @@
                 navigator.share({ title: '{{ veterinarian.full_name }} | VetLândia', url: profileUrl });
             } else {
                 navigator.clipboard.writeText(profileUrl).then(function() {
-                    shareBtn.setAttribute('title', 'Link copiado!');
-                    setTimeout(function() { shareBtn.setAttribute('title', 'Compartilhar perfil'); }, 2500);
+                    shareBtn.title = 'Link copiado!';
+                    setTimeout(function() { shareBtn.title = 'Compartilhar perfil'; }, 2500);
                 });
             }
         });

@@ -34,6 +34,8 @@ class Clinic(Base):
     specialties = Column(Text(), nullable=True)     # JSON array
     is_24h = Column(Boolean, default=False, nullable=False)
     is_approved = Column(Boolean, default=False, nullable=False, index=True)
+    is_founder = Column(Boolean, default=False, nullable=False)
+    cover_photo_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

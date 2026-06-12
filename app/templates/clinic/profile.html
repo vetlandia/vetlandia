@@ -1,574 +1,416 @@
 {% extends "base.html" %}
 
-{% block title %}{{ clinic.name }} - VetLândia{% endblock %}
+{% block title %}{{ clinic.name }} — Clínica Veterinária | VetLândia{% endblock %}
+{% block meta_description %}{{ clinic.name }}{% if clinic.city %} · {{ clinic.city }}/{{ clinic.state }}{% endif %}. Avaliações, equipe e contato na VetLândia.{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ─ Seal ── */
+.seal-icon { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; cursor:default; line-height:0; }
+.seal-icon svg { display:block; }
+.seal-blue { color:#1D4ED8; }
+.seal-green { color:#059669; }
+
+/* ─ página ── */
+.lp-page { background:#F4F2EE; min-height:calc(100vh - 72px); padding-bottom:56px; }
+.lp-wrap { max-width:900px; margin:0 auto; padding:0 16px; }
+.lp-card { background:#fff; border-radius:8px; border:1px solid rgba(0,0,0,0.09); margin-bottom:10px; overflow:hidden; }
+.lp-card-accent::before { content:''; display:block; height:3px; background:linear-gradient(90deg,#088395 0%,#00C4A7 60%,#F7A400 100%); }
+
+/* ─ hero ── */
+.lp-cover { height:160px; background:linear-gradient(160deg,#0d2d3a 0%,#0e5060 45%,#0d7268 100%); background-size:cover; background-position:center; position:relative; }
+.lp-cover-overlay { position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c5 0 10-5 10-10S25 0 20 0 10 5 10 10s5 10 10 10zm0 20c5 0 10-5 10-10s-5-10-10-10-10 5-10 10 5 10 10 10z'/%3E%3C/g%3E%3C/svg%3E"); }
+
+.lp-identity { padding:0 28px 20px; }
+.lp-identity-top { display:flex; align-items:flex-end; gap:16px; margin-bottom:12px; }
+.lp-photo-wrap { flex-shrink:0; margin-top:-44px; }
+.lp-photo, .lp-photo-init { width:96px; height:96px; border-radius:12px; border:3px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.2); display:block; object-fit:cover; }
+.lp-photo-init { background:#4B5563; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:700; color:#fff; }
+.lp-identity-spacer { flex:1; }
+.lp-share-btn { background:none; border:1px solid #CBD5E1; border-radius:50%; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:#64748B; transition:all .15s; flex-shrink:0; align-self:flex-start; margin-top:10px; }
+.lp-share-btn:hover { border-color:#088395; color:#088395; }
+.lp-name-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px; }
+.lp-name { font-size:1.25rem; font-weight:700; color:#111827; margin:0; line-height:1.2; }
+.lp-razao { font-size:0.78rem; color:#9CA3AF; margin-bottom:4px; }
+.lp-meta-row { display:flex; flex-wrap:wrap; gap:14px; font-size:0.775rem; color:#6B7280; margin-bottom:10px; }
+.lp-meta-item { display:flex; align-items:center; gap:4px; }
+.lp-rating-row { display:flex; align-items:center; gap:6px; font-size:0.775rem; color:#555; margin-bottom:14px; }
+.lp-stars { color:#F59E0B; letter-spacing:.5px; font-size:.85rem; }
+.lp-contacts { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+.lp-contact-link { display:flex; align-items:center; gap:7px; text-decoration:none; color:#1F2937; font-size:.84rem; font-weight:500; transition:color .12s; }
+.lp-contact-link:hover { color:#088395; }
+.lp-stats-bar { display:flex; gap:22px; flex-wrap:wrap; padding:10px 28px; border-top:1px solid #F0EFEd; background:#FAFAF8; font-size:.76rem; color:#555; }
+.lp-stat { display:flex; align-items:center; gap:5px; }
+.lp-stat strong { color:#111827; }
+
+/* ─ seções ── */
+.lp-card-title { font-size:.93rem; font-weight:700; color:#111827; padding:18px 28px 0; margin:0 0 4px; display:flex; align-items:center; gap:8px; }
+.lp-card-title-rule { display:block; width:28px; height:2px; background:#088395; border-radius:2px; margin:0 28px 14px; }
+.lp-section-body { padding:0 28px 20px; }
+.lp-bio { font-size:.875rem; color:#374151; line-height:1.75; white-space:pre-wrap; margin:0; }
+.lp-chips { display:flex; flex-wrap:wrap; gap:8px; }
+.lp-chip { background:#F9FAFB; border:1px solid #E5E7EB; border-radius:999px; padding:4px 13px; font-size:.77rem; color:#374151; font-weight:500; }
+.lp-chip-orange { background:#FFF7ED; border-color:#FED7AA; color:#9A3412; }
+.lp-chip-blue { background:#EFF6FF; border-color:#BFDBFE; color:#1D4ED8; }
+.lp-no-content { font-size:.82rem; color:#9CA3AF; padding:8px 0; }
+
+/* equipe */
+.lp-team-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.lp-team-card { border:1px solid #E5E7EB; border-radius:7px; padding:12px 14px; text-decoration:none; display:flex; align-items:center; gap:12px; transition:border-color .13s; }
+.lp-team-card:hover { border-color:#088395; }
+.lp-team-avatar { width:44px; height:44px; border-radius:50%; background:#4B5563; display:flex; align-items:center; justify-content:center; font-size:1.1rem; font-weight:700; color:#fff; flex-shrink:0; object-fit:cover; }
+.lp-team-name { font-size:.82rem; font-weight:600; color:#111827; line-height:1.2; margin-bottom:2px; }
+.lp-team-spec { font-size:.72rem; color:#6B7280; }
+
+/* avaliações */
+.lp-reviews { display:flex; flex-direction:column; }
+.lp-review-item { padding:14px 0; border-bottom:1px solid #F3F4F6; }
+.lp-review-item:first-child { padding-top:0; }
+.lp-review-item:last-child { border-bottom:none; padding-bottom:0; }
+.lp-review-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:5px; }
+.lp-review-author { font-size:.8rem; font-weight:700; color:#1F2937; }
+.lp-review-date { font-size:.7rem; color:#9CA3AF; }
+.lp-review-stars { color:#F59E0B; font-size:.78rem; margin-bottom:4px; }
+.lp-review-text { font-size:.83rem; color:#4B5563; line-height:1.6; margin:0; }
+
+/* form */
+.lp-notice { padding:9px 13px; border-radius:6px; font-size:.8rem; font-weight:500; margin-bottom:12px; }
+.lp-notice-pending  { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
+.lp-notice-approved { background:#F0FDF4; color:#065F46; border:1px solid #BBF7D0; }
+.lp-notice-rejected { background:#FFF1F2; color:#9F1239; border:1px solid #FECDD3; }
+.lp-star-row { display:flex; align-items:center; gap:4px; margin-bottom:8px; }
+.lp-star-lbl { font-size:.78rem; color:#555; font-weight:500; }
+.lp-star-sel { display:flex; gap:1px; }
+.lp-star-btn { background:none; border:none; font-size:1.4rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
+.lp-star-btn.lit, .lp-star-btn:hover { color:#F59E0B; }
+.lp-star-val { font-size:.76rem; color:#9CA3AF; font-weight:500; margin-left:4px; }
+.lp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:6px; padding:9px 13px; font-size:.85rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
+.lp-textarea:focus { outline:none; border-color:#088395; }
+.lp-char { font-size:.7rem; color:#9CA3AF; margin:3px 0 10px; }
+.lp-form-msg { padding:7px 12px; border-radius:5px; font-size:.78rem; font-weight:500; margin-bottom:9px; }
+.lp-form-msg.hidden { display:none; }
+.lp-form-msg-err { background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; }
+.lp-form-divider { border:none; border-top:1px solid #F3F4F6; margin:14px 0; }
+.lp-login-note { font-size:.8rem; color:#6B7280; }
+.lp-login-note a { color:#088395; text-decoration:none; }
+
+@media (max-width:700px) {
+    .lp-cover { height:110px; }
+    .lp-identity, .lp-section-body { padding-left:16px; padding-right:16px; }
+    .lp-card-title { padding-left:16px; }
+    .lp-card-title-rule { margin-left:16px; }
+    .lp-stats-bar { padding-left:16px; padding-right:16px; }
+    .lp-photo-wrap { margin-top:-30px; }
+    .lp-photo, .lp-photo-init { width:76px; height:76px; }
+    .lp-team-grid { grid-template-columns:1fr 1fr; }
+    .lp-name { font-size:1.05rem; }
+}
+@media (max-width:480px) { .lp-team-grid { grid-template-columns:1fr; } }
+</style>
+{% endblock %}
+
+{% macro seal_svg(color_class, title_text) %}
+<span class="seal-icon {{ color_class }}" title="{{ title_text }}">
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
+        <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+</span>
+{% endmacro %}
 
 {% block content %}
-<section class="profile-page">
-    <div class="container-narrow">
+<div class="lp-page">
+<div class="lp-wrap">
 
-        <!-- Header do Perfil -->
-        <div class="profile-header-card">
-            <div class="profile-avatar-large">
-                {% if clinic.photo_url or clinic.logo_url %}
-                <img src="{{ clinic.photo_url or clinic.logo_url }}" alt="{{ clinic.name }}">
+{# ── HERO ── #}
+<div class="lp-card lp-card-accent">
+    {% if clinic.cover_photo_url %}
+    <div class="lp-cover" style="background-image:url('{{ clinic.cover_photo_url }}')"><div class="lp-cover-overlay"></div></div>
+    {% else %}
+    <div class="lp-cover"><div class="lp-cover-overlay"></div></div>
+    {% endif %}
+
+    <div class="lp-identity">
+        <div class="lp-identity-top">
+            <div class="lp-photo-wrap">
+                {% set photo = clinic.photo_url or clinic.logo_url %}
+                {% if photo %}
+                <img src="{{ photo }}" alt="{{ clinic.name }}" class="lp-photo">
                 {% else %}
-                <div class="avatar-placeholder-large clinic-avatar">{{ clinic.name[0] }}</div>
+                <div class="lp-photo-init">{{ clinic.name[0] }}</div>
                 {% endif %}
             </div>
-
-            <div class="profile-info-main">
-                <h1>{{ clinic.name }}</h1>
-                {% if clinic.razao_social %}
-                <p class="profile-razao-social">{{ clinic.razao_social }}</p>
-                {% endif %}
-
-                {% if clinic.avg_rating > 0 %}
-                <div class="rating-large">
-                    <span class="rating-stars-large">
-                        {% for i in range(5) %}
-                            {% if i < clinic.avg_rating|int %}⭐{% else %}☆{% endif %}
-                        {% endfor %}
-                    </span>
-                    <span class="rating-value-large">{{ clinic.avg_rating }}</span>
-                    <span class="rating-count-large">({{ clinic.review_count }} avaliações)</span>
-                </div>
-                {% endif %}
-
-                <!-- Badges: especialidades e espécies -->
-                {% if clinic_specialties or clinic_species or clinic.is_24h %}
-                <div class="profile-badges">
-                    {% if clinic.is_24h %}<span class="badge badge-24h">🕐 24h</span>{% endif %}
-                    {% for sp in clinic_specialties %}
-                        <span class="badge badge-blue">{{ sp }}</span>
-                    {% endfor %}
-                    {% for sp in clinic_species %}
-                        <span class="badge badge-green">{{ sp }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="profile-details">
-                    <p><strong>📍 Localização:</strong>
-                        {% if clinic.address %}{{ clinic.address }}{% if clinic.complement %}, {{ clinic.complement }}{% endif %} — {% endif %}
-                        {{ clinic.city }}, {{ clinic.state }}
-                    </p>
-                    {% if clinic.phone %}
-                    <p><strong>📞 Telefone:</strong> {{ clinic.phone }}</p>
-                    {% endif %}
-                    {% if clinic.whatsapp %}
-                    <p><strong>💬 WhatsApp:</strong> {{ clinic.whatsapp }}</p>
-                    {% endif %}
-                    {% if clinic.email %}
-                    <p><strong>✉️ E-mail:</strong> {{ clinic.email }}</p>
-                    {% endif %}
-                    {% if clinic.website %}
-                    <p><strong>🌐 Site:</strong> <a href="{{ clinic.website }}" target="_blank" rel="noopener">{{ clinic.website }}</a></p>
-                    {% endif %}
-                    {% if clinic.cnpj %}
-                    <p><strong>🏢 CNPJ:</strong> {{ clinic.cnpj }}</p>
-                    {% endif %}
-                </div>
-
-                <!-- Convênios -->
-                {% if clinic_convenios %}
-                <div class="profile-convenios">
-                    <h4>Convênios aceitos</h4>
-                    <div class="convenios-list">
-                        {% for cv in clinic_convenios %}
-                            <span class="convenio-tag">{{ cv }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if clinic.description %}
-                <div class="profile-bio">
-                    <h3>Sobre a Clínica</h3>
-                    <p>{{ clinic.description }}</p>
-                </div>
-                {% endif %}
-            </div>
+            <div class="lp-identity-spacer"></div>
+            <button type="button" class="lp-share-btn" id="lp-share-btn" title="Compartilhar perfil">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                </svg>
+            </button>
         </div>
 
-        <!-- Equipe da Clínica -->
-        {% if veterinarians %}
-        <div class="section-card">
-            <h2 class="section-card-title">Equipe ({{ veterinarians|length }})</h2>
-            <div class="team-grid">
-                {% for vet in veterinarians %}
-                <a href="/veterinario/{{ vet.slug }}" class="team-member-card">
-                    <div class="team-avatar">
-                        {% if vet.photo_url %}
-                        <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="avatar-placeholder-sm">
-                        {% else %}
-                        <div class="avatar-placeholder-sm">{{ vet.full_name[0] }}</div>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <h4>{{ vet.full_name }}</h4>
-                        {% if vet.specialty %}
-                        <p class="text-secondary text-sm">{{ vet.specialty }}</p>
-                        {% endif %}
-                        <p class="text-tertiary text-xs">{{ vet.crmv }}</p>
-                    </div>
-                </a>
-                {% endfor %}
-            </div>
+        <div class="lp-name-row">
+            <h1 class="lp-name">{{ clinic.name }}</h1>
+            {% if clinic.is_founder %}
+                {{ seal_svg('seal-blue', 'Perfil Fundador') }}
+            {% elif clinic.is_approved %}
+                {{ seal_svg('seal-green', 'Perfil Verificado') }}
+            {% endif %}
+        </div>
+        {% if clinic.razao_social %}
+        <p class="lp-razao">{{ clinic.razao_social }}</p>
+        {% endif %}
+
+        <div class="lp-meta-row">
+            {% if clinic.city %}
+            <span class="lp-meta-item">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                {{ clinic.city }}, {{ clinic.state }}{% if clinic.address %} · {{ clinic.address }}{% endif %}
+            </span>
+            {% endif %}
+            {% if clinic.is_24h %}
+            <span class="lp-meta-item" style="color:#B91C1C;font-weight:600">Atendimento 24h</span>
+            {% endif %}
+        </div>
+
+        {% if clinic.avg_rating > 0 %}
+        <div class="lp-rating-row">
+            <span class="lp-stars">{% for i in range(clinic.avg_rating|int) %}★{% endfor %}{% for i in range(5 - clinic.avg_rating|int) %}☆{% endfor %}</span>
+            <strong style="color:#111827">{{ clinic.avg_rating }}</strong>
+            <span style="color:#9CA3AF">({{ clinic.review_count }} avaliação{% if clinic.review_count != 1 %}ões{% endif %})</span>
         </div>
         {% endif %}
 
-        <!-- Formulário de avaliação -->
+        <div class="lp-contacts">
+            {% set wpp = clinic.whatsapp or clinic.phone %}
+            {% if wpp %}
+            {% set wpp_clean = wpp | replace('(','') | replace(')','') | replace(' ','') | replace('-','') %}
+            <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="lp-contact-link" title="WhatsApp">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="#25D366">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                </svg>
+                {{ wpp }}
+            </a>
+            {% endif %}
+            {% if clinic.phone and clinic.phone != clinic.whatsapp %}
+            <a href="tel:{{ clinic.phone }}" class="lp-contact-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+                {{ clinic.phone }}
+            </a>
+            {% endif %}
+            {% if clinic.website %}
+            <a href="{{ clinic.website }}" target="_blank" rel="noopener" class="lp-contact-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                Site
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="lp-stats-bar">
+        {% if veterinarians %}
+        <span class="lp-stat">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/></svg>
+            <strong>{{ veterinarians|length }}</strong> veterinário{% if veterinarians|length != 1 %}s{% endif %}
+        </span>
+        {% endif %}
+        <span class="lp-stat">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <strong>{{ clinic.review_count }}</strong> avaliação{% if clinic.review_count != 1 %}ões{% endif %}
+        </span>
+    </div>
+</div>
+
+{# ── SOBRE ── #}
+{% if clinic.description %}
+<div class="lp-card">
+    <h2 class="lp-card-title">Sobre</h2>
+    <span class="lp-card-title-rule"></span>
+    <div class="lp-section-body" style="padding-top:0">
+        <p class="lp-bio">{{ clinic.description }}</p>
+    </div>
+</div>
+{% endif %}
+
+{# ── ESPECIALIDADES + ESPÉCIES + CONVÊNIOS ── #}
+{% if clinic_specialties or clinic_species or clinic_convenios %}
+<div class="lp-card">
+    <h2 class="lp-card-title">Especialidades & Atendimento</h2>
+    <span class="lp-card-title-rule"></span>
+    <div class="lp-section-body" style="padding-top:0">
+        {% if clinic_specialties %}
+        <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:8px">Especialidades</p>
+        <div class="lp-chips" style="margin-bottom:14px">
+            {% for sp in clinic_specialties %}<span class="lp-chip lp-chip-blue">{{ sp }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        {% if clinic_species %}
+        <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:8px">Espécies</p>
+        <div class="lp-chips" style="margin-bottom:14px">
+            {% for sp in clinic_species %}<span class="lp-chip">{{ sp }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        {% if clinic_convenios %}
+        <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9CA3AF;margin-bottom:8px">Convênios</p>
+        <div class="lp-chips">
+            {% for cv in clinic_convenios %}<span class="lp-chip lp-chip-orange">{{ cv }}</span>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{# ── EQUIPE ── #}
+{% if veterinarians %}
+<div class="lp-card">
+    <h2 class="lp-card-title">
+        Equipe
+        <span style="font-weight:400;color:#9CA3AF;font-size:0.8rem;margin-left:4px">({{ veterinarians|length }})</span>
+    </h2>
+    <span class="lp-card-title-rule"></span>
+    <div class="lp-section-body" style="padding-top:0">
+        <div class="lp-team-grid">
+            {% for vet in veterinarians %}
+            <a href="/veterinario/{{ vet.slug }}" class="lp-team-card">
+                {% if vet.photo_url %}
+                <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="lp-team-avatar">
+                {% else %}
+                <div class="lp-team-avatar">{{ vet.full_name[0] }}</div>
+                {% endif %}
+                <div>
+                    <div class="lp-team-name">{{ vet.full_name }}</div>
+                    {% if vet.specialty %}<div class="lp-team-spec">{{ vet.specialty }}</div>{% endif %}
+                    <div class="lp-team-spec">{{ vet.crmv }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{# ── AVALIAÇÕES ── #}
+<div class="lp-card">
+    <h2 class="lp-card-title">
+        Avaliações
+        {% if reviews %}<span style="font-weight:400;color:#9CA3AF;font-size:0.8rem;margin-left:4px">({{ reviews|length }})</span>{% endif %}
+    </h2>
+    <span class="lp-card-title-rule"></span>
+    <div class="lp-section-body" style="padding-top:0">
+
         {% set utype = current_user.user_type.value if current_user else '' %}
+
         {% if utype == 'tutor' %}
             {% if tutor_review %}
                 {% if tutor_review.status.value == 'pending' %}
-                <div class="review-submitted-notice pending section-card">
-                    🕐 Sua avaliação foi enviada e está em análise. Ela aparecerá aqui após aprovação.
-                </div>
+                <p class="lp-notice lp-notice-pending">Sua avaliação foi enviada e está em análise.</p>
                 {% elif tutor_review.status.value == 'approved' %}
-                <div class="review-submitted-notice approved section-card">
-                    ✓ Você já avaliou esta clínica.
-                </div>
+                <p class="lp-notice lp-notice-approved">Você já avaliou esta clínica.</p>
                 {% elif tutor_review.status.value == 'rejected' %}
-                <div class="review-submitted-notice rejected section-card">
-                    ✗ Sua avaliação anterior foi reprovada. Você pode enviar uma nova.
-                </div>
+                <p class="lp-notice lp-notice-rejected">Sua avaliação anterior foi reprovada. Você pode enviar uma nova.</p>
                 {% endif %}
             {% endif %}
             {% if not tutor_review or tutor_review.status.value == 'rejected' %}
-            <div class="section-card review-form-card" id="review-form-card">
-                <h3 class="section-card-title">Deixar avaliação</h3>
-                <div class="star-rating-row">
-                    <span class="star-rating-label">Nota:</span>
-                    <div class="star-selector" id="star-selector">
-                        <button type="button" class="star-btn" data-v="1">★</button>
-                        <button type="button" class="star-btn" data-v="2">★</button>
-                        <button type="button" class="star-btn" data-v="3">★</button>
-                        <button type="button" class="star-btn" data-v="4">★</button>
-                        <button type="button" class="star-btn" data-v="5">★</button>
+            <div id="review-form-card">
+                <div class="lp-star-row">
+                    <span class="lp-star-lbl">Nota:</span>
+                    <div class="lp-star-sel" id="star-selector">
+                        <button type="button" class="lp-star-btn" data-v="1">★</button>
+                        <button type="button" class="lp-star-btn" data-v="2">★</button>
+                        <button type="button" class="lp-star-btn" data-v="3">★</button>
+                        <button type="button" class="lp-star-btn" data-v="4">★</button>
+                        <button type="button" class="lp-star-btn" data-v="5">★</button>
                     </div>
-                    <span class="star-label-text" id="star-label-text"></span>
+                    <span class="lp-star-val" id="star-label-text"></span>
                 </div>
-                <textarea id="review-comment" class="review-textarea" placeholder="Conte sua experiência (mínimo 50 caracteres)..." rows="4" maxlength="2000"></textarea>
-                <div class="review-char-count"><span id="char-count">0</span>/50 caracteres mínimos</div>
-                <div id="review-form-msg" class="review-form-msg hidden"></div>
-                <button type="button" class="btn btn-primary review-submit-btn" id="review-submit-btn" onclick="submitReview('{{ reviewee_type }}', '{{ reviewee_id }}')">Enviar avaliação</button>
+                <textarea id="review-comment" class="lp-textarea" placeholder="Conte sua experiência (mínimo 50 caracteres)..." rows="3" maxlength="2000"></textarea>
+                <div class="lp-char"><span id="char-count">0</span>/50 mínimo</div>
+                <div id="review-msg" class="lp-form-msg hidden"></div>
+                <button type="button" class="btn btn-primary" id="review-submit-btn" style="font-size:0.83rem;padding:8px 18px" onclick="submitReview('{{ reviewee_type }}','{{ reviewee_id }}')">Enviar avaliação</button>
+                <hr class="lp-form-divider">
             </div>
             {% endif %}
         {% elif not current_user %}
-        <div class="review-login-prompt section-card" style="padding:var(--space-6);text-align:center;">
-            <a href="/login" class="btn btn-outline">Faça login para avaliar</a>
-        </div>
+        <p class="lp-login-note"><a href="/login">Faça login</a> para deixar uma avaliação.</p>
+        <hr class="lp-form-divider">
         {% endif %}
 
-        <!-- Lista de avaliações -->
-        <div class="section-card">
-            <div class="reviews-header">
-                <span class="reviews-header-label">⭐ Avaliações</span>
-                <span class="reviews-header-count">{{ reviews|length }}</span>
-            </div>
-            {% if reviews %}
-            <div class="reviews-list">
-                {% for review in reviews %}
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="review-rating">
-                            {% for i in range(review.rating) %}⭐{% endfor %}
-                        </div>
-                        <div class="review-meta">
-                            <span class="review-author">{{ review.author.display_name }}</span>
-                            <span class="review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
-                        </div>
+        {% if reviews %}
+        <div class="lp-reviews">
+            {% for review in reviews %}
+            <div class="lp-review-item">
+                <div class="lp-review-head">
+                    <div>
+                        <div class="lp-review-author">{{ review.author.display_name }}</div>
+                        <div class="lp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
                     </div>
-                    <p class="review-comment">{{ review.comment }}</p>
+                    <span class="lp-review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
                 </div>
-                {% endfor %}
+                <p class="lp-review-text">{{ review.comment }}</p>
             </div>
-            {% else %}
-            <p class="text-secondary">Nenhuma avaliação aprovada ainda. Seja o primeiro!</p>
-            {% endif %}
+            {% endfor %}
         </div>
-
+        {% else %}
+        <p class="lp-no-content">Nenhuma avaliação aprovada ainda. Seja o primeiro!</p>
+        {% endif %}
     </div>
-</section>
+</div>
+
+</div>{# /lp-wrap #}
+</div>{# /lp-page #}
+{% endblock %}
 
 {% block extra_js %}
 <script>
 (function() {
     var selected = 0;
     var labels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
-    var btns = document.querySelectorAll('#star-selector .star-btn');
+    var btns = document.querySelectorAll('#star-selector .lp-star-btn');
     var labelEl = document.getElementById('star-label-text');
-    var charCountEl = document.getElementById('char-count');
     var commentEl = document.getElementById('review-comment');
-
+    var charCountEl = document.getElementById('char-count');
     function paint(n) {
-        btns.forEach(function(b, i) { b.classList.toggle('lit', i < n); });
+        btns.forEach(function(b,i){ b.classList.toggle('lit',i<n); });
         if (labelEl) labelEl.textContent = n ? labels[n] : '';
     }
-
-    btns.forEach(function(btn) {
-        btn.addEventListener('mouseenter', function() { paint(+this.dataset.v); });
-        btn.addEventListener('mouseleave', function() { paint(selected); });
-        btn.addEventListener('click', function() { selected = +this.dataset.v; paint(selected); });
+    btns.forEach(function(btn){
+        btn.addEventListener('mouseenter',function(){ paint(+this.dataset.v); });
+        btn.addEventListener('mouseleave',function(){ paint(selected); });
+        btn.addEventListener('click',function(){ selected=+this.dataset.v; paint(selected); });
     });
-
-    var sel = document.getElementById('star-selector');
-    if (sel) sel.addEventListener('mouseleave', function() { paint(selected); });
-
-    if (commentEl) {
-        commentEl.addEventListener('input', function() {
-            if (charCountEl) charCountEl.textContent = this.value.length;
+    var selEl=document.getElementById('star-selector');
+    if (selEl) selEl.addEventListener('mouseleave',function(){ paint(selected); });
+    if (commentEl&&charCountEl) commentEl.addEventListener('input',function(){ charCountEl.textContent=this.value.length; });
+    var shareBtn=document.getElementById('lp-share-btn');
+    var profileUrl='https://vetlandia.com.br/clinica/{{ clinic.slug }}';
+    if (shareBtn) {
+        shareBtn.addEventListener('click',function(){
+            if (navigator.share) { navigator.share({title:'{{ clinic.name }} | VetLândia',url:profileUrl}); }
+            else { navigator.clipboard.writeText(profileUrl).then(function(){ shareBtn.title='Link copiado!'; setTimeout(function(){ shareBtn.title='Compartilhar perfil'; },2500); }); }
         });
     }
 })();
-
-function submitReview(revieweeType, revieweeId) {
-    var btn = document.getElementById('review-submit-btn');
-    var msgEl = document.getElementById('review-form-msg');
-    var commentEl = document.getElementById('review-comment');
-    var btns = document.querySelectorAll('#star-selector .star-btn');
-
-    var rating = 0;
-    btns.forEach(function(b) { if (b.classList.contains('lit')) rating = +b.dataset.v; });
-
-    function showMsg(kind, text) {
-        msgEl.className = 'review-form-msg review-msg-' + kind;
-        msgEl.textContent = text;
-        msgEl.classList.remove('hidden');
-    }
-
-    if (!rating) { showMsg('error', 'Selecione uma nota de 1 a 5 estrelas.'); return; }
-    var comment = commentEl ? commentEl.value.trim() : '';
-    if (comment.length < 50) { showMsg('error', 'O comentário precisa ter pelo menos 50 caracteres.'); return; }
-
-    btn.disabled = true;
-    btn.textContent = 'Enviando...';
-
-    fetch('/api/reviews/', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            reviewee_type: revieweeType,
-            reviewee_id: revieweeId,
-            rating: rating,
-            comment: comment
-        })
+function submitReview(revieweeType,revieweeId){
+    var btn=document.getElementById('review-submit-btn');
+    var msgEl=document.getElementById('review-msg');
+    var commentEl=document.getElementById('review-comment');
+    var btns=document.querySelectorAll('#star-selector .lp-star-btn');
+    var rating=0;
+    btns.forEach(function(b){ if(b.classList.contains('lit')) rating=+b.dataset.v; });
+    function showMsg(kind,text){ msgEl.className='lp-form-msg lp-form-msg-'+kind; msgEl.textContent=text; msgEl.classList.remove('hidden'); }
+    if(!rating){ showMsg('err','Selecione uma nota de 1 a 5 estrelas.'); return; }
+    var comment=commentEl?commentEl.value.trim():'';
+    if(comment.length<50){ showMsg('err','O comentário precisa ter ao menos 50 caracteres.'); return; }
+    btn.disabled=true; btn.textContent='Enviando...';
+    fetch('/api/reviews/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({reviewee_type:revieweeType,reviewee_id:revieweeId,rating:rating,comment:comment})})
+    .then(function(r){ return r.json().then(function(d){ return{ok:r.ok,data:d}; }); })
+    .then(function(res){
+        if(!res.ok) throw new Error(res.data.detail||'Erro ao enviar avaliação');
+        var card=document.getElementById('review-form-card');
+        if(card) card.outerHTML='<p class="lp-notice lp-notice-pending">Sua avaliação foi enviada e está em análise.</p>';
     })
-    .then(function(r) { return r.json().then(function(d) { return {ok: r.ok, data: d}; }); })
-    .then(function(res) {
-        if (!res.ok) throw new Error(res.data.detail || 'Erro ao enviar avaliação');
-        var card = document.getElementById('review-form-card');
-        if (card) {
-            card.outerHTML = '<div class="review-submitted-notice pending section-card">🕐 Sua avaliação foi enviada e está em análise. Ela aparecerá aqui após aprovação.</div>';
-        }
-    })
-    .catch(function(err) {
-        showMsg('error', err.message || 'Erro de conexão. Tente novamente.');
-        btn.disabled = false;
-        btn.textContent = 'Enviar avaliação';
-    });
+    .catch(function(err){ showMsg('err',err.message||'Erro de conexão.'); btn.disabled=false; btn.textContent='Enviar avaliação'; });
 }
 </script>
-{% endblock %}
-
-<style>
-/* ── Layout ── */
-.profile-page {
-    background: var(--surface-secondary);
-    padding: var(--space-8) 0 var(--space-16);
-    min-height: calc(100vh - 72px);
-}
-
-/* ── Card principal ── */
-.profile-header-card {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: var(--space-10);
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border-light);
-    margin-bottom: var(--space-6);
-    text-align: center;
-}
-
-/* ── Avatar ── */
-.profile-avatar-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin: 0 auto var(--space-6);
-    overflow: hidden;
-}
-
-.profile-avatar-large img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-}
-
-.avatar-placeholder-large {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-    font-weight: 700;
-    box-shadow: 0 8px 24px rgba(8, 131, 149, 0.3);
-}
-
-.avatar-placeholder-large.clinic-avatar {
-    background: linear-gradient(135deg, var(--laranja-vibrante), var(--amarelo-quente));
-    box-shadow: 0 8px 24px rgba(247, 127, 0, 0.3);
-}
-
-/* ── Info ── */
-.profile-info-main h1 {
-    font-size: 2rem;
-    margin-bottom: var(--space-2);
-}
-
-.profile-razao-social {
-    color: var(--text-tertiary);
-    font-size: 0.875rem;
-    margin-bottom: var(--space-4);
-}
-
-/* ── Rating ── */
-.rating-large {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-5);
-}
-
-.rating-stars-large { font-size: 1.5rem; }
-
-.rating-value-large {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.rating-count-large { color: var(--text-secondary); }
-
-/* ── Badges ── */
-.profile-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    justify-content: center;
-    margin-bottom: var(--space-5);
-}
-
-.badge-green {
-    background: #D1FAE5;
-    color: #065F46;
-    padding: 4px 12px;
-    border-radius: var(--radius-full);
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-.badge-24h {
-    background: #EF4444; color: #fff;
-    padding: 4px 12px; border-radius: var(--radius-full);
-    font-size: 0.8rem; font-weight: 700;
-    border: 1px solid #DC2626;
-}
-
-/* ── Detalhes ── */
-.profile-details {
-    text-align: left;
-    max-width: 540px;
-    margin: 0 auto var(--space-5);
-}
-
-.profile-details p {
-    margin-bottom: var(--space-3);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-
-.profile-details a {
-    color: var(--azul-intermediario);
-    word-break: break-all;
-}
-
-/* ── Convênios ── */
-.profile-convenios {
-    max-width: 540px;
-    margin: 0 auto var(--space-5);
-    text-align: left;
-}
-
-.profile-convenios h4 {
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-3);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-.convenios-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-}
-
-.convenio-tag {
-    padding: 4px 12px;
-    background: #EFF6FF;
-    color: #1D4ED8;
-    border-radius: var(--radius-full);
-    font-size: 0.78rem;
-    font-weight: 600;
-    border: 1px solid #BFDBFE;
-}
-
-/* ── Bio ── */
-.profile-bio {
-    text-align: left;
-    max-width: 600px;
-    margin: 0 auto;
-    padding-top: var(--space-5);
-    border-top: 1px solid var(--border-light);
-}
-
-.profile-bio h3 { margin-bottom: var(--space-3); font-size: 1rem; }
-.profile-bio p { color: var(--text-secondary); line-height: 1.7; margin: 0; }
-
-/* ── Cards de seção (equipe + avaliações) ── */
-.section-card {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: var(--space-8);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-light);
-    margin-bottom: var(--space-6);
-}
-
-.section-card-title {
-    font-size: 1.25rem;
-    margin-bottom: var(--space-6);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid var(--border-light);
-}
-
-/* ── Equipe ── */
-.team-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.team-member-card {
-    display: flex;
-    gap: var(--space-4);
-    align-items: center;
-    padding: var(--space-4);
-    background: var(--surface-secondary);
-    border-radius: var(--radius-lg);
-    border: 1.5px solid transparent;
-    transition: all var(--transition-base);
-    text-decoration: none;
-}
-
-.team-member-card:hover {
-    background: white;
-    border-color: var(--azul-claro);
-    transform: translateX(4px);
-    box-shadow: var(--shadow-sm);
-}
-
-.team-member-card h4 {
-    margin-bottom: 2px;
-    font-size: 0.95rem;
-    color: var(--text-primary);
-}
-
-.avatar-placeholder-sm {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--azul-intermediario), var(--azul-claro));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1rem;
-    flex-shrink: 0;
-    object-fit: cover;
-}
-
-/* ── Avaliações ── */
-.reviews-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-}
-
-.review-card {
-    padding: var(--space-5);
-    background: var(--surface-secondary);
-    border-radius: var(--radius-lg);
-    border-left: 3px solid var(--amarelo-quente);
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-3);
-}
-
-.review-rating { font-size: 1.125rem; }
-.review-date { font-size: 0.875rem; color: var(--text-tertiary); }
-.review-comment { color: var(--text-primary); line-height: 1.6; margin: 0; }
-.review-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.review-author { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
-
-/* ── Review form ── */
-.review-form-card h3.section-card-title { margin-bottom: var(--space-5); }
-.star-rating-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
-.star-rating-label { font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
-.star-selector { display: flex; gap: 2px; }
-.star-btn {
-    background: none; border: none; font-size: 2rem; cursor: pointer;
-    color: #D1D5DB; padding: 0 1px; line-height: 1; transition: color 0.1s, transform 0.1s;
-}
-.star-btn.lit, .star-btn:hover { color: #F59E0B; transform: scale(1.15); }
-.star-label-text { font-size: 0.875rem; color: var(--text-secondary); font-weight: 600; min-width: 70px; }
-.review-textarea {
-    width: 100%; border: 1.5px solid var(--border-medium); border-radius: var(--radius-lg);
-    padding: var(--space-3) var(--space-4); font-size: 0.9rem; resize: vertical;
-    font-family: inherit; color: var(--text-primary); transition: border-color 0.15s; box-sizing: border-box;
-}
-.review-textarea:focus { outline: none; border-color: var(--brand); }
-.review-char-count { font-size: 0.78rem; color: var(--text-tertiary); margin: 4px 0 var(--space-4); }
-.review-submit-btn { width: 100%; justify-content: center; }
-.review-form-msg { padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.88rem; font-weight: 500; margin-bottom: var(--space-3); }
-.review-form-msg.hidden { display: none; }
-.review-msg-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
-.review-submitted-notice { padding: var(--space-4) var(--space-5); font-weight: 600; font-size: 0.9rem; }
-.review-submitted-notice.pending { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
-.review-submitted-notice.approved { background: #F0FDF4; color: #065F46; border: 1px solid #BBF7D0; }
-.review-submitted-notice.rejected { background: #FFF1F2; color: #9F1239; border: 1px solid #FECDD3; }
-
-/* ── Responsivo ── */
-@media (max-width: 768px) {
-    .profile-header-card { padding: var(--space-6) var(--space-5); }
-    .profile-info-main h1 { font-size: 1.5rem; }
-    .section-card { padding: var(--space-5); }
-    .profile-details { max-width: 100%; }
-    .profile-convenios { max-width: 100%; }
-    .profile-bio { max-width: 100%; }
-}
-</style>
 {% endblock %}

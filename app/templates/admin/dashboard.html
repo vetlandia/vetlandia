@@ -383,6 +383,81 @@
         </table></div>
     </div>
 
+    <!-- Selos de Perfil -->
+    <div class="admin-section">
+        <h2>🏅 Selos de Perfil — Veterinários Aprovados</h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr><th>Nome</th><th>CRMV</th><th>Selo atual</th><th>Alterar selo</th></tr>
+            </thead>
+            <tbody>
+                {% if approved_vets %}
+                    {% for vet in approved_vets %}
+                    <tr>
+                        <td><a href="/veterinario/{{ vet.slug }}" target="_blank" style="color:inherit;text-decoration:none">{{ vet.full_name }}</a></td>
+                        <td style="font-size:0.8rem;color:#666">{{ vet.crmv }}</td>
+                        <td>
+                            {% if vet.is_founder %}
+                                <span style="color:#1D4ED8;font-weight:600">🔵 Fundador</span>
+                            {% else %}
+                                <span style="color:#059669;font-weight:600">🟢 Verificado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/set-badge" style="display:flex;gap:6px;align-items:center">
+                                <select name="badge_type" style="font-size:0.8rem;padding:4px 6px;border:1px solid #ddd;border-radius:4px">
+                                    <option value="verified" {% if not vet.is_founder %}selected{% endif %}>Verificado (verde)</option>
+                                    <option value="founder" {% if vet.is_founder %}selected{% endif %}>Fundador (azul)</option>
+                                </select>
+                                <button class="btn-approve" style="padding:4px 10px">Salvar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="4">Nenhum veterinário aprovado ainda</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="admin-section">
+        <h2>🏅 Selos de Perfil — Clínicas Aprovadas</h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr><th>Nome</th><th>Cidade/UF</th><th>Selo atual</th><th>Alterar selo</th></tr>
+            </thead>
+            <tbody>
+                {% if approved_clinics %}
+                    {% for clinic in approved_clinics %}
+                    <tr>
+                        <td><a href="/clinica/{{ clinic.slug }}" target="_blank" style="color:inherit;text-decoration:none">{{ clinic.name }}</a></td>
+                        <td style="font-size:0.8rem;color:#666">{{ clinic.city }}/{{ clinic.state }}</td>
+                        <td>
+                            {% if clinic.is_founder %}
+                                <span style="color:#1D4ED8;font-weight:600">🔵 Fundador</span>
+                            {% else %}
+                                <span style="color:#059669;font-weight:600">🟢 Verificado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/set-badge" style="display:flex;gap:6px;align-items:center">
+                                <select name="badge_type" style="font-size:0.8rem;padding:4px 6px;border:1px solid #ddd;border-radius:4px">
+                                    <option value="verified" {% if not clinic.is_founder %}selected{% endif %}>Verificado (verde)</option>
+                                    <option value="founder" {% if clinic.is_founder %}selected{% endif %}>Fundador (azul)</option>
+                                </select>
+                                <button class="btn-approve" style="padding:4px 10px">Salvar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="4">Nenhuma clínica aprovada ainda</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
     <!-- Usuários -->
     <div class="admin-section">
         <h2>👤 Usuários recentes</h2>

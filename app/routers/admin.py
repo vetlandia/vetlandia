@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
@@ -38,6 +38,8 @@ def _admin_context(request: Request, db: Session, **kwargs):
 def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
     vets = db.query(Veterinarian).filter(Veterinarian.is_approved == False).order_by(Veterinarian.created_at.desc()).all()
     clinics = db.query(Clinic).filter(Clinic.is_approved == False).order_by(Clinic.created_at.desc()).all()
+    approved_vets = db.query(Veterinarian).filter(Veterinarian.is_approved == True).order_by(Veterinarian.full_name).all()
+    approved_clinics = db.query(Clinic).filter(Clinic.is_approved == True).order_by(Clinic.name).all()
     reviews = db.query(Review).filter(Review.status == ReviewStatus.PENDING).order_by(Review.created_at.desc()).all()
     published_reviews = db.query(Review).filter(Review.status == ReviewStatus.APPROVED).order_by(Review.created_at.desc()).all()
     pending_cases = (
@@ -61,6 +63,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         _admin_context(
             request, db,
             vets=vets, clinics=clinics,
+            approved_vets=approved_vets, approved_clinics=approved_clinics,
             reviews=reviews, published_reviews=published_reviews,
             pending_cases=pending_cases,
             pending_comments=pending_comments,
@@ -92,6 +95,16 @@ def reject_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.post("/vets/{vet_id}/set-badge")
+def set_vet_badge(vet_id: str, badge_type: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
+    vet.is_founder = (badge_type == "founder")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
 # ── Clínicas ──────────────────────────────────────────────────────────────────
 
 @router.post("/clinics/{clinic_id}/approve")
@@ -100,6 +113,16 @@ def approve_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_approved = True
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/clinics/{clinic_id}/set-badge")
+def set_clinic_badge(clinic_id: str, badge_type: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica não encontrada")
+    clinic.is_founder = (badge_type == "founder")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
