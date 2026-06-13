@@ -108,6 +108,7 @@
         <div class="chips-scroll" style="padding:0 0 16px" id="specialty-chips">
           <button class="chip active" data-esp="" data-24h="">🏥 Todos</button>
           <button class="chip chip-24h" id="chip-24h" data-esp="" data-24h="1">🚨 Atendimento 24h</button>
+          <button class="chip chip-vac" id="chip-vac" data-esp="" data-vac="1">💉 Aplica vacinas</button>
           <span class="chips-divider">|</span>
           <button class="chip" data-esp="clinica-geral" data-24h="">🩺 Clínica Geral</button>
           <button class="chip" data-esp="dermatologia" data-24h="">🔬 Dermatologia</button>
@@ -122,7 +123,7 @@
         <div class="desktop-vet-grid" id="vets-grid">
           {% if veterinarians %}
             {% for vet in veterinarians[:6] %}
-            <a href="/veterinario/{{ vet.slug }}" class="vet-card" data-esp="{{ (vet.specialty or 'clinica-geral') | lower | replace(' ', '-') }}" data-24h="{{ '1' if vet.is_24h else '0' }}">
+            <a href="/veterinario/{{ vet.slug }}" class="vet-card" data-esp="{{ (vet.specialty or 'clinica-geral') | lower | replace(' ', '-') }}" data-24h="{{ '1' if vet.is_24h else '0' }}" data-vac="{{ '1' if vet.aplica_vacinas else '0' }}">
               <div class="vet-card-thumb {% if not vet.photo_url %}{% if loop.index % 3 == 1 %}teal{% elif loop.index % 3 == 2 %}purple{% else %}red{% endif %}{% endif %}">
                 {% if vet.photo_url %}
                 <img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}" class="vet-card-photo">
@@ -301,13 +302,15 @@
 (function() {
   const allChips = document.querySelectorAll('#specialty-chips .chip');
   const chip24h  = document.getElementById('chip-24h');
-  const espChips = document.querySelectorAll('#specialty-chips .chip:not(.chip-24h)');
+  const chipVac  = document.getElementById('chip-vac');
+  const espChips = document.querySelectorAll('#specialty-chips .chip:not(.chip-24h):not(.chip-vac)');
   const cards    = document.querySelectorAll('#vets-grid .vet-card');
   const empty    = document.getElementById('vets-empty');
   const title    = document.getElementById('vets-section-title');
 
   let activeEsp = '';
   let only24h   = false;
+  let onlyVac   = false;
 
   const labels = {
     '': 'Veterinários em destaque',
@@ -325,16 +328,21 @@
     cards.forEach(card => {
       const cardEsp = card.dataset.esp || '';
       const card24h = card.dataset['24h'] === '1';
+      const cardVac = card.dataset.vac === '1';
       const espOk = !activeEsp || cardEsp.includes(activeEsp);
       const h24Ok = !only24h || card24h;
-      const show = espOk && h24Ok;
+      const vacOk = !onlyVac || cardVac;
+      const show = espOk && h24Ok && vacOk;
       card.style.display = show ? '' : 'none';
       if (show) visible++;
     });
     if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
 
-    const base = activeEsp ? 'Especialidade: ' + (labels[activeEsp] || activeEsp) : 'Veterinários em destaque';
-    if (title) title.textContent = only24h ? base + ' · 24h' : base;
+    let base = activeEsp ? 'Especialidade: ' + (labels[activeEsp] || activeEsp) : 'Veterinários em destaque';
+    const tags = [];
+    if (only24h) tags.push('24h');
+    if (onlyVac) tags.push('Vacinas');
+    if (title) title.textContent = tags.length ? base + ' · ' + tags.join(' · ') : base;
   }
 
   // Chips de especialidade (mutuamente exclusivos)
@@ -354,6 +362,16 @@
       e.preventDefault();
       only24h = !only24h;
       this.classList.toggle('active', only24h);
+      applyFilters();
+    });
+  }
+
+  // Chip vacinas (toggle independente)
+  if (chipVac) {
+    chipVac.addEventListener('click', function(e) {
+      e.preventDefault();
+      onlyVac = !onlyVac;
+      this.classList.toggle('active', onlyVac);
       applyFilters();
     });
   }
