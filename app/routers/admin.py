@@ -178,8 +178,14 @@ def block_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requir
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     if user.user_type == UserType.ADMIN:
-        raise HTTPException(status_code=400, detail="Não é possível bloquear admin")
+        raise HTTPException(status_code=400, detail="Não é possível inativar admin")
     user.is_active = False
+    vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+    if vet:
+        vet.is_approved = False
+    clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+    if clinic:
+        clinic.is_approved = False
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -190,6 +196,12 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     user.is_active = True
+    vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+    if vet:
+        vet.is_approved = True
+    clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+    if clinic:
+        clinic.is_approved = True
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

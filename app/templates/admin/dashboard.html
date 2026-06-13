@@ -483,18 +483,18 @@
                             {% if user.is_active %}
                                 <span style="color:#27ae60;font-weight:600">Ativo</span>
                             {% else %}
-                                <span style="color:#e74c3c;font-weight:600">Bloqueado</span>
+                                <span style="color:#e74c3c;font-weight:600">Inativo</span>
                             {% endif %}
                         </td>
                         <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
                         <td>
                             {% if user.is_active %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/block">
-                                <button class="btn-block" onclick="return confirm('Bloquear {{ user.email }}?')">Bloquear</button>
+                                <button class="btn-block" onclick="return confirm('Inativar {{ user.email }}? O perfil sumirá do catálogo.')">Inativar</button>
                             </form>
                             {% else %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/unblock">
-                                <button class="btn-unblock">Desbloquear</button>
+                                <button class="btn-unblock">Reativar</button>
                             </form>
                             {% endif %}
                         </td>
