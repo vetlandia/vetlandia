@@ -548,8 +548,8 @@ def buscar_clinicas(
 def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     vet = db.query(Veterinarian).filter(Veterinarian.slug == slug).first()
 
-    if not vet:
-        return RedirectResponse("/buscar/veterinarios")
+    if not vet or not vet.is_approved:
+        return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
     # Calcular rating (apenas aprovadas)
     rating_data = (
@@ -629,8 +629,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
 def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     clinic = db.query(Clinic).filter(Clinic.slug == slug).first()
 
-    if not clinic:
-        return RedirectResponse("/buscar/clinicas")
+    if not clinic or not clinic.is_approved:
+        return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
     # Calcular rating (apenas aprovadas)
     rating_data = (

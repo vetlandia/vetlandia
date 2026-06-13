@@ -95,6 +95,17 @@ def reject_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.post("/vets/{vet_id}/delete")
+def delete_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
+    db.query(Review).filter(Review.reviewee_id == vet.id).delete()
+    db.delete(vet)
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
 @router.post("/vets/{vet_id}/set-badge")
 def set_vet_badge(vet_id: str, badge_type: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
@@ -123,6 +134,17 @@ def set_clinic_badge(clinic_id: str, badge_type: str = Form(...), db: Session = 
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_founder = (badge_type == "founder")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/clinics/{clinic_id}/delete")
+def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica não encontrada")
+    db.query(Review).filter(Review.reviewee_id == clinic.id).delete()
+    db.delete(clinic)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
