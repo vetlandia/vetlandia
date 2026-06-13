@@ -10,7 +10,9 @@ from app.core.database import get_db
 from app.core.deps import require_admin
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
+from app.models.comment import Comment
 from app.models.review import Review, ReviewStatus
+from app.models.tutor import Tutor
 from app.models.user import User, UserType
 from app.models.veterinarian import Veterinarian
 
@@ -230,35 +232,57 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
+def _delete_reviews(reviewee_or_author_ids, column, db: Session):
+    """Apaga avaliações (e seus comentários) por reviewee_id ou author_id."""
+    SS = {"synchronize_session": False}
+    rev_ids = [r[0] for r in db.query(Review.id).filter(column.in_(reviewee_or_author_ids)).all()]
+    if rev_ids:
+        db.query(Comment).filter(Comment.review_id.in_(rev_ids)).delete(**SS)
+        db.query(Review).filter(Review.id.in_(rev_ids)).delete(**SS)
+
+
 def _delete_user_and_profiles(user: User, db: Session):
     SS = {"synchronize_session": False}
 
+    # ── Perfil de veterinário ───────────────────────────────────────────
     vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
     if vet:
-        # Comentários escritos pelo vet em qualquer caso
-        db.query(CaseComment).filter(CaseComment.author_id == vet.id).delete(**SS)
-        # Comentários nos casos publicados por este vet
         case_ids = [r[0] for r in db.query(ClinicalCase.id).filter(ClinicalCase.author_id == vet.id).all()]
+        # Comentários nos casos publicados por este vet (de qualquer autor)
         if case_ids:
             db.query(CaseComment).filter(CaseComment.case_id.in_(case_ids)).delete(**SS)
+        # Comentários escritos por este vet em qualquer caso
+        db.query(CaseComment).filter(CaseComment.author_id == vet.id).delete(**SS)
         # Casos clínicos do vet
-        db.query(ClinicalCase).filter(ClinicalCase.author_id == vet.id).delete(**SS)
-        # Avaliações recebidas pelo vet
-        db.query(Review).filter(Review.reviewee_id == vet.id).delete(**SS)
+        if case_ids:
+            db.query(ClinicalCase).filter(ClinicalCase.id.in_(case_ids)).delete(**SS)
+        # Avaliações recebidas pelo vet (+ comentários)
+        _delete_reviews([vet.id], Review.reviewee_id, db)
         db.delete(vet)
         db.flush()
 
+    # ── Perfil de clínica ───────────────────────────────────────────────
     clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
     if clinic:
         # Desvincular vets que apontam para esta clínica
         db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).update({"clinic_id": None}, **SS)
-        # Avaliações recebidas pela clínica
-        db.query(Review).filter(Review.reviewee_id == clinic.id).delete(**SS)
+        # Avaliações recebidas pela clínica (+ comentários)
+        _delete_reviews([clinic.id], Review.reviewee_id, db)
         db.delete(clinic)
         db.flush()
 
-    # Avaliações escritas pelo usuário (tutor)
-    db.query(Review).filter(Review.author_id == user.id).delete(**SS)
+    # ── Perfil de tutor ─────────────────────────────────────────────────
+    tutor = db.query(Tutor).filter(Tutor.user_id == user.id).first()
+    if tutor:
+        db.delete(tutor)
+        db.flush()
+
+    # ── Conteúdo escrito pelo próprio usuário ────────────────────────────
+    # Comentários de avaliações escritos pelo usuário
+    db.query(Comment).filter(Comment.author_id == user.id).delete(**SS)
+    # Avaliações escritas pelo usuário (+ comentários nelas)
+    _delete_reviews([user.id], Review.author_id, db)
+
     db.delete(user)
     db.flush()
 
