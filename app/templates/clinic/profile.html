@@ -228,7 +228,7 @@ body { background: #ffffff; }
             <div class="cp-name-row">
                 <h1 class="cp-name">{{ clinic.name }}</h1>
                 {% if clinic.is_founder %}
-                <span class="cp-seal cp-seal-blue">
+                <span class="cp-seal cp-seal-blue" title="Perfil Fundador">
                     <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Fundador</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
@@ -236,7 +236,7 @@ body { background: #ffffff; }
                     </svg>
                 </span>
                 {% elif clinic.is_approved %}
-                <span class="cp-seal cp-seal-green">
+                <span class="cp-seal cp-seal-green" title="Perfil Verificado">
                     <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Verificado</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
@@ -254,6 +254,7 @@ body { background: #ffffff; }
                 </span>
                 {% endif %}
                 {% if clinic.is_24h %}<span class="cp-meta-item cp-badge-24h">Atendimento 24h</span>{% endif %}
+                {% if clinic.aplica_vacinas %}<span class="cp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
             </div>
             {% if clinic.avg_rating > 0 %}
             <div class="cp-rating-row">
@@ -279,7 +280,8 @@ body { background: #ffffff; }
             </a>
             {% endif %}
             {% if clinic.website %}
-            <a href="{{ clinic.website }}" target="_blank" rel="noopener" class="cp-btn-secondary">
+            {% set website_url = ('https://' + clinic.website) if not clinic.website.startswith('http') else clinic.website %}
+            <a href="{{ website_url }}" target="_blank" rel="noopener" class="cp-btn-secondary">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
                 Site
             </a>
@@ -296,7 +298,7 @@ body { background: #ffffff; }
     {# ── STATS STRIP ── #}
     <div class="cp-stats">
         <div class="cp-stat">
-            <span class="cp-stat-val">{% if veterinarians %}{{ veterinarians|length }}{% else %}—{% endif %}</span>
+            <span class="cp-stat-val">{% if veterinarians %}{{ veterinarians|length }}{% elif clinic.num_veterinarios %}{{ clinic.num_veterinarios }}{% else %}—{% endif %}</span>
             <span class="cp-stat-lbl">Veterinários</span>
         </div>
         <div class="cp-stat">
@@ -377,7 +379,19 @@ body { background: #ffffff; }
                 </div>
                 <div>
                     <div class="cp-info-card-lbl">Site</div>
-                    <div class="cp-info-card-val"><a href="{{ clinic.website }}" target="_blank" rel="noopener" style="color:#088395;text-decoration:none">Visitar site</a></div>
+                    {% set ws_url = ('https://' + clinic.website) if not clinic.website.startswith('http') else clinic.website %}
+                    <div class="cp-info-card-val"><a href="{{ ws_url }}" target="_blank" rel="noopener" style="color:#088395;text-decoration:none">Visitar site</a></div>
+                </div>
+            </div>
+            {% endif %}
+            {% if clinic.aplica_vacinas %}
+            <div class="cp-info-card">
+                <div class="cp-info-card-icon" style="background:#D1FAE5;color:#059669">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div>
+                    <div class="cp-info-card-lbl">Vacinação</div>
+                    <div class="cp-info-card-val" style="color:#059669">Aplica vacinas</div>
                 </div>
             </div>
             {% endif %}

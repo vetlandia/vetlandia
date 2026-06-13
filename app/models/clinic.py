@@ -36,6 +36,8 @@ class Clinic(Base):
     is_approved = Column(Boolean, default=False, nullable=False, index=True)
     is_founder = Column(Boolean, default=False, nullable=False)
     cover_photo_url = Column(Text, nullable=True)
+    aplica_vacinas = Column(Boolean, default=False, nullable=False)
+    num_veterinarios = Column(String(10), nullable=True)  # qtd manual do responsável
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

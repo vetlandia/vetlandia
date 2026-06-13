@@ -242,7 +242,7 @@ body { background: #ffffff; }
             <div class="vp-name-row">
                 <h1 class="vp-name">{{ veterinarian.full_name }}</h1>
                 {% if veterinarian.is_founder %}
-                <span class="vp-seal vp-seal-blue">
+                <span class="vp-seal vp-seal-blue" title="Perfil Fundador">
                     <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Fundador</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
@@ -250,7 +250,7 @@ body { background: #ffffff; }
                     </svg>
                 </span>
                 {% elif veterinarian.is_approved %}
-                <span class="vp-seal vp-seal-green">
+                <span class="vp-seal vp-seal-green" title="Perfil Verificado">
                     <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Verificado</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
@@ -269,6 +269,7 @@ body { background: #ffffff; }
                 {% endif %}
                 {% if veterinarian.crmv %}<span class="vp-meta-item">{{ veterinarian.crmv }}</span>{% endif %}
                 {% if veterinarian.is_24h %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
+                {% if veterinarian.aplica_vacinas %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
             </div>
             {% if veterinarian.avg_rating > 0 %}
             <div class="vp-rating-row">
@@ -385,6 +386,17 @@ body { background: #ffffff; }
                 <div>
                     <div class="vp-info-card-lbl">Atendimento</div>
                     <div class="vp-info-card-val" style="color:#B45309">24 horas</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if veterinarian.aplica_vacinas %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon" style="background:#D1FAE5;color:#059669">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <div>
+                    <div class="vp-info-card-lbl">Vacinação</div>
+                    <div class="vp-info-card-val" style="color:#059669">Aplica vacinas</div>
                 </div>
             </div>
             {% endif %}

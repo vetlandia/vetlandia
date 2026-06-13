@@ -27,6 +27,8 @@ class ClinicBase(BaseModel):
     photo_url: Optional[str] = None  # data URL ou https URL
     cover_photo_url: Optional[str] = None
     is_24h: bool = False
+    aplica_vacinas: bool = False
+    num_veterinarios: Optional[str] = None
 
     @field_validator("state")
     @classmethod
@@ -62,6 +64,8 @@ class ClinicUpdate(BaseModel):
     animal_species: Optional[str] = None
     specialties: Optional[str] = None
     is_24h: Optional[bool] = None
+    aplica_vacinas: Optional[bool] = None
+    num_veterinarios: Optional[str] = None
 
 
 class ClinicResponse(ClinicBase):

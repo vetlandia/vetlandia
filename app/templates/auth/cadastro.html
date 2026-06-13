@@ -654,9 +654,13 @@
                 </div>
 
                 <div class="form-section">
-                    <label class="terms-check" style="margin-bottom:0">
+                    <label class="terms-check" style="margin-bottom:8px">
                         <input type="checkbox" name="is_24h" id="vet-is-24h" value="true">
                         <span>Ofereço atendimento <strong>24 horas</strong> (plantão / emergência)</span>
+                    </label>
+                    <label class="terms-check" style="margin-bottom:0">
+                        <input type="checkbox" name="aplica_vacinas" id="vet-aplica-vacinas" value="true">
+                        <span>Aplico <strong>vacinas</strong> em animais</span>
                     </label>
                 </div>
 
@@ -854,9 +858,18 @@
                 </div>
 
                 <div class="form-section">
-                    <label class="terms-check" style="margin-bottom:0">
+                    <div class="form-group">
+                        <label class="form-label">Número de veterinários na equipe</label>
+                        <input type="number" name="num_veterinarios" id="clinic-num-vets" class="form-input" placeholder="Ex: 5" min="1" max="9999" style="max-width:160px">
+                        <p class="form-help">Informe quantos veterinários trabalham na clínica.</p>
+                    </div>
+                    <label class="terms-check" style="margin-bottom:8px">
                         <input type="checkbox" name="is_24h" id="clinic-is-24h" value="true">
                         <span>Clínica com atendimento <strong>24 horas</strong> (plantão / emergência)</span>
+                    </label>
+                    <label class="terms-check" style="margin-bottom:0">
+                        <input type="checkbox" name="aplica_vacinas" id="clinic-aplica-vacinas" value="true">
+                        <span>Clínica aplica <strong>vacinas</strong></span>
                     </label>
                 </div>
 
@@ -1258,6 +1271,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
                 cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('vet-is-24h').checked,
+                aplica_vacinas: document.getElementById('vet-aplica-vacinas').checked,
             };
 
             try {
@@ -1330,6 +1344,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
                 cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('clinic-is-24h').checked,
+                aplica_vacinas: document.getElementById('clinic-aplica-vacinas').checked,
+                num_veterinarios: document.getElementById('clinic-num-vets').value || null,
             };
 
             try {
