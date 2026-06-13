@@ -231,19 +231,36 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
 
 
 def _delete_user_and_profiles(user: User, db: Session):
+    SS = {"synchronize_session": False}
+
     vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
     if vet:
-        db.query(Review).filter(Review.reviewee_id == vet.id).delete()
+        # Comentários escritos pelo vet em qualquer caso
+        db.query(CaseComment).filter(CaseComment.author_id == vet.id).delete(**SS)
+        # Comentários nos casos publicados por este vet
+        case_ids = [r[0] for r in db.query(ClinicalCase.id).filter(ClinicalCase.author_id == vet.id).all()]
+        if case_ids:
+            db.query(CaseComment).filter(CaseComment.case_id.in_(case_ids)).delete(**SS)
+        # Casos clínicos do vet
+        db.query(ClinicalCase).filter(ClinicalCase.author_id == vet.id).delete(**SS)
+        # Avaliações recebidas pelo vet
+        db.query(Review).filter(Review.reviewee_id == vet.id).delete(**SS)
         db.delete(vet)
         db.flush()
+
     clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
     if clinic:
-        db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).update({"clinic_id": None})
-        db.query(Review).filter(Review.reviewee_id == clinic.id).delete()
+        # Desvincular vets que apontam para esta clínica
+        db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).update({"clinic_id": None}, **SS)
+        # Avaliações recebidas pela clínica
+        db.query(Review).filter(Review.reviewee_id == clinic.id).delete(**SS)
         db.delete(clinic)
         db.flush()
-    db.query(Review).filter(Review.author_id == user.id).delete()
+
+    # Avaliações escritas pelo usuário (tutor)
+    db.query(Review).filter(Review.author_id == user.id).delete(**SS)
     db.delete(user)
+    db.flush()
 
 
 @router.post("/users/{user_id}/delete")
