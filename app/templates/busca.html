@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}
+  {% if query %}Busca: {{ query }} — VetLândia
+  {% elif tipo == 'veterinario' %}Veterinários — VetLândia
+  {% elif tipo == 'clinica' %}Clínicas — VetLândia
+  {% else %}Buscar — VetLândia
+  {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Página de busca unificada ──────────────────────────────── */
+.busca-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* Barra de busca no topo */
+.busca-topbar {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.busca-form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.busca-tipo-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.tipo-btn {
+  padding: 7px 18px;
+  border-radius: 999px;
+  border: 1.5px solid #E5E7EB;
+  background: #fff;
+  color: #6B7280;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tipo-btn:hover { border-color: #088395; color: #088395; }
+.tipo-btn.active { background: #088395; border-color: #088395; color: #fff; }
+
+.busca-input-wrap {
+  position: relative;
+  flex: 2;
+  min-width: 180px;
+}
+.busca-input-wrap .busca-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 1rem; pointer-events: none;
+}
+.busca-input-wrap input {
+  width: 100%;
+  padding: 10px 14px 10px 40px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.busca-input-wrap input:focus { border-color: #088395; }
+
+.busca-sel-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+}
+.busca-sel-wrap select {
+  width: 100%;
+  padding: 10px 34px 10px 12px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: #374151;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.busca-sel-wrap select:focus { border-color: #088395; }
+.busca-sel-wrap::after {
+  content: "▾";
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: #9CA3AF; font-size: 0.75rem;
+}
+
+.busca-btn {
+  padding: 10px 28px;
+  background: #088395;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.busca-btn:hover { background: #066f7e; }
+
+/* Filter chips */
+.busca-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.bchip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #E5E7EB;
+  background: #fff;
+  color: #6B7280;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.bchip:hover { border-color: #088395; color: #088395; }
+.bchip.active { background: #088395; border-color: #088395; color: #fff; }
+
+/* Tabs de resultados */
+.busca-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #F3F4F6;
+  padding-bottom: 0;
+}
+.btab {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btab:hover { color: #088395; }
+.btab.active { color: #088395; border-bottom-color: #088395; }
+
+/* Resultado: contagem */
+.busca-count {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin-bottom: 16px;
+}
+
+/* Seção separadora quando tipo=ambos */
+.busca-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9CA3AF;
+  margin: 28px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.busca-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #F3F4F6;
+}
+
+/* Cards de resultado */
+.busca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.bcard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 14px;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.bcard:hover {
+  box-shadow: 0 4px 16px rgba(8,131,149,0.10);
+  border-color: #C5E8ED;
+}
+
+.bcard-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #088395, #00C4A7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+.bcard-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.bcard-avatar-clinic {
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0F6B7B, #088395);
+  font-size: 1.5rem;
+}
+
+.bcard-body { flex: 1; min-width: 0; }
+.bcard-type {
+  display: inline-block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 4px;
+}
+.bcard-type-vet { background: #E0F7FA; color: #006064; }
+.bcard-type-clinic { background: #E8F5E9; color: #1B5E20; }
+
+.bcard-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bcard-spec {
+  font-size: 0.8125rem;
+  color: #6B7280;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bcard-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.bcard-loc { font-size: 0.8125rem; color: #9CA3AF; }
+.bcard-stars { font-size: 0.8125rem; color: #F59E0B; font-weight: 600; }
+.bcard-stars span { color: #6B7280; font-weight: 400; }
+.bcard-badge {
+  font-size: 0.6875rem;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.bcard-badge-24h { background: #FEE2E2; color: #991B1B; }
+.bcard-badge-vac { background: #D1FAE5; color: #065F46; }
+
+/* Estado vazio */
+.busca-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #9CA3AF;
+}
+.busca-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.busca-empty h3 { color: #374151; font-size: 1.1rem; margin-bottom: 6px; }
+.busca-empty p { font-size: 0.875rem; }
+
+@media (max-width: 640px) {
+  .busca-wrap { padding: 16px 16px 48px; }
+  .busca-topbar { padding: 16px; }
+  .busca-form-row { flex-direction: column; }
+  .busca-input-wrap, .busca-sel-wrap { width: 100%; }
+  .busca-btn { width: 100%; }
+  .busca-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="busca-wrap">
+
+  <!-- Barra de busca -->
+  <div class="busca-topbar">
+    <!-- Toggle de tipo -->
+    <div class="busca-tipo-toggle">
+      <button type="button" class="tipo-btn {% if tipo == 'ambos' %}active{% endif %}" data-tipo="ambos">Ambos</button>
+      <button type="button" class="tipo-btn {% if tipo == 'veterinario' %}active{% endif %}" data-tipo="veterinario">Veterinário</button>
+      <button type="button" class="tipo-btn {% if tipo == 'clinica' %}active{% endif %}" data-tipo="clinica">Clínica</button>
+    </div>
+
+    <form method="get" action="/buscar" id="busca-form">
+      <input type="hidden" name="tipo" id="busca-tipo-hidden" value="{{ tipo or 'ambos' }}">
+
+      <div class="busca-form-row">
+        <div class="busca-input-wrap" style="flex:2">
+          <span class="busca-icon">🔍</span>
+          <input type="text" name="query" value="{{ query or '' }}"
+            placeholder="{% if tipo == 'clinica' %}Nome da clínica, especialidade...{% elif tipo == 'veterinario' %}Nome, CRMV, especialidade...{% else %}Veterinário, clínica, especialidade...{% endif %}"
+            autocomplete="off">
+        </div>
+
+        <div class="busca-input-wrap" style="flex:1">
+          <span class="busca-icon">📍</span>
+          <input type="text" name="cidade" value="{{ cidade or '' }}" placeholder="Cidade" autocomplete="off" id="busca-cidade-input" list="busca-cidades-list">
+          <datalist id="busca-cidades-list">
+            {% for c in cidades_disponiveis %}<option value="{{ c }}">{% endfor %}
+          </datalist>
+        </div>
+
+        {% if tipo != 'clinica' %}
+        <div class="busca-sel-wrap" id="esp-wrap">
+          <select name="especialidade">
+            <option value="">Especialidade</option>
+            {% for esp in especialidades_disponiveis %}
+            <option value="{{ esp }}" {% if especialidade == esp %}selected{% endif %}>{{ esp }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% else %}
+        <input type="hidden" name="especialidade" value="">
+        {% endif %}
+
+        <button type="submit" class="busca-btn">Buscar</button>
+      </div>
+
+      <!-- Chips de filtros rápidos -->
+      <div class="busca-chips">
+        {# 24h chip #}
+        {% set qs_24h_on  = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ '&somente_24h=1' ~ ('&aplica_vacinas=1' if aplica_vacinas == '1' else '') %}
+        {% set qs_24h_off = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ ('&aplica_vacinas=1' if aplica_vacinas == '1' else '') %}
+        {% if somente_24h == '1' %}
+        <a href="/buscar?{{ qs_24h_off }}" class="bchip active">🕐 24h ✕</a>
+        {% else %}
+        <a href="/buscar?{{ qs_24h_on }}" class="bchip">🕐 Atendimento 24h</a>
+        {% endif %}
+
+        {# vacinas chip #}
+        {% set qs_vac_on  = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ ('&somente_24h=1' if somente_24h == '1' else '') ~ '&aplica_vacinas=1' %}
+        {% set qs_vac_off = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ ('&somente_24h=1' if somente_24h == '1' else '') %}
+        {% if aplica_vacinas == '1' %}
+        <a href="/buscar?{{ qs_vac_off }}" class="bchip active">💉 Aplica vacinas ✕</a>
+        {% else %}
+        <a href="/buscar?{{ qs_vac_on }}" class="bchip">💉 Aplica vacinas</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabs tipo resultado -->
+  {% set total = (veterinarians|length) + (clinics|length) %}
+  <div class="busca-tabs">
+    <a href="/buscar?tipo=ambos{% if query %}&query={{ query }}{% endif %}{% if cidade %}&cidade={{ cidade }}{% endif %}{% if especialidade %}&especialidade={{ especialidade }}{% endif %}{% if somente_24h == '1' %}&somente_24h=1{% endif %}{% if aplica_vacinas == '1' %}&aplica_vacinas=1{% endif %}"
+      class="btab {% if tipo == 'ambos' %}active{% endif %}">
+      Todos {% if total %}({{ total }}){% endif %}
+    </a>
+    <a href="/buscar?tipo=veterinario{% if query %}&query={{ query }}{% endif %}{% if cidade %}&cidade={{ cidade }}{% endif %}{% if especialidade %}&especialidade={{ especialidade }}{% endif %}{% if somente_24h == '1' %}&somente_24h=1{% endif %}{% if aplica_vacinas == '1' %}&aplica_vacinas=1{% endif %}"
+      class="btab {% if tipo == 'veterinario' %}active{% endif %}">
+      Veterinários {% if tipo == 'veterinario' and veterinarians %}({{ veterinarians|length }}){% elif tipo == 'ambos' and veterinarians %}({{ veterinarians|length }}){% endif %}
+    </a>
+    <a href="/buscar?tipo=clinica{% if query %}&query={{ query }}{% endif %}{% if cidade %}&cidade={{ cidade }}{% endif %}{% if somente_24h == '1' %}&somente_24h=1{% endif %}{% if aplica_vacinas == '1' %}&aplica_vacinas=1{% endif %}"
+      class="btab {% if tipo == 'clinica' %}active{% endif %}">
+      Clínicas {% if tipo == 'clinica' and clinics %}({{ clinics|length }}){% elif tipo == 'ambos' and clinics %}({{ clinics|length }}){% endif %}
+    </a>
+  </div>
+
+  <!-- Resultados -->
+  {% if total == 0 %}
+  <div class="busca-empty">
+    <div class="busca-empty-icon">🔍</div>
+    <h3>Nenhum resultado encontrado</h3>
+    <p>Tente ajustar os filtros ou usar termos diferentes.</p>
+  </div>
+
+  {% else %}
+
+  {% if tipo == 'ambos' and veterinarians %}
+  <div class="busca-section-label">Veterinários</div>
+  {% endif %}
+
+  {% if veterinarians %}
+  <div class="busca-grid">
+    {% for vet in veterinarians %}
+    <a href="/veterinario/{{ vet.slug }}" class="bcard">
+      <div class="bcard-avatar">
+        {% if vet.photo_url %}<img src="{{ vet.photo_url }}" alt="{{ vet.full_name }}">
+        {% else %}{{ vet.full_name[0] }}{% endif %}
+      </div>
+      <div class="bcard-body">
+        {% if tipo == 'ambos' %}<span class="bcard-type bcard-type-vet">Veterinário</span>{% endif %}
+        <div class="bcard-name">{{ vet.full_name }}</div>
+        <div class="bcard-spec">{{ vet.specialty or 'Clínico Geral' }}</div>
+        <div class="bcard-meta">
+          {% if vet.review_count %}
+          <span class="bcard-stars">★ {{ vet.avg_rating }} <span>· {{ vet.review_count }} aval.</span></span>
+          {% endif %}
+          {% if vet.city %}<span class="bcard-loc">📍 {{ vet.city }}{% if vet.state %}, {{ vet.state }}{% endif %}</span>{% endif %}
+          {% if vet.is_24h %}<span class="bcard-badge bcard-badge-24h">24h</span>{% endif %}
+          {% if vet.aplica_vacinas %}<span class="bcard-badge bcard-badge-vac">Vacinas</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if tipo == 'ambos' and clinics %}
+  <div class="busca-section-label">Clínicas</div>
+  {% endif %}
+
+  {% if clinics %}
+  <div class="busca-grid" {% if tipo == 'ambos' and veterinarians %}style="margin-top:0"{% endif %}>
+    {% for clinic in clinics %}
+    <a href="/clinica/{{ clinic.slug }}" class="bcard">
+      <div class="bcard-avatar bcard-avatar-clinic">
+        {% if clinic.photo_url or clinic.logo_url %}
+        <img src="{{ clinic.photo_url or clinic.logo_url }}" alt="{{ clinic.name }}">
+        {% else %}🏥{% endif %}
+      </div>
+      <div class="bcard-body">
+        {% if tipo == 'ambos' %}<span class="bcard-type bcard-type-clinic">Clínica</span>{% endif %}
+        <div class="bcard-name">{{ clinic.name }}</div>
+        <div class="bcard-spec">{{ clinic.specialties | replace('[', '') | replace(']', '') | replace('"', '') if clinic.specialties else 'Clínica Veterinária' }}</div>
+        <div class="bcard-meta">
+          {% if clinic.review_count %}
+          <span class="bcard-stars">★ {{ clinic.avg_rating }} <span>· {{ clinic.review_count }} aval.</span></span>
+          {% endif %}
+          {% if clinic.city %}<span class="bcard-loc">📍 {{ clinic.city }}{% if clinic.state %}, {{ clinic.state }}{% endif %}</span>{% endif %}
+          {% if clinic.is_24h %}<span class="bcard-badge bcard-badge-24h">24h</span>{% endif %}
+          {% if clinic.aplica_vacinas %}<span class="bcard-badge bcard-badge-vac">Vacinas</span>{% endif %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% endif %}
+
+</div>
+
+{% block extra_js %}
+<script>
+(function() {
+  var tipoHidden = document.getElementById('busca-tipo-hidden');
+  var tipoBtns   = document.querySelectorAll('.tipo-btn');
+
+  tipoBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      tipoBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      tipoHidden.value = this.dataset.tipo;
+
+      var espWrap = document.getElementById('esp-wrap');
+      if (espWrap) espWrap.style.display = this.dataset.tipo === 'clinica' ? 'none' : '';
+    });
+  });
+})();
+</script>
+{% endblock %}
+
+{% endblock %}

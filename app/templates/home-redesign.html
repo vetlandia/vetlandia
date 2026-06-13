@@ -4,6 +4,36 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/redesign.css') }}?v={{ asset_v }}">
+<style>
+.home-tipo-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  justify-content: center;
+}
+.home-tipo-btn {
+  padding: 7px 20px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
+}
+.home-tipo-btn:hover {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  border-color: rgba(255,255,255,0.8);
+}
+.home-tipo-btn.active {
+  background: #fff;
+  color: #088395;
+  border-color: #fff;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -23,10 +53,18 @@
       </h1>
       <p class="hero-subtitle">Encontre veterinários e clínicas avaliados pela comunidade.</p>
 
-      <form action="/buscar/veterinarios" method="get" class="search-hero">
+      <!-- Tipo de busca -->
+      <div class="home-tipo-toggle">
+        <button type="button" class="home-tipo-btn active" data-tipo="ambos">Ambos</button>
+        <button type="button" class="home-tipo-btn" data-tipo="veterinario">Veterinário</button>
+        <button type="button" class="home-tipo-btn" data-tipo="clinica">Clínica</button>
+      </div>
+
+      <form action="/buscar" method="get" class="search-hero" id="home-search-form">
+        <input type="hidden" name="tipo" id="home-tipo-hidden" value="ambos">
         <div class="search-hero-input">
           <span class="search-icon-lg">🔍</span>
-          <input type="text" name="query" placeholder="O que você precisa?">
+          <input type="text" name="query" id="home-query-input" placeholder="O que você precisa?">
         </div>
         <div class="search-hero-input">
           <span class="search-icon-lg">📍</span>
@@ -65,7 +103,7 @@
       <div class="desktop-section">
         <div class="section-header">
           <h2 class="desktop-section-title" id="vets-section-title">Veterinários em destaque</h2>
-          <a href="/buscar/veterinarios" class="section-link">Ver todos</a>
+          <a href="/buscar?tipo=veterinario" class="section-link">Ver todos</a>
         </div>
         <div class="chips-scroll" style="padding:0 0 16px" id="specialty-chips">
           <button class="chip active" data-esp="" data-24h="">🏥 Todos</button>
@@ -113,7 +151,7 @@
               <span class="empty-icon">🐾</span>
               <div class="empty-title">Nenhum(a) veterinário(a) cadastrado(a) ainda</div>
               <div class="empty-desc">Os primeiros profissionais aprovados aparecerão aqui.</div>
-              <a href="/cadastro?tipo=veterinarian" class="btn btn-primary">Cadastrar como veterinário(a)</a>
+              <a href="/cadastro?tipo=veterinario" class="btn btn-primary">Cadastrar como veterinário(a)</a>
             </div>
           {% endif %}
         </div>
@@ -121,7 +159,7 @@
         <div id="vets-empty" style="display:none; padding: 32px; text-align:center; color:var(--text-3);">
           <div style="font-size:2.5rem;margin-bottom:12px">🔍</div>
           <div style="font-weight:600;margin-bottom:6px;color:var(--text-2)">Nenhum(a) veterinário(a) encontrado(a)</div>
-          <div style="font-size:0.875rem">Tente outra especialidade ou <a href="/buscar/veterinarios" style="color:var(--brand);font-weight:600">busque no catálogo completo</a>.</div>
+          <div style="font-size:0.875rem">Tente outra especialidade ou <a href="/buscar?tipo=veterinario" style="color:var(--brand);font-weight:600">busque no catálogo completo</a>.</div>
         </div>
       </div>
 
@@ -129,7 +167,7 @@
       <div class="desktop-section">
         <div class="section-header">
           <h2 class="desktop-section-title">Clínicas de confiança</h2>
-          <a href="/buscar/clinicas" class="section-link">Ver todas</a>
+          <a href="/buscar?tipo=clinica" class="section-link">Ver todas</a>
         </div>
         <div class="desktop-clinic-list">
           {% if clinics %}
@@ -212,6 +250,27 @@
 </div><!-- /vt -->
 
 {% block extra_js %}
+<script>
+(function() {
+  var tipoHidden = document.getElementById('home-tipo-hidden');
+  var queryInput = document.getElementById('home-query-input');
+  var tipoBtns   = document.querySelectorAll('.home-tipo-btn');
+  var placeholders = {
+    ambos:        'O que você precisa?',
+    veterinario:  'Nome, CRMV, especialidade...',
+    clinica:      'Nome da clínica, especialidade...'
+  };
+  tipoBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      tipoBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      var t = this.dataset.tipo;
+      tipoHidden.value = t;
+      if (queryInput) queryInput.placeholder = placeholders[t] || placeholders.ambos;
+    });
+  });
+})();
+</script>
 <script>
 (function() {
   // City autocomplete from BR_CITIES

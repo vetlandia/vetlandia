@@ -169,6 +169,184 @@ def cadastro_page(request: Request, current_user: Optional[User] = Depends(get_c
     return templates.TemplateResponse("auth/cadastro.html", {"request": request, "current_user": None})
 
 
+@router.get("/buscar", response_class=HTMLResponse)
+def buscar(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+    tipo: str = "ambos",
+    query: str = None,
+    especialidade: str = None,
+    cidade: str = None,
+    estado: str = None,
+    somente_24h: str = None,
+    aplica_vacinas: str = None,
+):
+    veterinarians = []
+    clinics = []
+
+    if tipo in ("veterinario", "ambos"):
+        qv = db.query(
+            Veterinarian,
+            func.avg(Review.rating).label("avg_rating"),
+            func.count(Review.id).label("review_count"),
+        ).filter(
+            Veterinarian.is_approved == True
+        ).outerjoin(
+            Review,
+            (Review.reviewee_id == Veterinarian.id)
+            & (Review.reviewee_type == RevieweeType.VETERINARIAN)
+            & (Review.status == ReviewStatus.APPROVED),
+        )
+
+        if query:
+            if _is_24h_query(query):
+                qv = qv.filter(Veterinarian.is_24h == True)
+            else:
+                sp = _specialty_from_query(query)
+                like = f"%{query}%"
+                if sp:
+                    qv = qv.filter(
+                        Veterinarian.specialty.ilike(f"%{sp}%")
+                        | Veterinarian.full_name.ilike(like)
+                        | Veterinarian.bio.ilike(like)
+                    )
+                else:
+                    qv = qv.filter(
+                        Veterinarian.full_name.ilike(like)
+                        | Veterinarian.specialty.ilike(like)
+                        | Veterinarian.bio.ilike(like)
+                        | Veterinarian.city.ilike(like)
+                        | Veterinarian.crmv.ilike(like)
+                        | Veterinarian.animal_species.ilike(like)
+                    )
+
+        if especialidade:
+            qv = qv.filter(Veterinarian.specialty.ilike(f"%{especialidade}%"))
+        if cidade:
+            if "/" in cidade:
+                partes = cidade.split("/", 1)
+                qv = qv.filter(Veterinarian.city.ilike(f"%{partes[0].strip()}%"))
+                if partes[1].strip():
+                    qv = qv.filter(Veterinarian.state == partes[1].strip().upper())
+            else:
+                qv = qv.filter(Veterinarian.city.ilike(f"%{cidade}%"))
+        if estado:
+            qv = qv.filter(Veterinarian.state == estado.upper())
+        if somente_24h in ("1", "on"):
+            qv = qv.filter(Veterinarian.is_24h == True)
+        if aplica_vacinas in ("1", "on"):
+            qv = qv.filter(Veterinarian.aplica_vacinas == True)
+
+        for vet, avg_rating, review_count in (
+            qv.group_by(Veterinarian.id)
+            .order_by(func.coalesce(func.avg(Review.rating), 0).desc())
+            .all()
+        ):
+            vet.avg_rating = round(avg_rating, 1) if avg_rating else 0
+            vet.review_count = review_count
+            veterinarians.append(vet)
+
+    if tipo in ("clinica", "ambos"):
+        qc = db.query(
+            Clinic,
+            func.avg(Review.rating).label("avg_rating"),
+            func.count(Review.id).label("review_count"),
+        ).filter(
+            Clinic.is_approved == True
+        ).outerjoin(
+            Review,
+            (Review.reviewee_id == Clinic.id)
+            & (Review.reviewee_type == RevieweeType.CLINIC)
+            & (Review.status == ReviewStatus.APPROVED),
+        )
+
+        if query:
+            if _is_24h_query(query):
+                qc = qc.filter(Clinic.is_24h == True)
+            else:
+                sp = _specialty_from_query(query)
+                like = f"%{query}%"
+                if sp:
+                    qc = qc.filter(
+                        Clinic.specialties.ilike(f"%{sp}%")
+                        | Clinic.name.ilike(like)
+                        | Clinic.description.ilike(like)
+                    )
+                else:
+                    qc = qc.filter(
+                        Clinic.name.ilike(like)
+                        | Clinic.razao_social.ilike(like)
+                        | Clinic.specialties.ilike(like)
+                        | Clinic.description.ilike(like)
+                        | Clinic.city.ilike(like)
+                        | Clinic.animal_species.ilike(like)
+                    )
+
+        if cidade:
+            if "/" in cidade:
+                partes = cidade.split("/", 1)
+                qc = qc.filter(Clinic.city.ilike(f"%{partes[0].strip()}%"))
+                if partes[1].strip():
+                    qc = qc.filter(Clinic.state == partes[1].strip().upper())
+            else:
+                qc = qc.filter(Clinic.city.ilike(f"%{cidade}%"))
+        if estado:
+            qc = qc.filter(Clinic.state == estado.upper())
+        if somente_24h in ("1", "on"):
+            qc = qc.filter(Clinic.is_24h == True)
+        if aplica_vacinas in ("1", "on"):
+            qc = qc.filter(Clinic.aplica_vacinas == True)
+
+        for clinic, avg_rating, review_count in (
+            qc.group_by(Clinic.id)
+            .order_by(func.coalesce(func.avg(Review.rating), 0).desc())
+            .all()
+        ):
+            clinic.avg_rating = round(avg_rating, 1) if avg_rating else 0
+            clinic.review_count = review_count
+            clinics.append(clinic)
+
+    especialidades_disponiveis = sorted([
+        r[0] for r in
+        db.query(Veterinarian.specialty)
+        .filter(Veterinarian.is_approved == True, Veterinarian.specialty != None, Veterinarian.specialty != "")
+        .distinct().all()
+    ])
+    cidades_vets = [
+        f"{r[0]}/{r[1]}" for r in
+        db.query(Veterinarian.city, Veterinarian.state)
+        .filter(Veterinarian.is_approved == True, Veterinarian.city != None, Veterinarian.city != "")
+        .distinct().all()
+    ]
+    cidades_clinicas = [
+        f"{r[0]}/{r[1]}" if r[1] else r[0] for r in
+        db.query(Clinic.city, Clinic.state)
+        .filter(Clinic.is_approved == True, Clinic.city != None, Clinic.city != "")
+        .distinct().all()
+    ]
+    cidades_disponiveis = sorted(set(cidades_vets + cidades_clinicas))
+
+    return templates.TemplateResponse(
+        "busca.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "veterinarians": veterinarians,
+            "clinics": clinics,
+            "tipo": tipo,
+            "query": query,
+            "especialidade": especialidade,
+            "cidade": cidade,
+            "estado": estado,
+            "somente_24h": somente_24h,
+            "aplica_vacinas": aplica_vacinas,
+            "especialidades_disponiveis": especialidades_disponiveis,
+            "cidades_disponiveis": cidades_disponiveis,
+        },
+    )
+
+
 @router.get("/buscar/veterinarios", response_class=HTMLResponse)
 def buscar_veterinarios(
     request: Request,
