@@ -40,17 +40,17 @@ body { background: #ffffff; }
 }
 @media (min-width: 1024px) { .cp-hero-row { margin-top: -112px; } }
 
-/* avatar — border-radius menor para clínica (12px = institucional) */
+/* avatar — circular igual ao vet */
 .cp-avatar-ring {
-    width: 128px; height: 128px; border-radius: 18px;
+    width: 128px; height: 128px; border-radius: 50%;
     padding: 4px;
     background: linear-gradient(135deg, #088395, #00C4A7);
     flex-shrink: 0; box-shadow: 0 8px 30px rgba(8,131,149,0.28);
 }
-@media (min-width: 768px)  { .cp-avatar-ring { width: 152px; height: 152px; border-radius: 22px; } }
-@media (min-width: 1024px) { .cp-avatar-ring { width: 176px; height: 176px; border-radius: 26px; } }
+@media (min-width: 768px)  { .cp-avatar-ring { width: 152px; height: 152px; } }
+@media (min-width: 1024px) { .cp-avatar-ring { width: 176px; height: 176px; } }
 .cp-avatar-inner {
-    width: 100%; height: 100%; border-radius: 14px;
+    width: 100%; height: 100%; border-radius: 50%;
     overflow: hidden; border: 4px solid #ffffff;
     background: #e0f7fa;
     display: flex; align-items: center; justify-content: center;
@@ -211,7 +211,7 @@ body { background: #ffffff; }
     {# ── HERO ROW ── #}
     <div class="cp-hero-row">
 
-        {# Avatar — border-radius quadrado/suave para clínica #}
+        {# Avatar — circular igual ao vet #}
         <div class="cp-avatar-ring">
             <div class="cp-avatar-inner">
                 {% set photo = clinic.photo_url or clinic.logo_url %}
