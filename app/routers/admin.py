@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -56,7 +58,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         .order_by(CaseComment.created_at.desc())
         .all()
     )
-    users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).limit(20).all()
+    users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).all()
 
     return templates.TemplateResponse(
         "admin/dashboard.html",
@@ -224,6 +226,67 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
     clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
     if clinic:
         clinic.is_approved = True
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+def _delete_user_and_profiles(user: User, db: Session):
+    vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+    if vet:
+        db.query(Review).filter(Review.reviewee_id == vet.id).delete()
+        db.delete(vet)
+        db.flush()
+    clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+    if clinic:
+        db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).update({"clinic_id": None})
+        db.query(Review).filter(Review.reviewee_id == clinic.id).delete()
+        db.delete(clinic)
+        db.flush()
+    db.query(Review).filter(Review.author_id == user.id).delete()
+    db.delete(user)
+
+
+@router.post("/users/{user_id}/delete")
+def delete_user(user_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    if user.user_type == UserType.ADMIN:
+        raise HTTPException(status_code=400, detail="Não é possível excluir admin")
+    _delete_user_and_profiles(user, db)
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/users/bulk-action")
+def bulk_user_action(
+    action: str = Form(...),
+    user_ids: List[str] = Form(default=[]),
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+    for uid in user_ids:
+        user = db.query(User).filter(User.id == uid).first()
+        if not user or user.user_type == UserType.ADMIN:
+            continue
+        if action == "approve":
+            user.is_active = True
+            vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+            if vet:
+                vet.is_approved = True
+            clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+            if clinic:
+                clinic.is_approved = True
+        elif action == "inativar":
+            user.is_active = False
+            vet = db.query(Veterinarian).filter(Veterinarian.user_id == user.id).first()
+            if vet:
+                vet.is_approved = False
+            clinic = db.query(Clinic).filter(Clinic.user_id == user.id).first()
+            if clinic:
+                clinic.is_approved = False
+        elif action == "excluir":
+            _delete_user_and_profiles(user, db)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

@@ -388,7 +388,7 @@
         <h2>🏅 Selos de Perfil — Veterinários Aprovados</h2>
         <div class="table-scroll"><table class="admin-table">
             <thead>
-                <tr><th>Nome</th><th>CRMV</th><th>Selo atual</th><th>Alterar selo</th><th>Excluir</th></tr>
+                <tr><th>Nome</th><th>CRMV</th><th>Selo atual</th><th>Alterar selo</th></tr>
             </thead>
             <tbody>
                 {% if approved_vets %}
@@ -412,15 +412,10 @@
                                 <button class="btn-approve" style="padding:4px 10px">Salvar</button>
                             </form>
                         </td>
-                        <td>
-                            <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/delete">
-                                <button class="btn-reject" style="padding:4px 10px" onclick="return confirm('Excluir permanentemente o perfil de {{ vet.full_name }}? Esta ação não pode ser desfeita.')">Excluir</button>
-                            </form>
-                        </td>
                     </tr>
                     {% endfor %}
                 {% else %}
-                    <tr class="empty-row"><td colspan="5">Nenhum veterinário aprovado ainda</td></tr>
+                    <tr class="empty-row"><td colspan="4">Nenhum veterinário aprovado ainda</td></tr>
                 {% endif %}
             </tbody>
         </table></div>
@@ -430,7 +425,7 @@
         <h2>🏅 Selos de Perfil — Clínicas Aprovadas</h2>
         <div class="table-scroll"><table class="admin-table">
             <thead>
-                <tr><th>Nome</th><th>Cidade/UF</th><th>Selo atual</th><th>Alterar selo</th><th>Excluir</th></tr>
+                <tr><th>Nome</th><th>Cidade/UF</th><th>Selo atual</th><th>Alterar selo</th></tr>
             </thead>
             <tbody>
                 {% if approved_clinics %}
@@ -454,15 +449,10 @@
                                 <button class="btn-approve" style="padding:4px 10px">Salvar</button>
                             </form>
                         </td>
-                        <td>
-                            <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/delete">
-                                <button class="btn-reject" style="padding:4px 10px" onclick="return confirm('Excluir permanentemente o perfil de {{ clinic.name }}? Esta ação não pode ser desfeita.')">Excluir</button>
-                            </form>
-                        </td>
                     </tr>
                     {% endfor %}
                 {% else %}
-                    <tr class="empty-row"><td colspan="5">Nenhuma clínica aprovada ainda</td></tr>
+                    <tr class="empty-row"><td colspan="4">Nenhuma clínica aprovada ainda</td></tr>
                 {% endif %}
             </tbody>
         </table></div>
@@ -470,10 +460,28 @@
 
     <!-- Usuários -->
     <div class="admin-section">
-        <h2>👤 Usuários recentes</h2>
+        <h2>👤 Usuários</h2>
+
+        <!-- Barra de ações em massa (visível só quando há seleção) -->
+        <div id="bulk-bar" style="display:none;background:#FEF9C3;border:1px solid #FDE047;border-radius:8px;padding:10px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span id="bulk-count" style="font-size:0.875rem;font-weight:600;color:#713F12">0 selecionado(s)</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button class="btn-approve" style="padding:5px 12px" onclick="submitBulk('approve')">Reativar selecionados</button>
+                <button class="btn-block"   style="padding:5px 12px" onclick="submitBulk('inativar')">Inativar selecionados</button>
+                <button class="btn-reject"  style="padding:5px 12px" onclick="submitBulk('excluir')">Excluir selecionados</button>
+            </div>
+        </div>
+
+        <!-- Form oculto para bulk submit -->
+        <form id="bulk-form" method="POST" action="/admin/users/bulk-action" style="display:none">
+            <input type="hidden" name="action" id="bulk-action-value">
+            <div id="bulk-ids-container"></div>
+        </form>
+
         <div class="table-scroll"><table class="admin-table">
             <thead>
                 <tr>
+                    <th style="width:32px"><input type="checkbox" id="select-all" title="Selecionar todos"></th>
                     <th>Email</th>
                     <th>Tipo</th>
                     <th>Status</th>
@@ -485,6 +493,7 @@
                 {% if users %}
                     {% for user in users %}
                     <tr>
+                        <td><input type="checkbox" class="user-cb" value="{{ user.id }}"></td>
                         <td>{{ user.email }}</td>
                         <td>
                             <span class="tag-type tag-{{ user.user_type.value }}">{{ tipo_pt.get(user.user_type.value, user.user_type.value) }}</span>
@@ -497,25 +506,83 @@
                             {% endif %}
                         </td>
                         <td>{{ user.created_at.strftime('%d/%m/%Y') }}</td>
-                        <td>
+                        <td style="white-space:nowrap">
                             {% if user.is_active %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/block">
-                                <button class="btn-block" onclick="return confirm('Inativar {{ user.email }}? O perfil sumirá do catálogo.')">Inativar</button>
+                                <button class="btn-block" onclick="return confirm('Inativar {{ user.email }}?')">Inativar</button>
                             </form>
                             {% else %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/unblock">
                                 <button class="btn-unblock">Reativar</button>
                             </form>
                             {% endif %}
+                            <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/delete" style="margin-left:4px">
+                                <button class="btn-reject" onclick="return confirm('Excluir permanentemente {{ user.email }} e todos os dados vinculados?')">Excluir</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 {% else %}
-                    <tr class="empty-row"><td colspan="5">Nenhum usuário cadastrado ainda</td></tr>
+                    <tr class="empty-row"><td colspan="6">Nenhum usuário cadastrado ainda</td></tr>
                 {% endif %}
             </tbody>
         </table></div>
     </div>
+
+    <script>
+    (function() {
+        var selectAll = document.getElementById('select-all');
+        var bulkBar   = document.getElementById('bulk-bar');
+        var bulkCount = document.getElementById('bulk-count');
+
+        function getChecked() {
+            return document.querySelectorAll('.user-cb:checked');
+        }
+
+        function updateBar() {
+            var n = getChecked().length;
+            bulkBar.style.display = n > 0 ? 'flex' : 'none';
+            bulkCount.textContent = n + ' selecionado' + (n !== 1 ? 's' : '');
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                document.querySelectorAll('.user-cb').forEach(function(cb) {
+                    cb.checked = selectAll.checked;
+                });
+                updateBar();
+            });
+        }
+
+        document.querySelectorAll('.user-cb').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var all = document.querySelectorAll('.user-cb');
+                var checked = document.querySelectorAll('.user-cb:checked');
+                if (selectAll) selectAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                if (selectAll) selectAll.checked = checked.length === all.length;
+                updateBar();
+            });
+        });
+
+        window.submitBulk = function(action) {
+            var checked = getChecked();
+            if (checked.length === 0) return;
+            var labels = { approve: 'Reativar', inativar: 'Inativar', excluir: 'Excluir permanentemente' };
+            if (!confirm(labels[action] + ' ' + checked.length + ' usuário(s) selecionado(s)?')) return;
+            document.getElementById('bulk-action-value').value = action;
+            var container = document.getElementById('bulk-ids-container');
+            container.innerHTML = '';
+            checked.forEach(function(cb) {
+                var inp = document.createElement('input');
+                inp.type = 'hidden';
+                inp.name = 'user_ids';
+                inp.value = cb.value;
+                container.appendChild(inp);
+            });
+            document.getElementById('bulk-form').submit();
+        };
+    })();
+    </script>
 
 </div>
 </body>
