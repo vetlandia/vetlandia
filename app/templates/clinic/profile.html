@@ -5,231 +5,223 @@
 
 {% block extra_css %}
 <style>
-/* ── Página ─────────────────────────── */
-.cp-page { background: #F4F2EE; min-height: calc(100vh - 72px); padding-bottom: 56px; }
-.cp-wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+body { background: #ffffff; }
 
-/* ── Hero — cover como fundo total ── */
-.cp-hero {
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
-    position: relative;
-    background: linear-gradient(135deg, #081e2a 0%, #0b4054 45%, #0a6660 100%);
-    background-size: cover;
-    background-position: center;
+/* ── COVER full-width ── */
+.cp-cover {
+    position: relative; width: 100%; height: 260px;
+    background: linear-gradient(135deg, #0b4054 0%, #088395 50%, #00C4A7 100%);
+    background-size: cover; background-position: center top; overflow: hidden;
 }
-.cp-hero-overlay {
+.cp-cover-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(
-        105deg,
-        rgba(6,24,35,0.88) 0%,
-        rgba(6,24,35,0.72) 55%,
-        rgba(6,24,35,0.50) 100%
+    background: linear-gradient(to bottom,
+        rgba(255,255,255,0)    0%,
+        rgba(255,255,255,0)   50%,
+        rgba(255,255,255,0.6) 80%,
+        rgba(255,255,255,0.95) 100%
     );
 }
-.cp-hero-content {
-    position: relative; z-index: 1;
-    display: flex; align-items: center;
-    gap: 24px; padding: 40px 32px 32px;
-}
+@media (min-width: 768px)  { .cp-cover { height: 340px; } }
+@media (min-width: 1024px) { .cp-cover { height: 400px; } }
 
-/* foto — sem overlap */
-.cp-photo {
-    width: 100px; height: 100px;
-    border-radius: 12px;
-    border: 3px solid rgba(255,255,255,0.85);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    object-fit: cover; flex-shrink: 0; display: block;
+/* ── container ── */
+.cp-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px 64px; }
+@media (min-width: 768px)  { .cp-inner { padding: 0 40px 64px; } }
+@media (min-width: 1024px) { .cp-inner { padding: 0 64px 64px; } }
+
+/* ── hero row ── */
+.cp-hero-row {
+    position: relative; margin-top: -72px; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; gap: 20px; text-align: center;
 }
-.cp-photo-init {
-    width: 100px; height: 100px;
-    border-radius: 12px;
-    border: 3px solid rgba(255,255,255,0.85);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    background: rgba(255,255,255,0.12);
+@media (min-width: 768px) {
+    .cp-hero-row { flex-direction: row; align-items: flex-end; gap: 28px; text-align: left; margin-top: -96px; }
+}
+@media (min-width: 1024px) { .cp-hero-row { margin-top: -112px; } }
+
+/* avatar — border-radius menor para clínica (12px = institucional) */
+.cp-avatar-ring {
+    width: 128px; height: 128px; border-radius: 18px;
+    padding: 4px;
+    background: linear-gradient(135deg, #088395, #00C4A7);
+    flex-shrink: 0; box-shadow: 0 8px 30px rgba(8,131,149,0.28);
+}
+@media (min-width: 768px)  { .cp-avatar-ring { width: 152px; height: 152px; border-radius: 22px; } }
+@media (min-width: 1024px) { .cp-avatar-ring { width: 176px; height: 176px; border-radius: 26px; } }
+.cp-avatar-inner {
+    width: 100%; height: 100%; border-radius: 14px;
+    overflow: hidden; border: 4px solid #ffffff;
+    background: #e0f7fa;
     display: flex; align-items: center; justify-content: center;
-    font-size: 2.25rem; font-weight: 700; color: white; flex-shrink: 0;
 }
+.cp-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+.cp-avatar-init { font-size: 2.5rem; font-weight: 800; color: #088395; }
 
 /* info */
 .cp-info { flex: 1; min-width: 0; }
-.cp-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 4px; }
-.cp-name { font-size: 1.5rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.15; letter-spacing: -0.02em; }
-.cp-razao { font-size: 0.8rem; color: rgba(255,255,255,0.55); margin-bottom: 10px; }
-.cp-meta-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.775rem; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+.cp-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; justify-content: center; }
+@media (min-width: 768px) { .cp-name-row { justify-content: flex-start; } }
+.cp-name { font-size: 1.75rem; font-weight: 800; color: #0f172a; line-height: 1.1; letter-spacing: -0.03em; margin: 0; }
+@media (min-width: 768px)  { .cp-name { font-size: 2.25rem; } }
+@media (min-width: 1024px) { .cp-name { font-size: 2.75rem; } }
+.cp-razao { color: #94A3B8; font-size: 0.82rem; margin: 2px 0 8px; }
+.cp-meta-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.78rem; color: #64748b; margin-bottom: 8px; justify-content: center; }
+@media (min-width: 768px) { .cp-meta-row { justify-content: flex-start; } }
 .cp-meta-item { display: flex; align-items: center; gap: 4px; }
-.cp-badge-24h { color: #FCA5A5; font-weight: 600; }
-.cp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: rgba(255,255,255,0.8); }
-.cp-stars { color: #FCD34D; letter-spacing: 1px; }
+.cp-badge-24h { color: #B91C1C; font-weight: 700; }
+.cp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #374151; justify-content: center; }
+@media (min-width: 768px) { .cp-rating-row { justify-content: flex-start; } }
+.cp-stars { color: #F59E0B; }
 
 /* Selo */
-.cp-seal {
-    display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0; cursor: default; line-height: 0;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
-}
+.cp-seal { display: inline-flex; align-items: center; line-height: 0; cursor: default; }
 .cp-seal svg { display: block; pointer-events: none; }
-.cp-seal-blue { color: #60A5FA; }
-.cp-seal-green { color: #34D399; }
+.cp-seal-blue  { color: #2563EB; }
+.cp-seal-green { color: #059669; }
 
-/* ações */
-.cp-hero-actions {
-    display: flex; flex-direction: column;
-    align-items: flex-end; gap: 10px; flex-shrink: 0;
-}
+/* CTA */
+.cp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; flex-shrink: 0; }
+@media (min-width: 768px) { .cp-cta { flex-direction: column; align-items: flex-end; justify-content: flex-end; } }
 .cp-btn-wpp {
     display: inline-flex; align-items: center; gap: 8px;
-    background: #25D366; color: #fff;
-    border: none; border-radius: 999px;
-    padding: 10px 20px; font-weight: 700; font-size: 0.875rem;
+    background: #25D366; color: #fff; border-radius: 999px;
+    padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
     text-decoration: none; white-space: nowrap;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.25); transition: background .13s;
+    box-shadow: 0 4px 14px rgba(37,211,102,.35); transition: background .13s;
 }
 .cp-btn-wpp:hover { background: #1DAA54; color: #fff; }
-.cp-btn-call {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(255,255,255,0.12); color: #fff;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 999px;
-    padding: 8px 16px; font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; transition: background .13s;
+.cp-btn-secondary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; color: #374151; border: 1px solid #D1D5DB;
+    border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 0.82rem;
+    text-decoration: none; transition: border-color .13s, color .13s;
 }
-.cp-btn-call:hover { background: rgba(255,255,255,0.2); color: #fff; }
-.cp-btn-site {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(255,255,255,0.12); color: #fff;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 999px;
-    padding: 8px 16px; font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; transition: background .13s;
-}
-.cp-btn-site:hover { background: rgba(255,255,255,0.2); color: #fff; }
-.cp-share-btn {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 50%; width: 36px; height: 36px;
+.cp-btn-secondary:hover { border-color: #088395; color: #088395; }
+.cp-btn-icon {
+    width: 38px; height: 38px; border: 1px solid #D1D5DB; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; color: rgba(255,255,255,0.8); transition: all .13s;
+    background: #fff; cursor: pointer; color: #6B7280; transition: all .13s;
 }
-.cp-share-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+.cp-btn-icon:hover { border-color: #088395; color: #088395; }
 
-/* stats bar */
-.cp-stats-bar {
-    position: relative; z-index: 1;
-    display: flex; gap: 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(4px);
+/* stats strip */
+.cp-stats {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 0;
+    margin-top: 36px;
+    border-top: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB;
+    padding: 20px 0;
 }
-.cp-stat {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; padding: 14px 8px;
-    border-right: 1px solid rgba(255,255,255,0.08);
+@media (min-width: 640px) { .cp-stats { grid-template-columns: repeat(4,1fr); } }
+.cp-stat { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 12px; }
+.cp-stat + .cp-stat { border-left: 1px solid #E5E7EB; }
+.cp-stat-val { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 4px; }
+.cp-stat-lbl { font-size: 0.67rem; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; font-weight: 600; }
+
+/* tabs */
+.cp-tabs-bar { display: flex; gap: 0; border-bottom: 1px solid #E5E7EB; overflow-x: auto; margin-top: 40px; -webkit-overflow-scrolling: touch; }
+.cp-tab-btn {
+    padding: 12px 20px; font-size: 0.83rem; font-weight: 600; color: #9CA3AF;
+    white-space: nowrap; cursor: pointer; border: none; background: none;
+    border-bottom: 2px solid transparent; transition: color .13s, border-color .13s; letter-spacing: .02em;
 }
-.cp-stat:last-child { border-right: none; }
-.cp-stat-val { font-size: 1.1rem; font-weight: 800; color: #ffffff; line-height: 1; margin-bottom: 3px; }
-.cp-stat-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.55); font-weight: 500; text-align: center; text-transform: uppercase; letter-spacing: .05em; }
+.cp-tab-btn:hover { color: #374151; }
+.cp-tab-btn.active { color: #088395; border-bottom-color: #088395; }
 
-/* ── Cards ── */
-.cp-card { background: #fff; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); margin-bottom: 10px; overflow: hidden; }
-.cp-card-head { padding: 18px 28px 0; }
-.cp-card-title { font-size: 0.9rem; font-weight: 700; color: #111827; margin: 0 0 6px; display: flex; align-items: center; gap: 6px; }
-.cp-card-rule { display: block; width: 24px; height: 2px; background: linear-gradient(90deg,#088395,#00C4A7); border-radius: 2px; margin-bottom: 14px; }
-.cp-card-body { padding: 0 28px 20px; }
-.cp-bio { font-size: 0.875rem; color: #374151; line-height: 1.75; white-space: pre-wrap; margin: 0; }
-.cp-no-content { font-size: 0.82rem; color: #9CA3AF; }
+/* panes */
+.cp-pane { display: none; padding: 36px 0 56px; }
+.cp-pane.active { display: block; }
 
-/* chips */
-.cp-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.cp-chip { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 999px; padding: 4px 13px; font-size: 0.77rem; color: #374151; font-weight: 500; }
+/* SOBRE */
+.cp-bio-text { font-size: 0.9rem; color: #4B5563; line-height: 1.85; white-space: pre-wrap; max-width: 720px; }
+.cp-info-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; max-width: 600px; }
+@media (max-width: 540px) { .cp-info-cards { grid-template-columns: 1fr; } }
+.cp-info-card { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; }
+.cp-info-card-icon { width: 36px; height: 36px; border-radius: 8px; background: #E0F2F1; color: #088395; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cp-info-card-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; font-weight: 600; margin-bottom: 2px; }
+.cp-info-card-val { font-size: 0.88rem; color: #111827; font-weight: 600; }
+
+/* ESPECIALIDADES */
+.cp-sub-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #9CA3AF; margin: 0 0 10px; }
+.cp-sub-label + .cp-sub-label, .cp-chips + .cp-sub-label { margin-top: 24px; }
+.cp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-chip { background: #F0FDFA; border: 1px solid #99F6E4; border-radius: 999px; padding: 5px 14px; font-size: 0.78rem; color: #0f766e; font-weight: 600; }
+.cp-chip-blue   { background: #EFF6FF; border-color: #BFDBFE; color: #1E40AF; }
 .cp-chip-orange { background: #FFF7ED; border-color: #FED7AA; color: #9A3412; }
-.cp-chip-blue { background: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; }
-.cp-chip-group-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #9CA3AF; margin-bottom: 8px; margin-top: 14px; }
-.cp-chip-group-label:first-child { margin-top: 0; }
 
-/* equipe */
-.cp-team-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.cp-team-card {
-    border: 1px solid #E5E7EB; border-radius: 7px; padding: 12px 14px;
-    text-decoration: none; display: flex; align-items: center; gap: 12px;
-    transition: border-color .13s, box-shadow .13s;
-}
-.cp-team-card:hover { border-color: #088395; box-shadow: 0 2px 8px rgba(8,131,149,.1); }
-.cp-team-avatar {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: #4B5563; display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; font-weight: 700; color: #fff; flex-shrink: 0; object-fit: cover;
-}
-.cp-team-name { font-size: 0.82rem; font-weight: 600; color: #111827; line-height: 1.2; margin-bottom: 2px; }
-.cp-team-spec { font-size: 0.72rem; color: #6B7280; }
+/* EQUIPE */
+.cp-team-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 640px)  { .cp-team-grid { grid-template-columns: repeat(2,1fr); } }
+@media (min-width: 1024px) { .cp-team-grid { grid-template-columns: repeat(3,1fr); } }
+.cp-team-card { border: 1px solid #E5E7EB; border-radius: 12px; padding: 16px; text-decoration: none; display: flex; align-items: center; gap: 14px; transition: border-color .13s, box-shadow .13s; }
+.cp-team-card:hover { border-color: #088395; box-shadow: 0 4px 16px rgba(8,131,149,.1); }
+.cp-team-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg,#088395,#00C4A7); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 700; color: #fff; flex-shrink: 0; object-fit: cover; }
+.cp-team-name { font-size: 0.85rem; font-weight: 700; color: #111827; margin-bottom: 2px; }
+.cp-team-spec { font-size: 0.75rem; color: #6B7280; }
 
-/* avaliações */
-.cp-reviews { display: flex; flex-direction: column; }
-.cp-review-item { padding: 14px 0; border-bottom: 1px solid #F3F4F6; }
-.cp-review-item:first-child { padding-top: 0; }
-.cp-review-item:last-child { border-bottom: none; padding-bottom: 0; }
-.cp-review-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-.cp-review-author { font-size: 0.8rem; font-weight: 700; color: #1F2937; }
+/* AVALIAÇÕES */
+.cp-review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.cp-review-count { font-size: 0.9rem; color: #6B7280; }
+.cp-reviews-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.cp-review-card { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 16px; padding: 20px 24px; }
+.cp-review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.cp-review-author-row { display: flex; align-items: center; gap: 12px; }
+.cp-review-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#088395,#00C4A7); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.cp-review-author { font-size: 0.85rem; font-weight: 700; color: #111827; }
 .cp-review-date { font-size: 0.7rem; color: #9CA3AF; }
-.cp-review-stars { color: #F59E0B; font-size: 0.78rem; margin-bottom: 4px; }
-.cp-review-text { font-size: 0.83rem; color: #4B5563; line-height: 1.6; margin: 0; }
+.cp-review-stars { color: #F59E0B; font-size: 0.75rem; margin-top: 2px; }
+.cp-review-text { font-size: 0.875rem; color: #374151; line-height: 1.7; margin: 0; }
 
-/* form avaliação */
-.cp-notice { padding: 9px 13px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; margin-bottom: 12px; }
+/* form */
+.cp-form-section { max-width: 560px; background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+.cp-form-section h3 { font-size: 0.9rem; font-weight: 700; color: #111827; margin: 0 0 16px; }
+.cp-notice { padding: 10px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; margin-bottom: 16px; }
 .cp-notice-pending  { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
 .cp-notice-approved { background:#F0FDF4; color:#065F46; border:1px solid #BBF7D0; }
 .cp-notice-rejected { background:#FFF1F2; color:#9F1239; border:1px solid #FECDD3; }
-.cp-star-row { display:flex; align-items:center; gap:4px; margin-bottom:8px; }
-.cp-star-lbl { font-size:0.78rem; color:#555; font-weight:500; }
-.cp-star-sel { display:flex; gap:1px; }
-.cp-star-btn { background:none; border:none; font-size:1.4rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
+.cp-star-row { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+.cp-star-lbl { font-size:0.8rem; color:#374151; font-weight:600; }
+.cp-star-sel { display:flex; gap:2px; }
+.cp-star-btn { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
 .cp-star-btn.lit, .cp-star-btn:hover { color:#F59E0B; }
-.cp-star-val { font-size:0.76rem; color:#9CA3AF; font-weight:500; margin-left:4px; }
-.cp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:6px; padding:9px 13px; font-size:0.85rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
+.cp-star-val { font-size:0.78rem; color:#6B7280; margin-left:6px; }
+.cp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:10px 14px; font-size:0.88rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
 .cp-textarea:focus { outline:none; border-color:#088395; }
-.cp-char { font-size:0.7rem; color:#9CA3AF; margin:3px 0 10px; }
-.cp-form-msg { padding:7px 12px; border-radius:5px; font-size:0.78rem; font-weight:500; margin-bottom:9px; }
+.cp-char { font-size:0.7rem; color:#9CA3AF; margin:4px 0 12px; }
+.cp-form-msg { padding:8px 12px; border-radius:6px; font-size:0.8rem; font-weight:500; margin-bottom:10px; }
 .cp-form-msg.hidden { display:none; }
 .cp-form-msg-err { background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; }
-.cp-form-divider { border:none; border-top:1px solid #F3F4F6; margin:14px 0; }
-.cp-login-note { font-size:0.8rem; color:#6B7280; }
-.cp-login-note a { color:#088395; text-decoration:none; }
-
-/* ── responsivo ── */
-@media (max-width: 680px) {
-    .cp-hero-content { flex-direction: column; align-items: flex-start; padding: 24px 20px 20px; gap: 16px; }
-    .cp-hero-actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
-    .cp-card-head { padding: 16px 18px 0; }
-    .cp-card-body { padding: 0 18px 16px; }
-    .cp-team-grid { grid-template-columns: 1fr 1fr; }
-    .cp-name { font-size: 1.25rem; }
-    .cp-stats-bar { flex-wrap: wrap; }
-    .cp-stat { min-width: 50%; border-bottom: 1px solid rgba(255,255,255,0.08); }
-}
-@media (max-width: 420px) {
-    .cp-team-grid { grid-template-columns: 1fr; }
-}
+.cp-login-note { font-size:0.85rem; color:#6B7280; margin-bottom:24px; }
+.cp-login-note a { color:#088395; text-decoration:none; font-weight:600; }
+.cp-no-content { font-size:0.88rem; color:#9CA3AF; padding:40px 0; text-align:center; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="cp-page">
-<div class="cp-wrap">
-
-{# ── HERO ── #}
 {% set wpp = clinic.whatsapp or clinic.phone %}
 {% if wpp %}{% set wpp_clean = wpp | replace('(','') | replace(')','') | replace(' ','') | replace('-','') %}{% endif %}
 
-<div class="cp-hero" {% if clinic.cover_photo_url %}style="background-image:url('{{ clinic.cover_photo_url }}')"{% endif %}>
-    <div class="cp-hero-overlay"></div>
+{# COVER full-width #}
+<div class="cp-cover" {% if clinic.cover_photo_url %}style="background-image:url('{{ clinic.cover_photo_url }}')"{% endif %}>
+    <div class="cp-cover-overlay"></div>
+</div>
 
-    <div class="cp-hero-content">
-        {# Foto — dentro do hero, sem negative margin #}
-        {% set photo = clinic.photo_url or clinic.logo_url %}
-        {% if photo %}
-        <img src="{{ photo }}" alt="{{ clinic.name }}" class="cp-photo">
-        {% else %}
-        <div class="cp-photo-init">{{ clinic.name[0] }}</div>
-        {% endif %}
+<div class="cp-inner">
+
+    {# ── HERO ROW ── #}
+    <div class="cp-hero-row">
+
+        {# Avatar — border-radius quadrado/suave para clínica #}
+        <div class="cp-avatar-ring">
+            <div class="cp-avatar-inner">
+                {% set photo = clinic.photo_url or clinic.logo_url %}
+                {% if photo %}
+                <img src="{{ photo }}" alt="{{ clinic.name }}">
+                {% else %}
+                <span class="cp-avatar-init">{{ clinic.name[0] }}</span>
+                {% endif %}
+            </div>
+        </div>
 
         {# Info #}
         <div class="cp-info">
@@ -237,7 +229,7 @@
                 <h1 class="cp-name">{{ clinic.name }}</h1>
                 {% if clinic.is_founder %}
                 <span class="cp-seal cp-seal-blue">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Fundador</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
                         <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -245,7 +237,7 @@
                 </span>
                 {% elif clinic.is_approved %}
                 <span class="cp-seal cp-seal-green">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Verificado</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
                         <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -253,57 +245,47 @@
                 </span>
                 {% endif %}
             </div>
-
-            {% if clinic.razao_social %}
-            <p class="cp-razao">{{ clinic.razao_social }}</p>
-            {% endif %}
-
+            {% if clinic.razao_social %}<p class="cp-razao">{{ clinic.razao_social }}</p>{% endif %}
             <div class="cp-meta-row">
                 {% if clinic.city %}
                 <span class="cp-meta-item">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                     {{ clinic.city }}, {{ clinic.state }}{% if clinic.address %} · {{ clinic.address }}{% endif %}
                 </span>
                 {% endif %}
-                {% if clinic.is_24h %}
-                <span class="cp-meta-item cp-badge-24h">Atendimento 24h</span>
-                {% endif %}
+                {% if clinic.is_24h %}<span class="cp-meta-item cp-badge-24h">Atendimento 24h</span>{% endif %}
             </div>
-
             {% if clinic.avg_rating > 0 %}
             <div class="cp-rating-row">
                 <span class="cp-stars">{% for i in range(clinic.avg_rating|int) %}★{% endfor %}{% for i in range(5 - clinic.avg_rating|int) %}☆{% endfor %}</span>
-                <strong style="color:#fff">{{ clinic.avg_rating }}</strong>
-                <span>({{ clinic.review_count }} avaliação{% if clinic.review_count != 1 %}ões{% endif %})</span>
+                <strong style="color:#0f172a">{{ clinic.avg_rating }}</strong>
+                <span style="color:#9CA3AF">({{ clinic.review_count }})</span>
             </div>
             {% endif %}
         </div>
 
-        {# Ações — direita #}
-        <div class="cp-hero-actions">
+        {# CTA #}
+        <div class="cp-cta">
             {% if wpp %}
             <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="cp-btn-wpp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                </svg>
-                {{ wpp }}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                WhatsApp
             </a>
             {% endif %}
             {% if clinic.phone and clinic.phone != clinic.whatsapp %}
-            <a href="tel:{{ clinic.phone }}" class="cp-btn-call">
+            <a href="tel:{{ clinic.phone }}" class="cp-btn-secondary">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
                 Ligar
             </a>
             {% endif %}
             {% if clinic.website %}
-            <a href="{{ clinic.website }}" target="_blank" rel="noopener" class="cp-btn-site">
+            <a href="{{ clinic.website }}" target="_blank" rel="noopener" class="cp-btn-secondary">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
                 Site
             </a>
             {% endif %}
-            <button type="button" class="cp-share-btn" id="cp-share-btn" title="Compartilhar perfil">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="cp-btn-icon" id="cp-share-btn" title="Compartilhar perfil">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                 </svg>
@@ -311,76 +293,119 @@
         </div>
     </div>
 
-    {# Stats — rodapé do hero #}
-    <div class="cp-stats-bar">
-        {% if veterinarians %}
+    {# ── STATS STRIP ── #}
+    <div class="cp-stats">
         <div class="cp-stat">
-            <span class="cp-stat-val">{{ veterinarians|length }}</span>
+            <span class="cp-stat-val">{% if veterinarians %}{{ veterinarians|length }}{% else %}—{% endif %}</span>
             <span class="cp-stat-lbl">Veterinários</span>
         </div>
-        {% endif %}
         <div class="cp-stat">
             <span class="cp-stat-val">{{ clinic.review_count }}</span>
             <span class="cp-stat-lbl">Avaliações</span>
         </div>
-        {% if clinic.avg_rating > 0 %}
         <div class="cp-stat">
-            <span class="cp-stat-val">{{ clinic.avg_rating }}</span>
-            <span class="cp-stat-lbl">Nota média</span>
+            <span class="cp-stat-val">{% if clinic.avg_rating > 0 %}{{ clinic.avg_rating }} ★{% else %}—{% endif %}</span>
+            <span class="cp-stat-lbl">Nota Média</span>
         </div>
-        {% endif %}
-        {% if clinic.is_24h %}
         <div class="cp-stat">
-            <span class="cp-stat-val" style="font-size:0.82rem;color:#FCA5A5">24h</span>
+            <span class="cp-stat-val" style="font-size:1rem;color:{% if clinic.is_24h %}#B91C1C{% else %}#9CA3AF{% endif %}">
+                {% if clinic.is_24h %}24h{% else %}—{% endif %}
+            </span>
             <span class="cp-stat-lbl">Atendimento</span>
         </div>
+    </div>
+
+    {# ── TABS ── #}
+    <div class="cp-tabs-bar">
+        <button class="cp-tab-btn active" data-tab="sobre">Sobre</button>
+        {% if clinic_specialties or clinic_species or clinic_convenios %}
+        <button class="cp-tab-btn" data-tab="atendimento">Especialidades</button>
+        {% endif %}
+        {% if veterinarians %}
+        <button class="cp-tab-btn" data-tab="equipe">Equipe ({{ veterinarians|length }})</button>
+        {% endif %}
+        <button class="cp-tab-btn" data-tab="avaliacoes">Avaliações ({{ clinic.review_count }})</button>
+    </div>
+
+    {# ── PANE: SOBRE ── #}
+    <div class="cp-pane active" id="pane-sobre">
+        {% if clinic.description %}
+        <p class="cp-bio-text">{{ clinic.description }}</p>
+        {% else %}
+        <p class="cp-no-content">Nenhuma descrição adicionada ainda.</p>
+        {% endif %}
+
+        {% if clinic.city or clinic.address or clinic.is_24h or clinic.website %}
+        <div class="cp-info-cards">
+            {% if clinic.city %}
+            <div class="cp-info-card">
+                <div class="cp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                </div>
+                <div>
+                    <div class="cp-info-card-lbl">Localização</div>
+                    <div class="cp-info-card-val">{{ clinic.city }}, {{ clinic.state }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if clinic.address %}
+            <div class="cp-info-card">
+                <div class="cp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div>
+                    <div class="cp-info-card-lbl">Endereço</div>
+                    <div class="cp-info-card-val">{{ clinic.address }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if clinic.is_24h %}
+            <div class="cp-info-card">
+                <div class="cp-info-card-icon" style="background:#FEF3C7;color:#B45309">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="cp-info-card-lbl">Atendimento</div>
+                    <div class="cp-info-card-val" style="color:#B45309">24 horas</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if clinic.website %}
+            <div class="cp-info-card">
+                <div class="cp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                </div>
+                <div>
+                    <div class="cp-info-card-lbl">Site</div>
+                    <div class="cp-info-card-val"><a href="{{ clinic.website }}" target="_blank" rel="noopener" style="color:#088395;text-decoration:none">Visitar site</a></div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-</div>
 
-{# ── SOBRE ── #}
-{% if clinic.description %}
-<div class="cp-card">
-    <div class="cp-card-head"><h2 class="cp-card-title">Sobre</h2><span class="cp-card-rule"></span></div>
-    <div class="cp-card-body"><p class="cp-bio">{{ clinic.description }}</p></div>
-</div>
-{% endif %}
-
-{# ── ESPECIALIDADES + ESPÉCIES + CONVÊNIOS ── #}
-{% if clinic_specialties or clinic_species or clinic_convenios %}
-<div class="cp-card">
-    <div class="cp-card-head"><h2 class="cp-card-title">Especialidades & Atendimento</h2><span class="cp-card-rule"></span></div>
-    <div class="cp-card-body">
+    {# ── PANE: ESPECIALIDADES ── #}
+    {% if clinic_specialties or clinic_species or clinic_convenios %}
+    <div class="cp-pane" id="pane-atendimento">
         {% if clinic_specialties %}
-        <p class="cp-chip-group-label">Especialidades</p>
-        <div class="cp-chips" style="margin-bottom:0">
-            {% for sp in clinic_specialties %}<span class="cp-chip cp-chip-blue">{{ sp }}</span>{% endfor %}
-        </div>
+        <p class="cp-sub-label">Especialidades</p>
+        <div class="cp-chips">{% for sp in clinic_specialties %}<span class="cp-chip cp-chip-blue">{{ sp }}</span>{% endfor %}</div>
         {% endif %}
         {% if clinic_species %}
-        <p class="cp-chip-group-label">Espécies</p>
-        <div class="cp-chips" style="margin-bottom:0">
-            {% for sp in clinic_species %}<span class="cp-chip">{{ sp }}</span>{% endfor %}
-        </div>
+        <p class="cp-sub-label">Espécies</p>
+        <div class="cp-chips">{% for sp in clinic_species %}<span class="cp-chip">{{ sp }}</span>{% endfor %}</div>
         {% endif %}
         {% if clinic_convenios %}
-        <p class="cp-chip-group-label">Convênios</p>
-        <div class="cp-chips">
-            {% for cv in clinic_convenios %}<span class="cp-chip cp-chip-orange">{{ cv }}</span>{% endfor %}
-        </div>
+        <p class="cp-sub-label">Convênios</p>
+        <div class="cp-chips">{% for cv in clinic_convenios %}<span class="cp-chip cp-chip-orange">{{ cv }}</span>{% endfor %}</div>
         {% endif %}
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-{# ── EQUIPE ── #}
-{% if veterinarians %}
-<div class="cp-card">
-    <div class="cp-card-head">
-        <h2 class="cp-card-title">Equipe <span style="font-weight:400;color:#9CA3AF;font-size:0.8rem">({{ veterinarians|length }})</span></h2>
-        <span class="cp-card-rule"></span>
-    </div>
-    <div class="cp-card-body">
+    {# ── PANE: EQUIPE ── #}
+    {% if veterinarians %}
+    <div class="cp-pane" id="pane-equipe">
         <div class="cp-team-grid">
             {% for vet in veterinarians %}
             <a href="/veterinario/{{ vet.slug }}" class="cp-team-card">
@@ -398,17 +423,12 @@
             {% endfor %}
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-{# ── AVALIAÇÕES ── #}
-<div class="cp-card">
-    <div class="cp-card-head">
-        <h2 class="cp-card-title">Avaliações{% if reviews %} <span style="font-weight:400;color:#9CA3AF;font-size:0.8rem">({{ reviews|length }})</span>{% endif %}</h2>
-        <span class="cp-card-rule"></span>
-    </div>
-    <div class="cp-card-body">
+    {# ── PANE: AVALIAÇÕES ── #}
+    <div class="cp-pane" id="pane-avaliacoes">
         {% set utype = current_user.user_type.value if current_user else '' %}
+
         {% if utype == 'tutor' %}
             {% if tutor_review %}
                 {% if tutor_review.status.value == 'pending' %}
@@ -420,7 +440,8 @@
                 {% endif %}
             {% endif %}
             {% if not tutor_review or tutor_review.status.value == 'rejected' %}
-            <div id="review-form-card">
+            <div class="cp-form-section" id="review-form-card">
+                <h3>Deixe sua avaliação</h3>
                 <div class="cp-star-row">
                     <span class="cp-star-lbl">Nota:</span>
                     <div class="cp-star-sel" id="star-selector">
@@ -435,23 +456,28 @@
                 <textarea id="review-comment" class="cp-textarea" placeholder="Conte sua experiência (mínimo 50 caracteres)..." rows="3" maxlength="2000"></textarea>
                 <div class="cp-char"><span id="char-count">0</span>/50 mínimo</div>
                 <div id="review-msg" class="cp-form-msg hidden"></div>
-                <button type="button" class="btn btn-primary" id="review-submit-btn" style="font-size:0.83rem;padding:8px 18px" onclick="submitReview('{{ reviewee_type }}','{{ reviewee_id }}')">Enviar avaliação</button>
-                <hr class="cp-form-divider">
+                <button type="button" class="btn btn-primary" id="review-submit-btn" onclick="submitReview('{{ reviewee_type }}','{{ reviewee_id }}')">Enviar avaliação</button>
             </div>
             {% endif %}
         {% elif not current_user %}
         <p class="cp-login-note"><a href="/login">Faça login</a> para deixar uma avaliação.</p>
-        <hr class="cp-form-divider">
         {% endif %}
 
+        <div class="cp-review-header">
+            <span class="cp-review-count">{{ reviews|length if reviews else 0 }} avaliação{% if (reviews|length if reviews else 0) != 1 %}ões{% endif %}</span>
+        </div>
+
         {% if reviews %}
-        <div class="cp-reviews">
+        <div class="cp-reviews-list">
             {% for review in reviews %}
-            <div class="cp-review-item">
-                <div class="cp-review-head">
-                    <div>
-                        <div class="cp-review-author">{{ review.author.display_name }}</div>
-                        <div class="cp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
+            <div class="cp-review-card">
+                <div class="cp-review-top">
+                    <div class="cp-review-author-row">
+                        <div class="cp-review-avatar">{{ review.author.display_name[0] }}</div>
+                        <div>
+                            <div class="cp-review-author">{{ review.author.display_name }}</div>
+                            <div class="cp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
+                        </div>
                     </div>
                     <span class="cp-review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
                 </div>
@@ -463,68 +489,80 @@
         <p class="cp-no-content">Nenhuma avaliação aprovada ainda. Seja o primeiro!</p>
         {% endif %}
     </div>
-</div>
 
-</div>{# /cp-wrap #}
-</div>{# /cp-page #}
+</div>{# /cp-inner #}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 (function() {
-    var selected = 0;
-    var labels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
-    var btns = document.querySelectorAll('#star-selector .cp-star-btn');
-    var labelEl = document.getElementById('star-label-text');
-    var commentEl = document.getElementById('review-comment');
-    var charCountEl = document.getElementById('char-count');
-    function paint(n) {
-        btns.forEach(function(b,i){ b.classList.toggle('lit',i<n); });
-        if (labelEl) labelEl.textContent = n ? labels[n] : '';
+    // tabs
+    var tabs  = document.querySelectorAll('.cp-tab-btn');
+    var panes = document.querySelectorAll('.cp-pane');
+    tabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var key = this.dataset.tab;
+            tabs.forEach(function(b)  { b.classList.remove('active'); });
+            panes.forEach(function(p) { p.classList.remove('active'); });
+            this.classList.add('active');
+            var pane = document.getElementById('pane-' + key);
+            if (pane) pane.classList.add('active');
+        });
+    });
+
+    // estrelas
+    var selected   = 0;
+    var starLabels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
+    var starBtns   = document.querySelectorAll('#star-selector .cp-star-btn');
+    var labelEl    = document.getElementById('star-label-text');
+    var commentEl  = document.getElementById('review-comment');
+    var charEl     = document.getElementById('char-count');
+    function paintStars(n) {
+        starBtns.forEach(function(b,i){ b.classList.toggle('lit',i<n); });
+        if (labelEl) labelEl.textContent = n ? starLabels[n] : '';
     }
-    btns.forEach(function(btn){
-        btn.addEventListener('mouseenter',function(){ paint(+this.dataset.v); });
-        btn.addEventListener('mouseleave',function(){ paint(selected); });
-        btn.addEventListener('click',function(){ selected=+this.dataset.v; paint(selected); });
+    starBtns.forEach(function(btn){
+        btn.addEventListener('mouseenter', function(){ paintStars(+this.dataset.v); });
+        btn.addEventListener('mouseleave', function(){ paintStars(selected); });
+        btn.addEventListener('click',      function(){ selected=+this.dataset.v; paintStars(selected); });
     });
     var selEl = document.getElementById('star-selector');
-    if (selEl) selEl.addEventListener('mouseleave',function(){ paint(selected); });
-    if (commentEl && charCountEl) commentEl.addEventListener('input',function(){ charCountEl.textContent=this.value.length; });
+    if (selEl) selEl.addEventListener('mouseleave', function(){ paintStars(selected); });
+    if (commentEl && charEl) commentEl.addEventListener('input', function(){ charEl.textContent=this.value.length; });
 
-    var shareBtn = document.getElementById('cp-share-btn');
+    // share
+    var shareBtn   = document.getElementById('cp-share-btn');
     var profileUrl = 'https://vetlandia.com.br/clinica/{{ clinic.slug }}';
     if (shareBtn) {
         shareBtn.addEventListener('click', function() {
             if (navigator.share) { navigator.share({ title: '{{ clinic.name }} | VetLândia', url: profileUrl }); }
-            else { navigator.clipboard.writeText(profileUrl).then(function() { shareBtn.title = 'Link copiado!'; setTimeout(function(){ shareBtn.title = 'Compartilhar perfil'; }, 2500); }); }
+            else { navigator.clipboard.writeText(profileUrl).then(function(){ shareBtn.title='Link copiado!'; setTimeout(function(){ shareBtn.title='Compartilhar perfil'; }, 2000); }); }
         });
     }
 })();
 
 function submitReview(revieweeType, revieweeId) {
-    var btn = document.getElementById('review-submit-btn');
-    var msgEl = document.getElementById('review-msg');
-    var commentEl = document.getElementById('review-comment');
-    var btns = document.querySelectorAll('#star-selector .cp-star-btn');
-    var rating = 0;
-    btns.forEach(function(b){ if(b.classList.contains('lit')) rating=+b.dataset.v; });
-    function showMsg(kind,text){ msgEl.className='cp-form-msg cp-form-msg-'+kind; msgEl.textContent=text; msgEl.classList.remove('hidden'); }
+    var btn     = document.getElementById('review-submit-btn');
+    var msgEl   = document.getElementById('review-msg');
+    var comment = document.getElementById('review-comment');
+    var starBtns= document.querySelectorAll('#star-selector .cp-star-btn');
+    var rating  = 0;
+    starBtns.forEach(function(b){ if(b.classList.contains('lit')) rating=+b.dataset.v; });
+    function showMsg(k,t){ msgEl.className='cp-form-msg cp-form-msg-'+k; msgEl.textContent=t; msgEl.classList.remove('hidden'); }
     if (!rating) { showMsg('err','Selecione uma nota de 1 a 5 estrelas.'); return; }
-    var comment = commentEl ? commentEl.value.trim() : '';
-    if (comment.length < 50) { showMsg('err','O comentário precisa ter ao menos 50 caracteres.'); return; }
+    if (!comment || comment.value.trim().length < 50) { showMsg('err','O comentário precisa ter ao menos 50 caracteres.'); return; }
     btn.disabled = true; btn.textContent = 'Enviando...';
     fetch('/api/reviews/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewee_type: revieweeType, reviewee_id: revieweeId, rating: rating, comment: comment })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewee_type: revieweeType, reviewee_id: revieweeId, rating: rating, comment: comment.value.trim() })
     })
-    .then(function(r){ return r.json().then(function(d){ return{ok:r.ok,data:d}; }); })
+    .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
     .then(function(res){
-        if (!res.ok) throw new Error(res.data.detail||'Erro ao enviar avaliação');
+        if (!res.ok) throw new Error(res.data.detail || 'Erro ao enviar avaliação');
         var card = document.getElementById('review-form-card');
         if (card) card.outerHTML = '<p class="cp-notice cp-notice-pending">Sua avaliação foi enviada e está em análise.</p>';
     })
-    .catch(function(err){ showMsg('err',err.message||'Erro de conexão.'); btn.disabled=false; btn.textContent='Enviar avaliação'; });
+    .catch(function(err){ showMsg('err', err.message || 'Erro de conexão.'); btn.disabled=false; btn.textContent='Enviar avaliação'; });
 }
 </script>
 {% endblock %}

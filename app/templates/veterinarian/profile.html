@@ -5,233 +5,245 @@
 
 {% block extra_css %}
 <style>
-/* ── Página ─────────────────────────── */
-.vp-page { background: #F4F2EE; min-height: calc(100vh - 72px); padding-bottom: 56px; }
-.vp-wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+body { background: #ffffff; }
 
-/* ── Hero — cover como fundo total (estilo musicos.art) ── */
-.vp-hero {
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
+/* ── COVER full-width (sangra até a borda, sem container) ── */
+.vp-cover {
     position: relative;
-    /* fallback gradient quando sem cover photo */
-    background: linear-gradient(135deg, #081e2a 0%, #0b4054 45%, #0a6660 100%);
+    width: 100%;
+    height: 260px;
+    background: linear-gradient(135deg, #0b4054 0%, #088395 50%, #00C4A7 100%);
     background-size: cover;
-    background-position: center;
+    background-position: center top;
+    overflow: hidden;
 }
-.vp-hero-overlay {
+/* overlay desce do transparente para branco — integra ao fundo claro da página */
+.vp-cover-overlay {
     position: absolute; inset: 0;
-    /* overlay escuro para legibilidade do texto */
-    background: linear-gradient(
-        105deg,
-        rgba(6,24,35,0.88) 0%,
-        rgba(6,24,35,0.72) 55%,
-        rgba(6,24,35,0.50) 100%
+    background: linear-gradient(to bottom,
+        rgba(255,255,255,0)    0%,
+        rgba(255,255,255,0)   50%,
+        rgba(255,255,255,0.6) 80%,
+        rgba(255,255,255,0.95) 100%
     );
 }
-.vp-hero-content {
-    position: relative; z-index: 1;
+@media (min-width: 768px)  { .vp-cover { height: 340px; } }
+@media (min-width: 1024px) { .vp-cover { height: 400px; } }
+
+/* ── container central ── */
+.vp-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px 64px; }
+@media (min-width: 768px)  { .vp-inner { padding: 0 40px 64px; } }
+@media (min-width: 1024px) { .vp-inner { padding: 0 64px 64px; } }
+
+/* ── hero row: avatar puxado para dentro do cover (igual musicos.art) ── */
+.vp-hero-row {
+    position: relative;
+    margin-top: -72px;
+    z-index: 10;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 24px;
-    padding: 40px 32px 32px;
+    gap: 20px;
+    text-align: center;
 }
+@media (min-width: 768px) {
+    .vp-hero-row {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 28px;
+        text-align: left;
+        margin-top: -96px;
+    }
+}
+@media (min-width: 1024px) { .vp-hero-row { margin-top: -112px; } }
 
-/* foto de perfil — sem overlap, dentro do hero */
-.vp-photo {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    border: 3px solid rgba(255,255,255,0.85);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    object-fit: cover;
+/* avatar com anel gradiente teal */
+.vp-avatar-ring {
+    width: 128px; height: 128px; border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, #088395, #00C4A7);
     flex-shrink: 0;
-    display: block;
+    box-shadow: 0 8px 30px rgba(8,131,149,0.28);
 }
-.vp-photo-init {
-    width: 100px; height: 100px;
-    border-radius: 50%;
-    border: 3px solid rgba(255,255,255,0.85);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    background: rgba(255,255,255,0.12);
+@media (min-width: 768px)  { .vp-avatar-ring { width: 152px; height: 152px; } }
+@media (min-width: 1024px) { .vp-avatar-ring { width: 176px; height: 176px; } }
+.vp-avatar-inner {
+    width: 100%; height: 100%; border-radius: 50%;
+    overflow: hidden; border: 4px solid #ffffff;
+    background: #e0f7fa;
     display: flex; align-items: center; justify-content: center;
-    font-size: 2.25rem; font-weight: 700; color: white;
-    flex-shrink: 0;
 }
+.vp-avatar-inner img { width: 100%; height: 100%; object-fit: cover; }
+.vp-avatar-init { font-size: 2.5rem; font-weight: 800; color: #088395; }
 
-/* info — texto branco sobre o cover */
+/* info */
 .vp-info { flex: 1; min-width: 0; }
-.vp-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 4px; }
-.vp-name { font-size: 1.5rem; font-weight: 800; color: #ffffff; margin: 0; line-height: 1.15; letter-spacing: -0.02em; }
-.vp-specialty { font-size: 0.9rem; color: rgba(255,255,255,0.75); margin-bottom: 10px; font-weight: 400; }
-.vp-meta-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.775rem; color: rgba(255,255,255,0.6); margin-bottom: 10px; }
+.vp-name-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; justify-content: center; }
+@media (min-width: 768px) { .vp-name-row { justify-content: flex-start; } }
+.vp-name { font-size: 1.75rem; font-weight: 800; color: #0f172a; line-height: 1.1; letter-spacing: -0.03em; margin: 0; }
+@media (min-width: 768px)  { .vp-name { font-size: 2.25rem; } }
+@media (min-width: 1024px) { .vp-name { font-size: 2.75rem; } }
+.vp-specialty { color: #475569; font-size: 0.95rem; margin: 4px 0 10px; }
+.vp-meta-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.78rem; color: #64748b; margin-bottom: 8px; justify-content: center; }
+@media (min-width: 768px) { .vp-meta-row { justify-content: flex-start; } }
 .vp-meta-item { display: flex; align-items: center; gap: 4px; }
-.vp-badge-24h { color: #FCA5A5; font-weight: 600; }
-.vp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: rgba(255,255,255,0.8); }
-.vp-stars { color: #FCD34D; letter-spacing: 1px; }
+.vp-badge-24h { color: #B91C1C; font-weight: 700; }
+.vp-rating-row { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #374151; justify-content: center; }
+@media (min-width: 768px) { .vp-rating-row { justify-content: flex-start; } }
+.vp-stars { color: #F59E0B; }
 
-/* Selo — SVG com <title> interno para tooltip real */
-.vp-seal {
-    display: inline-flex; align-items: center; justify-content: center;
-    flex-shrink: 0; cursor: default; line-height: 0;
-    filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3));
-}
+/* Selo — <title> dentro do SVG para tooltip nativo */
+.vp-seal { display: inline-flex; align-items: center; line-height: 0; cursor: default; }
 .vp-seal svg { display: block; pointer-events: none; }
-.vp-seal-blue { color: #60A5FA; }   /* azul claro — visível no fundo escuro */
-.vp-seal-green { color: #34D399; }  /* verde claro — visível no fundo escuro */
+.vp-seal-blue  { color: #2563EB; }
+.vp-seal-green { color: #059669; }
 
-/* ações — botão WhatsApp + share */
-.vp-hero-actions {
-    display: flex; flex-direction: column;
-    align-items: flex-end; gap: 10px;
-    flex-shrink: 0;
-}
+/* CTA */
+.vp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; flex-shrink: 0; }
+@media (min-width: 768px) { .vp-cta { flex-direction: column; align-items: flex-end; justify-content: flex-end; } }
 .vp-btn-wpp {
     display: inline-flex; align-items: center; gap: 8px;
-    background: #25D366; color: #fff;
-    border: none; border-radius: 999px;
-    padding: 10px 20px; font-weight: 700; font-size: 0.875rem;
+    background: #25D366; color: #fff; border-radius: 999px;
+    padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
     text-decoration: none; white-space: nowrap;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.25);
-    transition: background .13s;
-    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37,211,102,.35); transition: background .13s;
 }
 .vp-btn-wpp:hover { background: #1DAA54; color: #fff; }
-.vp-btn-call {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(255,255,255,0.12); color: #fff;
-    border: 1px solid rgba(255,255,255,0.25); border-radius: 999px;
-    padding: 8px 16px; font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; transition: background .13s;
+.vp-btn-secondary {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; color: #374151; border: 1px solid #D1D5DB;
+    border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 0.82rem;
+    text-decoration: none; transition: border-color .13s, color .13s;
 }
-.vp-btn-call:hover { background: rgba(255,255,255,0.2); color: #fff; }
-.vp-share-btn {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 50%; width: 36px; height: 36px;
+.vp-btn-secondary:hover { border-color: #088395; color: #088395; }
+.vp-btn-icon {
+    width: 38px; height: 38px; border: 1px solid #D1D5DB; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
-    cursor: pointer; color: rgba(255,255,255,0.8); transition: all .13s;
+    background: #fff; cursor: pointer; color: #6B7280; transition: all .13s;
 }
-.vp-share-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+.vp-btn-icon:hover { border-color: #088395; color: #088395; }
 
-/* stats bar — dentro do hero mas separado */
-.vp-stats-bar {
-    position: relative; z-index: 1;
-    display: flex; gap: 0;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.25);
-    backdrop-filter: blur(4px);
+/* ── stats strip (igual musicos.art) ── */
+.vp-stats {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 0;
+    margin-top: 36px;
+    border-top: 1px solid #E5E7EB; border-bottom: 1px solid #E5E7EB;
+    padding: 20px 0;
 }
-.vp-stat {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; padding: 14px 8px;
-    border-right: 1px solid rgba(255,255,255,0.08);
+@media (min-width: 640px) { .vp-stats { grid-template-columns: repeat(4,1fr); } }
+.vp-stat { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 12px; }
+.vp-stat + .vp-stat { border-left: 1px solid #E5E7EB; }
+.vp-stat-val { font-size: 1.5rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 4px; }
+.vp-stat-lbl { font-size: 0.67rem; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; font-weight: 600; }
+
+/* ── tabs ── */
+.vp-tabs-bar { display: flex; gap: 0; border-bottom: 1px solid #E5E7EB; overflow-x: auto; margin-top: 40px; -webkit-overflow-scrolling: touch; }
+.vp-tab-btn {
+    padding: 12px 20px; font-size: 0.83rem; font-weight: 600; color: #9CA3AF;
+    white-space: nowrap; cursor: pointer; border: none; background: none;
+    border-bottom: 2px solid transparent; transition: color .13s, border-color .13s; letter-spacing: .02em;
 }
-.vp-stat:last-child { border-right: none; }
-.vp-stat-val { font-size: 1.1rem; font-weight: 800; color: #ffffff; line-height: 1; margin-bottom: 3px; }
-.vp-stat-lbl { font-size: 0.68rem; color: rgba(255,255,255,0.55); font-weight: 500; text-align: center; text-transform: uppercase; letter-spacing: .05em; }
+.vp-tab-btn:hover { color: #374151; }
+.vp-tab-btn.active { color: #088395; border-bottom-color: #088395; }
 
-/* ── Cards genéricos ── */
-.vp-card { background: #fff; border-radius: 8px; border: 1px solid rgba(0,0,0,0.08); margin-bottom: 10px; overflow: hidden; }
-.vp-card-head { padding: 18px 28px 0; }
-.vp-card-title { font-size: 0.9rem; font-weight: 700; color: #111827; margin: 0 0 6px; }
-.vp-card-rule { display: block; width: 24px; height: 2px; background: linear-gradient(90deg,#088395,#00C4A7); border-radius: 2px; margin-bottom: 14px; }
-.vp-card-body { padding: 0 28px 20px; }
-.vp-bio { font-size: 0.875rem; color: #374151; line-height: 1.75; white-space: pre-wrap; margin: 0; }
+/* ── panes ── */
+.vp-pane { display: none; padding: 36px 0 56px; }
+.vp-pane.active { display: block; }
 
-/* chips */
-.vp-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.vp-chip { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 999px; padding: 4px 13px; font-size: 0.77rem; color: #374151; font-weight: 500; }
+/* SOBRE */
+.vp-bio-text { font-size: 0.9rem; color: #4B5563; line-height: 1.85; white-space: pre-wrap; max-width: 720px; }
+.vp-sub-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #9CA3AF; margin: 24px 0 10px; }
+.vp-info-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 24px; max-width: 600px; }
+@media (max-width: 540px) { .vp-info-cards { grid-template-columns: 1fr; } }
+.vp-info-card { display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; }
+.vp-info-card-icon { width: 36px; height: 36px; border-radius: 8px; background: #E0F2F1; color: #088395; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.vp-info-card-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .08em; color: #9CA3AF; font-weight: 600; margin-bottom: 2px; }
+.vp-info-card-val { font-size: 0.88rem; color: #111827; font-weight: 600; }
 
-/* casos */
-.vp-cases-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-.vp-case-card {
-    border: 1px solid #E5E7EB; border-left: 3px solid #088395;
-    border-radius: 7px; padding: 12px 14px;
-    text-decoration: none; display: block; transition: box-shadow .13s, border-left-color .13s;
-}
-.vp-case-card:hover { box-shadow: 0 2px 10px rgba(8,131,149,.12); border-left-color: #00C4A7; }
-.vp-case-tag { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #088395; margin-bottom: 4px; display: block; }
-.vp-case-title { font-size: 0.82rem; font-weight: 600; color: #111827; line-height: 1.3; margin-bottom: 4px; }
-.vp-case-date { font-size: 0.69rem; color: #9CA3AF; }
-.vp-no-content { font-size: 0.82rem; color: #9CA3AF; }
+/* ESPÉCIES */
+.vp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.vp-chip { background: #F0FDFA; border: 1px solid #99F6E4; border-radius: 999px; padding: 5px 14px; font-size: 0.78rem; color: #0f766e; font-weight: 600; }
 
-/* avaliações */
-.vp-reviews { display: flex; flex-direction: column; }
-.vp-review-item { padding: 14px 0; border-bottom: 1px solid #F3F4F6; }
-.vp-review-item:first-child { padding-top: 0; }
-.vp-review-item:last-child { border-bottom: none; padding-bottom: 0; }
-.vp-review-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
-.vp-review-author { font-size: 0.8rem; font-weight: 700; color: #1F2937; }
+/* CASOS */
+.vp-cases-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 640px)  { .vp-cases-grid { grid-template-columns: repeat(2,1fr); } }
+@media (min-width: 1024px) { .vp-cases-grid { grid-template-columns: repeat(3,1fr); } }
+.vp-case-card { border: 1px solid #E5E7EB; border-left: 3px solid #088395; border-radius: 10px; padding: 16px 18px; text-decoration: none; display: block; transition: box-shadow .15s, border-left-color .15s; }
+.vp-case-card:hover { box-shadow: 0 4px 16px rgba(8,131,149,.12); border-left-color: #00C4A7; }
+.vp-case-tag { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #088395; margin-bottom: 6px; display: block; }
+.vp-case-title { font-size: 0.88rem; font-weight: 700; color: #111827; line-height: 1.35; margin-bottom: 6px; }
+.vp-case-date { font-size: 0.7rem; color: #9CA3AF; }
+
+/* AVALIAÇÕES */
+.vp-review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.vp-review-count { font-size: 0.9rem; color: #6B7280; }
+.vp-reviews-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.vp-review-card { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 16px; padding: 20px 24px; }
+.vp-review-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.vp-review-author-row { display: flex; align-items: center; gap: 12px; }
+.vp-review-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#088395,#00C4A7); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+.vp-review-author { font-size: 0.85rem; font-weight: 700; color: #111827; }
 .vp-review-date { font-size: 0.7rem; color: #9CA3AF; }
-.vp-review-stars { color: #F59E0B; font-size: 0.78rem; margin-bottom: 4px; }
-.vp-review-text { font-size: 0.83rem; color: #4B5563; line-height: 1.6; margin: 0; }
+.vp-review-stars { color: #F59E0B; font-size: 0.75rem; margin-top: 2px; }
+.vp-review-text { font-size: 0.875rem; color: #374151; line-height: 1.7; margin: 0; }
 
-/* form avaliação */
-.vp-notice { padding: 9px 13px; border-radius: 6px; font-size: 0.8rem; font-weight: 500; margin-bottom: 12px; }
+/* form */
+.vp-form-section { max-width: 560px; background: #fff; border: 1px solid #E5E7EB; border-radius: 16px; padding: 24px; margin-bottom: 32px; }
+.vp-form-section h3 { font-size: 0.9rem; font-weight: 700; color: #111827; margin: 0 0 16px; }
+.vp-notice { padding: 10px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; margin-bottom: 16px; }
 .vp-notice-pending  { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
 .vp-notice-approved { background:#F0FDF4; color:#065F46; border:1px solid #BBF7D0; }
 .vp-notice-rejected { background:#FFF1F2; color:#9F1239; border:1px solid #FECDD3; }
-.vp-star-row { display:flex; align-items:center; gap:4px; margin-bottom:8px; }
-.vp-star-lbl { font-size:0.78rem; color:#555; font-weight:500; }
-.vp-star-sel { display:flex; gap:1px; }
-.vp-star-btn { background:none; border:none; font-size:1.4rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
+.vp-star-row { display:flex; align-items:center; gap:6px; margin-bottom:12px; }
+.vp-star-lbl { font-size:0.8rem; color:#374151; font-weight:600; }
+.vp-star-sel { display:flex; gap:2px; }
+.vp-star-btn { background:none; border:none; font-size:1.5rem; cursor:pointer; color:#D1D5DB; padding:0 2px; transition:color .1s; line-height:1; }
 .vp-star-btn.lit, .vp-star-btn:hover { color:#F59E0B; }
-.vp-star-val { font-size:0.76rem; color:#9CA3AF; font-weight:500; margin-left:4px; }
-.vp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:6px; padding:9px 13px; font-size:0.85rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
+.vp-star-val { font-size:0.78rem; color:#6B7280; margin-left:6px; }
+.vp-textarea { width:100%; border:1px solid #E5E7EB; border-radius:8px; padding:10px 14px; font-size:0.88rem; resize:vertical; font-family:inherit; color:#111827; box-sizing:border-box; }
 .vp-textarea:focus { outline:none; border-color:#088395; }
-.vp-char { font-size:0.7rem; color:#9CA3AF; margin:3px 0 10px; }
-.vp-form-msg { padding:7px 12px; border-radius:5px; font-size:0.78rem; font-weight:500; margin-bottom:9px; }
+.vp-char { font-size:0.7rem; color:#9CA3AF; margin:4px 0 12px; }
+.vp-form-msg { padding:8px 12px; border-radius:6px; font-size:0.8rem; font-weight:500; margin-bottom:10px; }
 .vp-form-msg.hidden { display:none; }
 .vp-form-msg-err { background:#FEF2F2; color:#991B1B; border:1px solid #FECACA; }
-.vp-form-divider { border:none; border-top:1px solid #F3F4F6; margin:14px 0; }
-.vp-login-note { font-size:0.8rem; color:#6B7280; }
-.vp-login-note a { color:#088395; text-decoration:none; }
-
-/* ── responsivo ── */
-@media (max-width: 680px) {
-    .vp-hero-content { flex-direction: column; align-items: flex-start; padding: 24px 20px 20px; gap: 16px; }
-    .vp-hero-actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
-    .vp-card-head { padding: 16px 18px 0; }
-    .vp-card-body { padding: 0 18px 16px; }
-    .vp-cases-grid { grid-template-columns: 1fr 1fr; }
-    .vp-name { font-size: 1.25rem; }
-    .vp-stats-bar { flex-wrap: wrap; }
-    .vp-stat { min-width: 50%; border-bottom: 1px solid rgba(255,255,255,0.08); }
-}
-@media (max-width: 420px) {
-    .vp-cases-grid { grid-template-columns: 1fr; }
-}
+.vp-login-note { font-size:0.85rem; color:#6B7280; margin-bottom:24px; }
+.vp-login-note a { color:#088395; text-decoration:none; font-weight:600; }
+.vp-no-content { font-size:0.88rem; color:#9CA3AF; padding:40px 0; text-align:center; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="vp-page">
-<div class="vp-wrap">
-
-{# ── HERO (cover como fundo total) ── #}
 {% set wpp = veterinarian.whatsapp or veterinarian.phone %}
 {% if wpp %}{% set wpp_clean = wpp | replace('(','') | replace(')','') | replace(' ','') | replace('-','') %}{% endif %}
 
-<div class="vp-hero" {% if veterinarian.cover_photo_url %}style="background-image:url('{{ veterinarian.cover_photo_url }}')"{% endif %}>
-    <div class="vp-hero-overlay"></div>
+{# COVER — full-width, sem container, sangra até as bordas #}
+<div class="vp-cover" {% if veterinarian.cover_photo_url %}style="background-image:url('{{ veterinarian.cover_photo_url }}')"{% endif %}>
+    <div class="vp-cover-overlay"></div>
+</div>
 
-    <div class="vp-hero-content">
-        {# Foto de perfil — dentro do hero, sem overlap #}
-        {% if veterinarian.photo_url %}
-        <img src="{{ veterinarian.photo_url }}" alt="{{ veterinarian.full_name }}" class="vp-photo">
-        {% else %}
-        <div class="vp-photo-init">{{ veterinarian.full_name[0] }}</div>
-        {% endif %}
+<div class="vp-inner">
+
+    {# ── HERO ROW ── #}
+    <div class="vp-hero-row">
+
+        {# Avatar com anel teal, puxado para dentro do cover #}
+        <div class="vp-avatar-ring">
+            <div class="vp-avatar-inner">
+                {% if veterinarian.photo_url %}
+                <img src="{{ veterinarian.photo_url }}" alt="{{ veterinarian.full_name }}">
+                {% else %}
+                <span class="vp-avatar-init">{{ veterinarian.full_name[0] }}</span>
+                {% endif %}
+            </div>
+        </div>
 
         {# Info #}
         <div class="vp-info">
             <div class="vp-name-row">
                 <h1 class="vp-name">{{ veterinarian.full_name }}</h1>
-                {# Selo — title dentro do SVG para tooltip nativo #}
                 {% if veterinarian.is_founder %}
                 <span class="vp-seal vp-seal-blue">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Fundador</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
                         <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -239,7 +251,7 @@
                 </span>
                 {% elif veterinarian.is_approved %}
                 <span class="vp-seal vp-seal-green">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Verificado</title>
                         <polygon points="10,0 12.68,3.53 17.07,2.93 16.47,7.32 20,10 16.47,12.68 17.07,17.07 12.68,16.47 10,20 7.32,16.47 2.93,17.07 3.53,12.68 0,10 3.53,7.32 2.93,2.93 7.32,3.53"/>
                         <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
@@ -247,54 +259,42 @@
                 </span>
                 {% endif %}
             </div>
-
-            {% if veterinarian.specialty %}
-            <p class="vp-specialty">{{ veterinarian.specialty }}</p>
-            {% endif %}
-
+            {% if veterinarian.specialty %}<p class="vp-specialty">{{ veterinarian.specialty }}</p>{% endif %}
             <div class="vp-meta-row">
                 {% if veterinarian.city %}
                 <span class="vp-meta-item">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
                     {{ veterinarian.city }}{% if veterinarian.state %}, {{ veterinarian.state }}{% endif %}
                 </span>
                 {% endif %}
-                {% if veterinarian.crmv %}
-                <span class="vp-meta-item">{{ veterinarian.crmv }}</span>
-                {% endif %}
-                {% if veterinarian.is_24h %}
-                <span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>
-                {% endif %}
+                {% if veterinarian.crmv %}<span class="vp-meta-item">{{ veterinarian.crmv }}</span>{% endif %}
+                {% if veterinarian.is_24h %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
             </div>
-
             {% if veterinarian.avg_rating > 0 %}
             <div class="vp-rating-row">
                 <span class="vp-stars">{% for i in range(veterinarian.avg_rating|int) %}★{% endfor %}{% for i in range(5 - veterinarian.avg_rating|int) %}☆{% endfor %}</span>
-                <strong style="color:#fff">{{ veterinarian.avg_rating }}</strong>
-                <span>({{ veterinarian.review_count }} avaliação{% if veterinarian.review_count != 1 %}ões{% endif %})</span>
+                <strong style="color:#0f172a">{{ veterinarian.avg_rating }}</strong>
+                <span style="color:#9CA3AF">({{ veterinarian.review_count }})</span>
             </div>
             {% endif %}
         </div>
 
-        {# Ações — direita #}
-        <div class="vp-hero-actions">
+        {# CTA — WhatsApp + Ligar + Share #}
+        <div class="vp-cta">
             {% if wpp %}
             <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="vp-btn-wpp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
-                </svg>
-                {{ wpp }}
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                WhatsApp
             </a>
             {% endif %}
             {% if veterinarian.phone and veterinarian.phone != veterinarian.whatsapp %}
-            <a href="tel:{{ veterinarian.phone }}" class="vp-btn-call">
+            <a href="tel:{{ veterinarian.phone }}" class="vp-btn-secondary">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
                 Ligar
             </a>
             {% endif %}
-            <button type="button" class="vp-share-btn" id="vp-share-btn" title="Compartilhar perfil">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="vp-btn-icon" id="vp-share-btn" title="Compartilhar perfil">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
                     <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                 </svg>
@@ -302,8 +302,8 @@
         </div>
     </div>
 
-    {# Stats — dentro do hero, semi-transparente no rodapé #}
-    <div class="vp-stats-bar">
+    {# ── STATS STRIP ── #}
+    <div class="vp-stats">
         <div class="vp-stat">
             <span class="vp-stat-val">{{ vet_cases|length }}</span>
             <span class="vp-stat-lbl">Casos Clínicos</span>
@@ -312,46 +312,97 @@
             <span class="vp-stat-val">{{ veterinarian.review_count }}</span>
             <span class="vp-stat-lbl">Avaliações</span>
         </div>
-        {% if veterinarian.avg_rating > 0 %}
         <div class="vp-stat">
-            <span class="vp-stat-val">{{ veterinarian.avg_rating }}</span>
-            <span class="vp-stat-lbl">Nota média</span>
+            <span class="vp-stat-val">{% if veterinarian.avg_rating > 0 %}{{ veterinarian.avg_rating }} ★{% else %}—{% endif %}</span>
+            <span class="vp-stat-lbl">Nota Média</span>
         </div>
-        {% endif %}
-        {% if veterinarian.crmv %}
         <div class="vp-stat">
-            <span class="vp-stat-val" style="font-size:0.82rem">{{ veterinarian.crmv }}</span>
+            {% if veterinarian.crmv %}
+            <span class="vp-stat-val" style="font-size:1rem">{{ veterinarian.crmv }}</span>
+            {% else %}
+            <span class="vp-stat-val">—</span>
+            {% endif %}
             <span class="vp-stat-lbl">CRMV</span>
         </div>
+    </div>
+
+    {# ── TABS ── #}
+    <div class="vp-tabs-bar">
+        <button class="vp-tab-btn active" data-tab="sobre">Sobre</button>
+        {% if vet_species %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
+        <button class="vp-tab-btn" data-tab="casos">Casos Clínicos{% if vet_cases %} ({{ vet_cases|length }}){% endif %}</button>
+        <button class="vp-tab-btn" data-tab="avaliacoes">Avaliações ({{ veterinarian.review_count }})</button>
+    </div>
+
+    {# ── PANE: SOBRE ── #}
+    <div class="vp-pane active" id="pane-sobre">
+        {% if veterinarian.bio %}
+        <p class="vp-bio-text">{{ veterinarian.bio }}</p>
+        {% else %}
+        <p class="vp-no-content">Nenhuma bio adicionada ainda.</p>
+        {% endif %}
+
+        {% if veterinarian.specialty or veterinarian.crmv or veterinarian.city or veterinarian.is_24h %}
+        <div class="vp-info-cards">
+            {% if veterinarian.specialty %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+                </div>
+                <div>
+                    <div class="vp-info-card-lbl">Especialidade</div>
+                    <div class="vp-info-card-val">{{ veterinarian.specialty }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if veterinarian.city %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                </div>
+                <div>
+                    <div class="vp-info-card-lbl">Localização</div>
+                    <div class="vp-info-card-val">{{ veterinarian.city }}{% if veterinarian.state %}, {{ veterinarian.state }}{% endif %}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if veterinarian.crmv %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/></svg>
+                </div>
+                <div>
+                    <div class="vp-info-card-lbl">Registro</div>
+                    <div class="vp-info-card-val">{{ veterinarian.crmv }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if veterinarian.is_24h %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon" style="background:#FEF3C7;color:#B45309">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div>
+                    <div class="vp-info-card-lbl">Atendimento</div>
+                    <div class="vp-info-card-val" style="color:#B45309">24 horas</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
         {% endif %}
     </div>
-</div>
 
-{# ── SOBRE ── #}
-{% if veterinarian.bio %}
-<div class="vp-card">
-    <div class="vp-card-head"><h2 class="vp-card-title">Sobre</h2><span class="vp-card-rule"></span></div>
-    <div class="vp-card-body"><p class="vp-bio">{{ veterinarian.bio }}</p></div>
-</div>
-{% endif %}
-
-{# ── ESPÉCIES ── #}
-{% if vet_species %}
-<div class="vp-card">
-    <div class="vp-card-head"><h2 class="vp-card-title">Espécies Atendidas</h2><span class="vp-card-rule"></span></div>
-    <div class="vp-card-body">
-        <div class="vp-chips">{% for sp in vet_species %}<span class="vp-chip">{{ sp }}</span>{% endfor %}</div>
+    {# ── PANE: ESPÉCIES ── #}
+    {% if vet_species %}
+    <div class="vp-pane" id="pane-especies">
+        <div class="vp-chips">
+            {% for sp in vet_species %}<span class="vp-chip">{{ sp }}</span>{% endfor %}
+        </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-{# ── CASOS CLÍNICOS ── #}
-<div class="vp-card">
-    <div class="vp-card-head">
-        <h2 class="vp-card-title">Casos Clínicos{% if vet_cases %} <span style="font-weight:400;color:#9CA3AF;font-size:0.8rem">({{ vet_cases|length }})</span>{% endif %}</h2>
-        <span class="vp-card-rule"></span>
-    </div>
-    <div class="vp-card-body">
+    {# ── PANE: CASOS ── #}
+    <div class="vp-pane" id="pane-casos">
         {% if vet_cases %}
         <div class="vp-cases-grid">
             {% for case in vet_cases %}
@@ -367,16 +418,11 @@
         <p class="vp-no-content">Nenhum caso clínico publicado ainda.</p>
         {% endif %}
     </div>
-</div>
 
-{# ── AVALIAÇÕES ── #}
-<div class="vp-card">
-    <div class="vp-card-head">
-        <h2 class="vp-card-title">Avaliações{% if reviews %} <span style="font-weight:400;color:#9CA3AF;font-size:0.8rem">({{ reviews|length }})</span>{% endif %}</h2>
-        <span class="vp-card-rule"></span>
-    </div>
-    <div class="vp-card-body">
+    {# ── PANE: AVALIAÇÕES ── #}
+    <div class="vp-pane" id="pane-avaliacoes">
         {% set utype = current_user.user_type.value if current_user else '' %}
+
         {% if utype == 'tutor' %}
             {% if tutor_review %}
                 {% if tutor_review.status.value == 'pending' %}
@@ -388,7 +434,8 @@
                 {% endif %}
             {% endif %}
             {% if not tutor_review or tutor_review.status.value == 'rejected' %}
-            <div id="review-form-card">
+            <div class="vp-form-section" id="review-form-card">
+                <h3>Deixe sua avaliação</h3>
                 <div class="vp-star-row">
                     <span class="vp-star-lbl">Nota:</span>
                     <div class="vp-star-sel" id="star-selector">
@@ -403,23 +450,28 @@
                 <textarea id="review-comment" class="vp-textarea" placeholder="Conte sua experiência (mínimo 50 caracteres)..." rows="3" maxlength="2000"></textarea>
                 <div class="vp-char"><span id="char-count">0</span>/50 mínimo</div>
                 <div id="review-msg" class="vp-form-msg hidden"></div>
-                <button type="button" class="btn btn-primary" id="review-submit-btn" style="font-size:0.83rem;padding:8px 18px" onclick="submitReview('{{ reviewee_type }}','{{ reviewee_id }}')">Enviar avaliação</button>
-                <hr class="vp-form-divider">
+                <button type="button" class="btn btn-primary" id="review-submit-btn" onclick="submitReview('{{ reviewee_type }}','{{ reviewee_id }}')">Enviar avaliação</button>
             </div>
             {% endif %}
         {% elif not current_user %}
         <p class="vp-login-note"><a href="/login">Faça login</a> para deixar uma avaliação.</p>
-        <hr class="vp-form-divider">
         {% endif %}
 
+        <div class="vp-review-header">
+            <span class="vp-review-count">{{ reviews|length if reviews else 0 }} avaliação{% if (reviews|length if reviews else 0) != 1 %}ões{% endif %}</span>
+        </div>
+
         {% if reviews %}
-        <div class="vp-reviews">
+        <div class="vp-reviews-list">
             {% for review in reviews %}
-            <div class="vp-review-item">
-                <div class="vp-review-head">
-                    <div>
-                        <div class="vp-review-author">{{ review.author.display_name }}</div>
-                        <div class="vp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
+            <div class="vp-review-card">
+                <div class="vp-review-top">
+                    <div class="vp-review-author-row">
+                        <div class="vp-review-avatar">{{ review.author.display_name[0] }}</div>
+                        <div>
+                            <div class="vp-review-author">{{ review.author.display_name }}</div>
+                            <div class="vp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
+                        </div>
                     </div>
                     <span class="vp-review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
                 </div>
@@ -431,68 +483,80 @@
         <p class="vp-no-content">Nenhuma avaliação aprovada ainda. Seja o primeiro!</p>
         {% endif %}
     </div>
-</div>
 
-</div>{# /vp-wrap #}
-</div>{# /vp-page #}
+</div>{# /vp-inner #}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 (function() {
-    var selected = 0;
-    var labels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
-    var btns = document.querySelectorAll('#star-selector .vp-star-btn');
-    var labelEl = document.getElementById('star-label-text');
-    var commentEl = document.getElementById('review-comment');
-    var charCountEl = document.getElementById('char-count');
-    function paint(n) {
-        btns.forEach(function(b,i){ b.classList.toggle('lit',i<n); });
-        if (labelEl) labelEl.textContent = n ? labels[n] : '';
+    // tabs
+    var tabs  = document.querySelectorAll('.vp-tab-btn');
+    var panes = document.querySelectorAll('.vp-pane');
+    tabs.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var key = this.dataset.tab;
+            tabs.forEach(function(b)  { b.classList.remove('active'); });
+            panes.forEach(function(p) { p.classList.remove('active'); });
+            this.classList.add('active');
+            var pane = document.getElementById('pane-' + key);
+            if (pane) pane.classList.add('active');
+        });
+    });
+
+    // estrelas
+    var selected   = 0;
+    var starLabels = ['','Péssimo','Ruim','Regular','Bom','Excelente'];
+    var starBtns   = document.querySelectorAll('#star-selector .vp-star-btn');
+    var labelEl    = document.getElementById('star-label-text');
+    var commentEl  = document.getElementById('review-comment');
+    var charEl     = document.getElementById('char-count');
+    function paintStars(n) {
+        starBtns.forEach(function(b,i){ b.classList.toggle('lit',i<n); });
+        if (labelEl) labelEl.textContent = n ? starLabels[n] : '';
     }
-    btns.forEach(function(btn){
-        btn.addEventListener('mouseenter',function(){ paint(+this.dataset.v); });
-        btn.addEventListener('mouseleave',function(){ paint(selected); });
-        btn.addEventListener('click',function(){ selected=+this.dataset.v; paint(selected); });
+    starBtns.forEach(function(btn){
+        btn.addEventListener('mouseenter', function(){ paintStars(+this.dataset.v); });
+        btn.addEventListener('mouseleave', function(){ paintStars(selected); });
+        btn.addEventListener('click',      function(){ selected=+this.dataset.v; paintStars(selected); });
     });
     var selEl = document.getElementById('star-selector');
-    if (selEl) selEl.addEventListener('mouseleave',function(){ paint(selected); });
-    if (commentEl && charCountEl) commentEl.addEventListener('input',function(){ charCountEl.textContent=this.value.length; });
+    if (selEl) selEl.addEventListener('mouseleave', function(){ paintStars(selected); });
+    if (commentEl && charEl) commentEl.addEventListener('input', function(){ charEl.textContent=this.value.length; });
 
-    var shareBtn = document.getElementById('vp-share-btn');
+    // share
+    var shareBtn   = document.getElementById('vp-share-btn');
     var profileUrl = 'https://vetlandia.com.br/veterinario/{{ veterinarian.slug }}';
     if (shareBtn) {
         shareBtn.addEventListener('click', function() {
             if (navigator.share) { navigator.share({ title: '{{ veterinarian.full_name }} | VetLândia', url: profileUrl }); }
-            else { navigator.clipboard.writeText(profileUrl).then(function() { shareBtn.title = 'Link copiado!'; setTimeout(function(){ shareBtn.title = 'Compartilhar'; }, 2500); }); }
+            else { navigator.clipboard.writeText(profileUrl).then(function(){ shareBtn.title='Link copiado!'; setTimeout(function(){ shareBtn.title='Compartilhar perfil'; }, 2000); }); }
         });
     }
 })();
 
 function submitReview(revieweeType, revieweeId) {
-    var btn = document.getElementById('review-submit-btn');
-    var msgEl = document.getElementById('review-msg');
-    var commentEl = document.getElementById('review-comment');
-    var btns = document.querySelectorAll('#star-selector .vp-star-btn');
-    var rating = 0;
-    btns.forEach(function(b){ if(b.classList.contains('lit')) rating=+b.dataset.v; });
-    function showMsg(kind,text){ msgEl.className='vp-form-msg vp-form-msg-'+kind; msgEl.textContent=text; msgEl.classList.remove('hidden'); }
+    var btn     = document.getElementById('review-submit-btn');
+    var msgEl   = document.getElementById('review-msg');
+    var comment = document.getElementById('review-comment');
+    var starBtns= document.querySelectorAll('#star-selector .vp-star-btn');
+    var rating  = 0;
+    starBtns.forEach(function(b){ if(b.classList.contains('lit')) rating=+b.dataset.v; });
+    function showMsg(k,t){ msgEl.className='vp-form-msg vp-form-msg-'+k; msgEl.textContent=t; msgEl.classList.remove('hidden'); }
     if (!rating) { showMsg('err','Selecione uma nota de 1 a 5 estrelas.'); return; }
-    var comment = commentEl ? commentEl.value.trim() : '';
-    if (comment.length < 50) { showMsg('err','O comentário precisa ter ao menos 50 caracteres.'); return; }
+    if (!comment || comment.value.trim().length < 50) { showMsg('err','O comentário precisa ter ao menos 50 caracteres.'); return; }
     btn.disabled = true; btn.textContent = 'Enviando...';
     fetch('/api/reviews/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reviewee_type: revieweeType, reviewee_id: revieweeId, rating: rating, comment: comment })
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reviewee_type: revieweeType, reviewee_id: revieweeId, rating: rating, comment: comment.value.trim() })
     })
-    .then(function(r){ return r.json().then(function(d){ return{ok:r.ok,data:d}; }); })
+    .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, data:d}; }); })
     .then(function(res){
-        if (!res.ok) throw new Error(res.data.detail||'Erro ao enviar avaliação');
+        if (!res.ok) throw new Error(res.data.detail || 'Erro ao enviar avaliação');
         var card = document.getElementById('review-form-card');
         if (card) card.outerHTML = '<p class="vp-notice vp-notice-pending">Sua avaliação foi enviada e está em análise.</p>';
     })
-    .catch(function(err){ showMsg('err',err.message||'Erro de conexão.'); btn.disabled=false; btn.textContent='Enviar avaliação'; });
+    .catch(function(err){ showMsg('err', err.message || 'Erro de conexão.'); btn.disabled=false; btn.textContent='Enviar avaliação'; });
 }
 </script>
 {% endblock %}
