@@ -35,9 +35,14 @@
             </form>
             <div class="filter-chips" style="margin-top:12px">
                 {% if somente_24h == '1' %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}{% endif %}" class="chip active">🕐 Atendimento 24h ✕</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if aplica_vacinas == '1' %}aplica_vacinas=1{% endif %}" class="chip active">🕐 Atendimento 24h ✕</a>
                 {% else %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if aplica_vacinas == '1' %}aplica_vacinas=1&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
+                {% endif %}
+                {% if aplica_vacinas == '1' %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1{% endif %}" class="chip active">💉 Aplica vacinas ✕</a>
+                {% else %}
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if especialidade %}especialidade={{ especialidade }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1&{% endif %}aplica_vacinas=1" class="chip">💉 Aplica vacinas</a>
                 {% endif %}
             </div>
         </div>
