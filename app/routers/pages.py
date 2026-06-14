@@ -357,6 +357,7 @@ def buscar_veterinarios(
     cidade: str = None,
     estado: str = None,
     somente_24h: str = None,
+    aplica_vacinas: str = None,
 ):
     q = db.query(
         Veterinarian,
@@ -409,6 +410,8 @@ def buscar_veterinarios(
         q = q.filter(Veterinarian.state == estado.upper())
     if somente_24h in ("1", "on"):
         q = q.filter(Veterinarian.is_24h == True)
+    if aplica_vacinas in ("1", "on"):
+        q = q.filter(Veterinarian.aplica_vacinas == True)
 
     results = (
         q.group_by(Veterinarian.id)
@@ -446,6 +449,7 @@ def buscar_veterinarios(
             "especialidade": especialidade,
             "cidade": cidade,
             "somente_24h": somente_24h,
+            "aplica_vacinas": aplica_vacinas,
             "especialidades_disponiveis": especialidades_disponiveis,
             "cidades_disponiveis": cidades_disponiveis,
         },
@@ -461,6 +465,7 @@ def buscar_clinicas(
     cidade: str = None,
     estado: str = None,
     somente_24h: str = None,
+    aplica_vacinas: str = None,
 ):
     q = db.query(
         Clinic,
@@ -510,6 +515,8 @@ def buscar_clinicas(
         q = q.filter(Clinic.state == estado.upper())
     if somente_24h in ("1", "on"):
         q = q.filter(Clinic.is_24h == True)
+    if aplica_vacinas in ("1", "on"):
+        q = q.filter(Clinic.aplica_vacinas == True)
 
     results = (
         q.group_by(Clinic.id)
@@ -539,6 +546,7 @@ def buscar_clinicas(
             "query": query,
             "cidade": cidade,
             "somente_24h": somente_24h,
+            "aplica_vacinas": aplica_vacinas,
             "cidades_disponiveis": cidades_disponiveis,
         },
     )
