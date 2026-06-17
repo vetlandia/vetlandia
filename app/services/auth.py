@@ -136,7 +136,9 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         complement=data.complement,
         animal_species=data.animal_species,
         photo_url=data.photo_url,
+        cover_photo_url=data.cover_photo_url,
         is_24h=data.is_24h,
+        aplica_vacinas=data.aplica_vacinas,
         slug=slug,
         clinic_id=data.clinic_id,
     )
@@ -186,7 +188,9 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
         animal_species=data.animal_species,
         specialties=data.specialties,
         photo_url=data.photo_url,
+        cover_photo_url=data.cover_photo_url,
         is_24h=data.is_24h,
+        aplica_vacinas=data.aplica_vacinas,
         slug=slug,
     )
     db.add(clinic)

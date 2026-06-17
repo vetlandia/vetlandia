@@ -177,6 +177,7 @@
 }
 
 .photo-preview.clinic-preview { border-radius: var(--radius-lg); }
+.photo-preview.cover-preview { width: 142px; height: 80px; border-radius: var(--radius-lg); }
 .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
 .photo-preview-placeholder { font-size: 2rem; opacity: 0.4; }
 .photo-upload-actions { flex: 1; min-width: 0; }
@@ -380,6 +381,24 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Foto de Capa</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview cover-preview" id="pc-vet-cover-preview">
+                                    {% if profile and profile.cover_photo_url %}
+                                    <img src="{{ profile.cover_photo_url }}" alt="Capa atual">
+                                    {% else %}
+                                    <span class="photo-preview-placeholder">🖼</span>
+                                    {% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-vet-cover-input">🖼 Trocar capa</label>
+                                    <input type="file" id="pc-vet-cover-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="cover_photo_url" id="pc-vet-cover-data" value="{{ profile.cover_photo_url if profile and profile.cover_photo_url else '' }}">
+                                    <p class="form-help">Aparece no topo do seu perfil público.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="terms-check" style="margin-bottom:8px">
                                 <input type="checkbox" name="is_24h" {% if profile and profile.is_24h %}checked{% endif %}>
                                 <span>Ofereço atendimento <strong>24 horas</strong></span>
@@ -463,6 +482,24 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Foto de Capa</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview cover-preview" id="pc-clinic-cover-preview">
+                                    {% if profile and profile.cover_photo_url %}
+                                    <img src="{{ profile.cover_photo_url }}" alt="Capa atual">
+                                    {% else %}
+                                    <span class="photo-preview-placeholder">🖼</span>
+                                    {% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-clinic-cover-input">🖼 Trocar capa</label>
+                                    <input type="file" id="pc-clinic-cover-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="cover_photo_url" id="pc-clinic-cover-data" value="{{ profile.cover_photo_url if profile and profile.cover_photo_url else '' }}">
+                                    <p class="form-help">Aparece no topo do perfil público da clínica.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Número de veterinários na equipe</label>
                             <input type="number" name="num_veterinarios" id="pc-num-vets" class="form-input" value="{{ profile.num_veterinarios if profile and profile.num_veterinarios else '' }}" placeholder="Ex: 5" min="1" max="9999" style="max-width:160px">
                         </div>
@@ -528,6 +565,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
 setupPhotoUpload('pc-tutor-photo-input',  'pc-tutor-preview',  'pc-tutor-photo-data');
 setupPhotoUpload('pc-vet-photo-input',    'pc-vet-preview',    'pc-vet-photo-data');
 setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-data');
+setupPhotoUpload('pc-vet-cover-input',    'pc-vet-cover-preview',    'pc-vet-cover-data');
+setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-cover-data');
 </script>
 
 <script>
@@ -616,6 +655,7 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
                 state: g('state'),
                 city: g('city'),
                 photo_url: gId('pc-vet-photo-data'),
+                cover_photo_url: gId('pc-vet-cover-data'),
                 is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
                 aplica_vacinas: !!(document.getElementById('pc-vet-vacinas') && document.getElementById('pc-vet-vacinas').checked),
             };
@@ -631,6 +671,7 @@ setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-
                 whatsapp: g('whatsapp'),
                 website: g('website'),
                 photo_url: gId('pc-clinic-photo-data'),
+                cover_photo_url: gId('pc-clinic-cover-data'),
                 is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
                 aplica_vacinas: !!(document.getElementById('pc-clinic-vacinas') && document.getElementById('pc-clinic-vacinas').checked),
                 num_veterinarios: (document.getElementById('pc-num-vets') && document.getElementById('pc-num-vets').value) || null,
