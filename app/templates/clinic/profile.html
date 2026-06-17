@@ -478,7 +478,7 @@ body { background: #ffffff; }
         {% endif %}
 
         <div class="cp-review-header">
-            <span class="cp-review-count">{{ reviews|length if reviews else 0 }} avaliação{% if (reviews|length if reviews else 0) != 1 %}ões{% endif %}</span>
+            <span class="cp-review-count">{{ reviews|length if reviews else 0 }} avaliaç{% if (reviews|length if reviews else 0) != 1 %}ões{% else %}ão{% endif %}</span>
         </div>
 
         {% if reviews %}
