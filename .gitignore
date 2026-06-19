@@ -54,3 +54,7 @@ alembic/versions/*.pyc
 
 # Railway
 .railway/
+
+# Backups locais do banco (dados de produção — nunca commitar)
+backups_local/
+*.dump
