@@ -1,0 +1,23 @@
+# Build do Railway (Nixpacks).
+#
+# Fase adicional que instala o cliente PostgreSQL 18 (pg_dump) a partir do
+# repositório oficial PGDG. Necessário porque:
+#   - o servidor Postgres do projeto é a versão 18;
+#   - pg_dump exige cliente >= versão do servidor;
+#   - o postgresql-client padrão do Debian é mais antigo (v15/16) e seria recusado.
+#
+# Usamos uma fase própria com `dependsOn = ["setup"]` para ACRESCENTAR o cliente
+# sem sobrescrever a fase de setup do provider Python detectado pelo Nixpacks.
+# O pg_dump é usado por scripts/backup_before_migrate.sh no startCommand.
+
+[phases.pgclient]
+dependsOn = ["setup"]
+cmds = [
+  "apt-get update",
+  "apt-get install -y curl ca-certificates gnupg",
+  "install -d /usr/share/postgresql-common/pgdg",
+  "curl -fsS -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc",
+  "sh -c 'echo \"deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(. /etc/os-release && echo $VERSION_CODENAME)-pgdg main\" > /etc/apt/sources.list.d/pgdg.list'",
+  "apt-get update",
+  "apt-get install -y postgresql-client-18",
+]
