@@ -23,6 +23,26 @@ _SITE_URL = "https://vetlandia.com.br"
 
 # ── Core ─────────────────────────────────────────────────────────────────────
 
+def _build_msg(to: str, subject: str, html: str):
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = f"VetLândia <{settings.SMTP_USER}>"
+    msg["To"] = to
+    msg.attach(MIMEText(html, "html", "utf-8"))
+    return msg
+
+
+def send_email_sync(to: str, subject: str, html: str) -> None:
+    """Envio síncrono — levanta exceção em caso de falha. Usar apenas em testes/admin."""
+    msg = _build_msg(to, subject, html)
+    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as srv:
+        srv.ehlo()
+        srv.starttls()
+        srv.ehlo()
+        srv.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        srv.sendmail(settings.SMTP_USER, [to], msg.as_string())
+
+
 def send_email(to: str, subject: str, html: str) -> None:
     """Fire-and-forget: envia em thread daemon. Nunca levanta exceção."""
     if not (settings.SMTP_USER and settings.SMTP_PASSWORD):
@@ -34,18 +54,7 @@ def send_email(to: str, subject: str, html: str) -> None:
 
     def _worker() -> None:
         try:
-            msg = MIMEMultipart("alternative")
-            msg["Subject"] = subject
-            msg["From"] = f"VetLândia <{settings.SMTP_USER}>"
-            msg["To"] = to
-            msg.attach(MIMEText(html, "html", "utf-8"))
-
-            with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as srv:
-                srv.ehlo()
-                srv.starttls()
-                srv.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-                srv.sendmail(settings.SMTP_USER, [to], msg.as_string())
-
+            send_email_sync(to, subject, html)
             logger.info("E-mail enviado → %s | %s", to, subject)
         except Exception as exc:  # pragma: no cover
             logger.error("Falha ao enviar e-mail → %s | %s | %s", to, subject, exc)

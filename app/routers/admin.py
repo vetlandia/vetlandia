@@ -677,3 +677,28 @@ def delete_case(case_id: str, db: Session = Depends(get_db), admin=Depends(requi
     db.delete(case)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/test-email", response_class=HTMLResponse)
+def test_email(to: str = "", admin=Depends(require_admin)):
+    """Dispara e-mail de teste síncrono e retorna resultado. Uso: /admin/test-email?to=email@exemplo.com"""
+    from app.services.email import send_email_sync, tpl_boas_vindas_tutor, settings as _s
+    dest = to or _s.SMTP_USER
+    cfg = {
+        "SMTP_HOST": _s.SMTP_HOST,
+        "SMTP_PORT": _s.SMTP_PORT,
+        "SMTP_USER": _s.SMTP_USER,
+        "SMTP_PASSWORD": "***" if _s.SMTP_PASSWORD else "(vazio)",
+    }
+    try:
+        send_email_sync(dest, "Teste de e-mail — VetLândia", tpl_boas_vindas_tutor("Admin Teste"))
+        msg = f"<p style='color:green;font-weight:700'>✅ E-mail enviado com sucesso para <b>{dest}</b></p>"
+    except Exception as exc:
+        msg = f"<p style='color:red;font-weight:700'>❌ Erro: <code>{exc}</code></p>"
+    cfg_html = "".join(f"<li><b>{k}</b>: {v}</li>" for k, v in cfg.items())
+    return f"""<html><body style='font-family:sans-serif;padding:32px'>
+    <h2>Teste SMTP — VetLândia</h2>
+    <ul>{cfg_html}</ul>
+    {msg}
+    <p><a href='/admin'>← Voltar ao admin</a></p>
+    </body></html>"""
