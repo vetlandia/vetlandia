@@ -337,6 +337,7 @@ body { background: #ffffff; }
         <button class="vp-tab-btn active" data-tab="sobre">Sobre</button>
         {% if vet_species %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
         {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Conteúdo Profissional ({{ vet_contents|length }})</button>{% endif %}
+        {% if vet_recommendations or can_recommend %}<button class="vp-tab-btn" data-tab="recomendacoes">Recomendações{% if vet_recommendations %} ({{ vet_recommendations|length }}){% endif %}</button>{% endif %}
         {# Módulo 4: aba de Casos Clínicos oculta (código preservado)
         <button class="vp-tab-btn" data-tab="casos">Casos Clínicos{% if vet_cases %} ({{ vet_cases|length }}){% endif %}</button>
         #}
@@ -491,6 +492,66 @@ body { background: #ffffff; }
         {% endif %}
     </div>
     #}
+
+    {# ── PANE: RECOMENDAÇÕES (Módulo 5) ── #}
+    {% if vet_recommendations or can_recommend %}
+    <div class="vp-pane" id="pane-recomendacoes">
+        {% if vet_recommendations %}
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:720px;">
+            {% for rec in vet_recommendations %}
+            <div style="border:1px solid #e2e8f0;border-radius:12px;padding:16px 18px;background:#fff;">
+                <p style="font-size:0.92rem;color:#374151;line-height:1.7;margin:0 0 8px;">“{{ rec.content }}”</p>
+                <div style="font-size:0.8rem;color:#64748b;"><strong style="color:#0d9488;">{{ rec.author_name }}</strong> · {{ rec.author_label }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="vp-no-content">Nenhuma recomendação ainda.</p>
+        {% endif %}
+
+        {% if can_recommend %}
+            {% if already_recommended %}
+            <p class="vp-notice vp-notice-approved" style="margin-top:18px;">Você já recomendou este(a) profissional.</p>
+            {% else %}
+            <div class="vp-form-section" id="rec-form-card" style="margin-top:22px;">
+                <h3>Recomende este(a) profissional</h3>
+                <textarea id="rec-content" class="form-textarea" rows="3" maxlength="1000" placeholder="Ex.: Excelente profissional para cirurgia. Trabalha conosco há 3 anos." style="width:100%;"></textarea>
+                <div id="rec-msg" style="font-size:0.82rem;margin:8px 0;"></div>
+                <button type="button" class="btn btn-primary" id="rec-submit-btn">Enviar recomendação</button>
+                <p class="form-help" style="margin-top:8px;">Sua recomendação passa por moderação antes de aparecer no perfil.</p>
+            </div>
+            <script>
+            (function () {
+                var btn = document.getElementById('rec-submit-btn');
+                if (!btn) return;
+                btn.addEventListener('click', async function () {
+                    var content = (document.getElementById('rec-content').value || '').trim();
+                    var msg = document.getElementById('rec-msg');
+                    if (content.length < 10) { msg.style.color = '#b91c1c'; msg.textContent = 'Escreva ao menos 10 caracteres.'; return; }
+                    btn.disabled = true; btn.textContent = 'Enviando...';
+                    try {
+                        var resp = await fetch('/api/recomendacoes/', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ target_vet_id: '{{ reviewee_id }}', content: content })
+                        });
+                        var data = await resp.json().catch(function () { return {}; });
+                        if (!resp.ok) throw new Error(data.detail || 'Erro ao enviar');
+                        msg.style.color = '#059669';
+                        msg.textContent = '✓ Recomendação enviada! Está em análise.';
+                        document.getElementById('rec-content').value = '';
+                        btn.style.display = 'none';
+                    } catch (err) {
+                        msg.style.color = '#b91c1c'; msg.textContent = err.message || 'Erro de conexão.';
+                        btn.disabled = false; btn.textContent = 'Enviar recomendação';
+                    }
+                });
+            })();
+            </script>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
 
     {# ── PANE: AVALIAÇÕES ── #}
     <div class="vp-pane" id="pane-avaliacoes">

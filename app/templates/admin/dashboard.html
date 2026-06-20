@@ -258,6 +258,48 @@
         </table></div>
     </div>
 
+    <!-- Recomendações pendentes (Módulo 5) -->
+    <div class="admin-section">
+        <h2>
+            🤝 Recomendações aguardando moderação
+            {% if pending_recs_count > 0 %}<span class="badge-count">{{ pending_recs_count }}</span>{% endif %}
+        </h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead>
+                <tr>
+                    <th>De</th>
+                    <th>Para</th>
+                    <th>Recomendação</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pending_recs %}
+                    {% for rec in pending_recs %}
+                    <tr>
+                        <td style="white-space:nowrap">{{ rec.author_name }}<br><span style="font-size:0.72rem;color:#888">{{ 'Veterinário(a)' if rec.author_type == 'veterinarian' else 'Clínica' }}</span></td>
+                        <td style="white-space:nowrap">{% if rec.target_slug %}<a href="/veterinario/{{ rec.target_slug }}" target="_blank" style="color:inherit">{{ rec.target_name }}</a>{% else %}{{ rec.target_name }}{% endif %}</td>
+                        <td style="max-width:320px">{{ rec.content[:140] }}{% if rec.content|length > 140 %}...{% endif %}</td>
+                        <td style="white-space:nowrap">
+                            <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/approve">
+                                <button class="btn-approve">Aprovar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/reject" style="margin-left:6px">
+                                <button class="btn-reject">Rejeitar</button>
+                            </form>
+                            <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/delete" style="margin-left:6px">
+                                <button class="btn-delete" onclick="return confirm('Deletar esta recomendação permanentemente?')">Deletar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="4">Nenhuma recomendação pendente ✅</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
     <!-- Casos Clínicos pendentes -->
     <div class="admin-section">
         <h2>

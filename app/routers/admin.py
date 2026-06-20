@@ -11,6 +11,7 @@ from app.core.deps import require_admin
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.comment import Comment
+from app.models.recommendation import Recommendation, RecommendationStatus
 from app.models.review import Review, ReviewStatus
 from app.models.tutor import Tutor
 from app.models.user import User, UserType
@@ -27,6 +28,7 @@ def _admin_context(request: Request, db: Session, **kwargs):
     pending_reviews = db.query(Review).filter(Review.status == ReviewStatus.PENDING).count()
     pending_cases_count = db.query(ClinicalCase).filter(ClinicalCase.status == CaseStatus.PENDING).count()
     pending_comments_count = db.query(CaseComment).filter(CaseComment.status == CaseStatus.PENDING).count()
+    pending_recs_count = db.query(Recommendation).filter(Recommendation.status == RecommendationStatus.PENDING).count()
     return {
         "request": request,
         "pending_vets": pending_vets,
@@ -34,6 +36,7 @@ def _admin_context(request: Request, db: Session, **kwargs):
         "pending_reviews": pending_reviews,
         "pending_cases_count": pending_cases_count,
         "pending_comments_count": pending_comments_count,
+        "pending_recs_count": pending_recs_count,
         **kwargs,
     }
 
@@ -62,6 +65,14 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
     )
     users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).all()
 
+    pending_recs = _resolve_recommendations(
+        db,
+        db.query(Recommendation)
+        .filter(Recommendation.status == RecommendationStatus.PENDING)
+        .order_by(Recommendation.created_at.desc())
+        .all(),
+    )
+
     return templates.TemplateResponse(
         "admin/dashboard.html",
         _admin_context(
@@ -71,9 +82,32 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             reviews=reviews, published_reviews=published_reviews,
             pending_cases=pending_cases,
             pending_comments=pending_comments,
+            pending_recs=pending_recs,
             users=users, admin=admin,
         ),
     )
+
+
+def _resolve_recommendations(db: Session, recs):
+    """Resolve nome do autor (vet/clínica) e do alvo para exibição."""
+    out = []
+    for r in recs:
+        if r.author_type.value == "veterinarian":
+            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id).first()
+            author_name = a.full_name if a else "Veterinário(a)"
+        else:
+            a = db.query(Clinic).filter(Clinic.id == r.author_id).first()
+            author_name = a.name if a else "Clínica"
+        target = db.query(Veterinarian).filter(Veterinarian.id == r.target_vet_id).first()
+        out.append({
+            "id": str(r.id),
+            "author_name": author_name,
+            "author_type": r.author_type.value,
+            "target_name": target.full_name if target else "—",
+            "target_slug": target.slug if target else "",
+            "content": r.content,
+        })
+    return out
 
 
 # ── Veterinários ──────────────────────────────────────────────────────────────
@@ -214,6 +248,38 @@ def delete_review(review_id: str, db: Session = Depends(get_db), admin=Depends(r
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
     db.delete(review)
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+# ── Recomendações ─────────────────────────────────────────────────────────────
+
+@router.post("/recommendations/{rec_id}/approve")
+def approve_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recomendação não encontrada")
+    rec.status = RecommendationStatus.APPROVED
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/recommendations/{rec_id}/reject")
+def reject_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recomendação não encontrada")
+    rec.status = RecommendationStatus.REJECTED
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/recommendations/{rec_id}/delete")
+def delete_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recomendação não encontrada")
+    db.delete(rec)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

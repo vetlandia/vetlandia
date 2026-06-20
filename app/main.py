@@ -13,6 +13,7 @@ from app.routers import admin as admin_router
 from app.routers import perfil as perfil_router
 from app.routers import reviews as reviews_router
 from app.routers import cases as cases_router
+from app.routers import recommendations as recommendations_router
 
 
 class WWWRedirectMiddleware(BaseHTTPMiddleware):
@@ -67,6 +68,7 @@ app.include_router(admin_router.router)
 app.include_router(perfil_router.router, prefix="/api/perfil", tags=["perfil"])
 app.include_router(reviews_router.router, prefix="/api/reviews", tags=["reviews"])
 app.include_router(cases_router.router, prefix="/api/casos-clinicos", tags=["casos"])
+app.include_router(recommendations_router.router, prefix="/api/recomendacoes", tags=["recomendacoes"])
 
 
 @app.get("/health")
