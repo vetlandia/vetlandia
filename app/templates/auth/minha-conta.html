@@ -483,13 +483,13 @@
                         <div class="form-group">
                             <label class="form-label">Disponibilidade profissional <span style="font-weight:400;color:#94a3b8;font-size:0.8rem">(opcional · visível apenas para clínicas com acesso)</span></label>
                             <div style="display:flex;flex-direction:column;gap:8px;">
-                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-plantao" {% if profile and profile.disp_plantao %}checked{% endif %}><span>Disponível para <strong>plantões</strong></span></label>
-                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-volante" {% if profile and profile.disp_volante %}checked{% endif %}><span>Disponível para <strong>atendimentos volantes</strong></span></label>
-                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-oportunidades" {% if profile and profile.disp_oportunidades %}checked{% endif %}><span>Aberto a <strong>novas oportunidades profissionais</strong></span></label>
-                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-parcerias" {% if profile and profile.disp_parcerias %}checked{% endif %}><span>Aberto a <strong>parcerias profissionais</strong></span></label>
-                                {% if profile and profile.is_student %}
-                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-estagio" {% if profile.disp_estagio %}checked{% endif %}><span>🎓 Disponível para <strong>estágio</strong></span></label>
-                                {% endif %}
+                                <div id="pc-disp-pro" style="display:flex;flex-direction:column;gap:8px;{% if profile and profile.is_student %}display:none;{% endif %}">
+                                    <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-plantao" {% if profile and profile.disp_plantao %}checked{% endif %}><span>Disponível para <strong>plantões</strong></span></label>
+                                    <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-volante" {% if profile and profile.disp_volante %}checked{% endif %}><span>Disponível para <strong>atendimentos volantes</strong></span></label>
+                                    <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-oportunidades" {% if profile and profile.disp_oportunidades %}checked{% endif %}><span>Aberto a <strong>novas oportunidades profissionais</strong></span></label>
+                                    <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-parcerias" {% if profile and profile.disp_parcerias %}checked{% endif %}><span>Aberto a <strong>parcerias profissionais</strong></span></label>
+                                </div>
+                                <label class="terms-check" id="pc-disp-estagio-wrap" style="margin:0;{% if not (profile and profile.is_student) %}display:none;{% endif %}"><input type="checkbox" id="pc-disp-estagio" {% if profile and profile.disp_estagio %}checked{% endif %}><span>Disponível para <strong>estágio</strong></span></label>
                             </div>
                             <p class="form-help">Use apenas se desejar ser encontrado para recrutamento. Não aparece no seu perfil público.</p>
                         </div>
@@ -714,6 +714,8 @@ setupPhotoUpload('pc-vet-crmv-input',     'pc-vet-crmv-preview',     'pc-vet-crm
     function apply() {
         var s = est.checked; // estudante?
         soFormado.forEach(function (id) { var el = document.getElementById(id); if (el) el.style.display = s ? 'none' : ''; });
+        var dpro = document.getElementById('pc-disp-pro'); if (dpro) dpro.style.display = s ? 'none' : 'flex';
+        var dest = document.getElementById('pc-disp-estagio-wrap'); if (dest) dest.style.display = s ? '' : 'none';
         if (!s) { var i = document.getElementById('pc-crmv'); if (i) i.focus(); }
     }
     radios.forEach(function (r) { r.addEventListener('change', apply); });
