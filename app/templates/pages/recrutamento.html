@@ -5,31 +5,33 @@
     <h1 style="font-size:1.6rem;font-weight:800;color:#0f172a;margin:0 0 6px;">Recrutamento</h1>
     <p style="color:#64748b;font-size:0.9rem;margin:0 0 22px;">Encontre veterinários e estudantes disponíveis. Visível apenas para clínicas.</p>
 
-    <form method="GET" action="/recrutamento" style="display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:24px;">
-        <div style="flex:1 1 200px">
-            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Tipo</label>
-            <select name="tipo" class="form-select" style="width:100%">
-                <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
-                <option value="veterinarios" {% if tipo == 'veterinarios' %}selected{% endif %}>Veterinários formados</option>
-                <option value="estudantes" {% if tipo == 'estudantes' %}selected{% endif %}>Estudantes</option>
-            </select>
+    <form method="GET" action="/recrutamento" style="margin-bottom:24px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Tipo</label>
+                <select name="tipo" class="form-select" style="width:100%">
+                    <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+                    <option value="veterinarios" {% if tipo == 'veterinarios' %}selected{% endif %}>Veterinários formados</option>
+                    <option value="estudantes" {% if tipo == 'estudantes' %}selected{% endif %}>Estudantes</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Disponibilidade</label>
+                <select name="disp" class="form-select" style="width:100%">
+                    <option value="" {% if not disp %}selected{% endif %}>Todos</option>
+                    <option value="estagio" {% if disp == 'estagio' %}selected{% endif %}>Estágio</option>
+                    <option value="plantao" {% if disp == 'plantao' %}selected{% endif %}>Plantões</option>
+                    <option value="volante" {% if disp == 'volante' %}selected{% endif %}>Atendimentos volantes</option>
+                    <option value="oportunidades" {% if disp == 'oportunidades' %}selected{% endif %}>Novas oportunidades</option>
+                    <option value="parcerias" {% if disp == 'parcerias' %}selected{% endif %}>Parcerias</option>
+                </select>
+            </div>
+            <div>
+                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Nome</label>
+                <input type="text" name="q" value="{{ q }}" class="form-input" style="width:100%" placeholder="Buscar por nome...">
+            </div>
         </div>
-        <div style="flex:1 1 200px">
-            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Disponibilidade</label>
-            <select name="disp" class="form-select" style="width:100%">
-                <option value="" {% if not disp %}selected{% endif %}>Todos</option>
-                <option value="estagio" {% if disp == 'estagio' %}selected{% endif %}>Estágio</option>
-                <option value="plantao" {% if disp == 'plantao' %}selected{% endif %}>Plantões</option>
-                <option value="volante" {% if disp == 'volante' %}selected{% endif %}>Atendimentos volantes</option>
-                <option value="oportunidades" {% if disp == 'oportunidades' %}selected{% endif %}>Novas oportunidades</option>
-                <option value="parcerias" {% if disp == 'parcerias' %}selected{% endif %}>Parcerias</option>
-            </select>
-        </div>
-        <div style="flex:1 1 200px">
-            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Nome</label>
-            <input type="text" name="q" value="{{ q }}" class="form-input" style="width:100%" placeholder="Buscar por nome...">
-        </div>
-        <button type="submit" class="btn btn-primary" style="height:42px">Filtrar</button>
+        <button type="submit" class="btn btn-primary" style="height:42px;padding:0 28px">Filtrar</button>
     </form>
 
     {% if resultados %}
