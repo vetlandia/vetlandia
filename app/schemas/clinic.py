@@ -66,6 +66,8 @@ class ClinicUpdate(BaseModel):
     is_24h: Optional[bool] = None
     aplica_vacinas: Optional[bool] = None
     num_veterinarios: Optional[str] = None
+    consulta_faixa: Optional[str] = Field(None, max_length=20)
+    procedimento_faixa: Optional[str] = Field(None, max_length=20)
 
 
 class ClinicResponse(ClinicBase):

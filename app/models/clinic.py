@@ -41,6 +41,9 @@ class Clinic(Base):
     # Módulo 6: acesso a recrutamento (ver disponibilidades/histórico dos vets).
     # Módulo 8 generaliza isto numa estrutura de entitlements.
     has_recruitment_access = Column(Boolean, default=False, nullable=False)
+    # Módulo 7: faixas de preço (NUNCA valor exato): economica | intermediaria | premium
+    consulta_faixa = Column(String(20), nullable=True)
+    procedimento_faixa = Column(String(20), nullable=True)
     num_veterinarios = Column(String(10), nullable=True)  # qtd manual do responsável
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

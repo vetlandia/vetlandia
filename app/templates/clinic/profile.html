@@ -337,6 +337,26 @@ body { background: #ffffff; }
         <p class="cp-no-content">Nenhuma descrição adicionada ainda.</p>
         {% endif %}
 
+        {# ── Módulo 7: faixas de preço (nunca valor exato) ── #}
+        {% set faixa_labels = {'economica': ('$', 'Econômica'), 'intermediaria': ('$$', 'Intermediária'), 'premium': ('$$$', 'Premium')} %}
+        {% if (clinic.consulta_faixa and clinic.consulta_faixa in faixa_labels) or (clinic.procedimento_faixa and clinic.procedimento_faixa in faixa_labels) %}
+        <p class="cp-sub-label" style="margin-top:24px">Faixa de preço</p>
+        <div style="display:flex;flex-wrap:wrap;gap:28px;">
+            {% if clinic.consulta_faixa and clinic.consulta_faixa in faixa_labels %}
+            <div>
+                <div class="cp-info-card-lbl">Consultas</div>
+                <div style="font-size:1rem;font-weight:700;"><span style="color:#0d9488">{{ faixa_labels[clinic.consulta_faixa][0] }}</span> <span style="color:#374151">{{ faixa_labels[clinic.consulta_faixa][1] }}</span></div>
+            </div>
+            {% endif %}
+            {% if clinic.procedimento_faixa and clinic.procedimento_faixa in faixa_labels %}
+            <div>
+                <div class="cp-info-card-lbl">Procedimentos</div>
+                <div style="font-size:1rem;font-weight:700;"><span style="color:#0d9488">{{ faixa_labels[clinic.procedimento_faixa][0] }}</span> <span style="color:#374151">{{ faixa_labels[clinic.procedimento_faixa][1] }}</span></div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         {% if clinic.city or clinic.address or clinic.is_24h or clinic.website %}
         <div class="cp-info-cards">
             {% if clinic.city %}
