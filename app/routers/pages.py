@@ -13,6 +13,7 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
+from app.models.entitlement import clinic_has_product
 from app.models.recommendation import Recommendation, RecommendationStatus
 from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
@@ -688,7 +689,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             can_see_recruitment = True
         elif current_user.user_type.value == "clinic":
             viewer_clinic = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
-            can_see_recruitment = bool(viewer_clinic and viewer_clinic.has_recruitment_access)
+            # Módulo 8: a fonte de verdade é o entitlement 'recrutamento'
+            can_see_recruitment = bool(viewer_clinic and clinic_has_product(viewer_clinic, "recrutamento"))
 
     vet_availability = None
     vet_history = []

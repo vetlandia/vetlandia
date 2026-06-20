@@ -11,6 +11,7 @@ from app.core.deps import require_admin
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.comment import Comment
+from app.models.entitlement import CLINIC_PRODUCTS, ClinicEntitlement
 from app.models.recommendation import Recommendation, RecommendationStatus
 from app.models.review import Review, ReviewStatus
 from app.models.tutor import Tutor
@@ -73,6 +74,12 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         .all(),
     )
 
+    # Módulo 8: produtos ativos por clínica (para os toggles no admin)
+    clinic_products = {
+        str(c.id): {e.product for e in c.entitlements if e.is_active}
+        for c in approved_clinics
+    }
+
     return templates.TemplateResponse(
         "admin/dashboard.html",
         _admin_context(
@@ -83,6 +90,8 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             pending_cases=pending_cases,
             pending_comments=pending_comments,
             pending_recs=pending_recs,
+            clinic_products=clinic_products,
+            clinic_products_catalog=CLINIC_PRODUCTS,
             users=users, admin=admin,
         ),
     )
@@ -200,11 +209,40 @@ def verify_clinic(clinic_id: str, verified: str = Form(...), db: Session = Depen
 
 @router.post("/clinics/{clinic_id}/recruitment-access")
 def set_clinic_recruitment_access(clinic_id: str, access: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
-    """Libera/remove o acesso de recrutamento da clínica (Módulo 6)."""
+    """[legado Módulo 6] Mantido por compatibilidade; o controle agora é por
+    entitlements (Módulo 8). Rota preservada, sem botão na interface."""
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.has_recruitment_access = (access == "true")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/clinics/{clinic_id}/entitlement")
+def toggle_clinic_entitlement(
+    clinic_id: str,
+    product: str = Form(...),
+    active: str = Form(...),
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+    """Libera/remove um produto para a clínica (Módulo 8 — sem cobrança)."""
+    clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica não encontrada")
+    if product not in CLINIC_PRODUCTS:
+        raise HTTPException(status_code=400, detail="Produto inválido")
+    want_active = (active == "true")
+    ent = (
+        db.query(ClinicEntitlement)
+        .filter(ClinicEntitlement.clinic_id == clinic.id, ClinicEntitlement.product == product)
+        .first()
+    )
+    if ent:
+        ent.is_active = want_active
+    else:
+        db.add(ClinicEntitlement(clinic_id=clinic.id, product=product, is_active=want_active))
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

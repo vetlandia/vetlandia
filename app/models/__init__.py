@@ -5,6 +5,7 @@ from app.models.clinic import Clinic
 from app.models.comment import Comment
 from app.models.content import VetContent
 from app.models.education import VetEducation
+from app.models.entitlement import ClinicEntitlement
 from app.models.recommendation import Recommendation, RecommendationStatus, RecommenderType
 from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.tutor import Tutor
@@ -30,4 +31,5 @@ __all__ = [
     "Recommendation",
     "RecommendationStatus",
     "RecommenderType",
+    "ClinicEntitlement",
 ]

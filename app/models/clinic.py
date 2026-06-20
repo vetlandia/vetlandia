@@ -54,3 +54,8 @@ class Clinic(Base):
         back_populates="clinic",
         cascade="all, delete-orphan",
     )
+    entitlements = relationship(
+        "ClinicEntitlement",
+        back_populates="clinic",
+        cascade="all, delete-orphan",
+    )

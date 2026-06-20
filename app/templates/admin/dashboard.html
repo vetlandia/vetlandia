@@ -483,10 +483,11 @@
                             {% else %}
                                 <span style="color:#059669;font-weight:600">🟢 Verificado</span>
                             {% endif %}
-                            {% if clinic.has_recruitment_access %}<span style="color:#7c3aed;font-weight:600;display:block;font-size:0.72rem">🔓 Recrutamento</span>{% endif %}
+                            {% set active_prods = clinic_products.get(clinic.id|string, []) %}
+                            {% if active_prods %}<span style="color:#7c3aed;font-weight:600;display:block;font-size:0.72rem">🔓 {{ active_prods|length }} produto(s)</span>{% endif %}
                         </td>
                         <td>
-                            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
                                 <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/set-badge" style="display:flex;gap:6px;align-items:center">
                                     <select name="badge_type" style="font-size:0.8rem;padding:4px 6px;border:1px solid #ddd;border-radius:4px">
                                         <option value="verified" {% if not clinic.is_founder %}selected{% endif %}>Verificado (verde)</option>
@@ -494,10 +495,17 @@
                                     </select>
                                     <button class="btn-approve" style="padding:4px 10px">Salvar</button>
                                 </form>
-                                <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/recruitment-access">
-                                    <input type="hidden" name="access" value="{{ 'false' if clinic.has_recruitment_access else 'true' }}">
-                                    <button class="btn-approve" style="padding:4px 10px;background:#7c3aed">{{ 'Tirar recrutamento' if clinic.has_recruitment_access else 'Liberar recrutamento' }}</button>
+                            </div>
+                            {# Módulo 8: produtos liberáveis (sem cobrança, ocultos ao usuário) #}
+                            <div style="display:flex;gap:5px;flex-wrap:wrap">
+                                {% for key, label in clinic_products_catalog.items() %}
+                                {% set on = key in active_prods %}
+                                <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/entitlement">
+                                    <input type="hidden" name="product" value="{{ key }}">
+                                    <input type="hidden" name="active" value="{{ 'false' if on else 'true' }}">
+                                    <button class="btn-approve" style="padding:3px 8px;font-size:0.72rem;background:{{ '#7c3aed' if on else '#cbd5e1' }};color:{{ '#fff' if on else '#475569' }}" title="{{ 'Clique para tirar' if on else 'Clique para liberar' }}">{{ '✓ ' if on else '' }}{{ label }}</button>
                                 </form>
+                                {% endfor %}
                             </div>
                         </td>
                     </tr>
