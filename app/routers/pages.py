@@ -70,13 +70,9 @@ def _specialty_from_query(term: str):
 
 
 def _tutor_visible(db: Session):
-    """Vets visíveis na busca de tutores: formados OU estudantes que estão
-    estagiando (têm vínculo atual com alguma clínica)."""
-    interning = db.query(VetClinicLink.veterinarian_id).filter(VetClinicLink.is_current == True)
-    return (Veterinarian.is_approved == True) & or_(
-        Veterinarian.is_student == False,
-        Veterinarian.id.in_(interning),
-    )
+    """Vets visíveis na busca pública/tutores: apenas veterinários formados.
+    Estudantes/estagiários só aparecem no recrutamento (clínicas)."""
+    return (Veterinarian.is_approved == True) & (Veterinarian.is_student == False)
 
 
 @router.get("/", response_class=HTMLResponse)
@@ -147,7 +143,7 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
     from sqlalchemy import text as _text
     _counts = db.execute(_text(
         "SELECT "
-        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true AND (is_student = false OR id IN (SELECT veterinarian_id FROM vet_clinic_links WHERE is_current = true))) AS vc,"
+        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true AND is_student = false) AS vc,"
         "(SELECT COUNT(*) FROM clinics WHERE is_approved = true) AS cc,"
         "(SELECT COUNT(*) FROM reviews) AS rc"
     )).one()
@@ -927,7 +923,7 @@ def recrutamento(
     com filtro por tipo (incl. estudantes) e disponibilidade."""
     if not current_user:
         return RedirectResponse("/login")
-    if current_user.user_type.value not in ("clinic", "veterinarian", "admin"):
+    if current_user.user_type.value not in ("clinic", "admin"):
         return templates.TemplateResponse(
             "pages/404.html", {"request": request, "current_user": current_user}, status_code=404
         )

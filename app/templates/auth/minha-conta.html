@@ -339,7 +339,7 @@
                             </label>
                             <p class="form-help">Ao desmarcar, informe seu CRMV — o perfil voltará para aprovação do admin.</p>
                         </div>
-                        <div class="form-group" id="pc-grp-especialidade">
+                        <div class="form-group" id="pc-grp-especialidade" {% if profile and profile.is_student %}style="display:none"{% endif %}>
                             <label class="form-label">Especialidade</label>
                             <select name="specialty" class="form-select">
                                 <option value="">Selecione...</option>
@@ -424,7 +424,7 @@
                         </div>
 
                         {# ── Módulo 1: Especialidades múltiplas ── #}
-                        <div class="form-group">
+                        <div class="form-group" {% if profile and profile.is_student %}style="display:none"{% endif %}>
                             <label class="form-label">Especialidades — marque todas em que atua</label>
                             <div class="chips-multi" id="pc-vet-specs">
                                 {% for sp in ['Acupuntura Veterinária','Anestesiologia','Cardiologia','Clínica Geral','Dermatologia','Diagnóstico por Imagem','Endocrinologia','Fisioterapia e Reabilitação','Gastroenterologia','Hematologia','Infectologia','Medicina de Animais Selvagens','Nefrologia e Urologia','Neurologia','Nutrição Animal','Odontologia Veterinária','Oftalmologia','Oncologia','Ortopedia e Cirurgia','Parasitologia','Reprodução Animal','Toxicologia','Zootecnia'] %}

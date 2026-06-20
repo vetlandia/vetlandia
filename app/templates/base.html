@@ -32,7 +32,7 @@
                     <nav class="nav nav-primary">
                         <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
                         <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
-                        {% if current_user and current_user.user_type.value in ('clinic', 'veterinarian', 'admin') %}
+                        {% if current_user and current_user.user_type.value in ('clinic', 'admin') %}
                         <a href="/recrutamento" class="nav-link">Recrutamento</a>
                         {% endif %}
                         {# Módulo 4: Casos Clínicos ocultos da interface (rota preservada)
@@ -77,7 +77,7 @@
         <div class="mobile-menu-content">
             <a href="/buscar/veterinarios" class="mobile-menu-link">Veterinários</a>
             <a href="/buscar/clinicas" class="mobile-menu-link">Clínicas</a>
-            {% if current_user and current_user.user_type.value in ('clinic', 'veterinarian', 'admin') %}
+            {% if current_user and current_user.user_type.value in ('clinic', 'admin') %}
             <a href="/recrutamento" class="mobile-menu-link">Recrutamento</a>
             {% endif %}
             {# Módulo 4: Casos Clínicos ocultos da interface (rota preservada)
