@@ -527,12 +527,22 @@
                             <label class="form-label">CPF</label>
                             <input type="text" name="cpf" class="form-input" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
                         </div>
-                        <div class="form-group">
-                            <label class="form-label form-label-required">CRMV</label>
+                        <div class="form-group" id="vet-crmv-group">
+                            <label class="form-label form-label-required" id="vet-crmv-label">CRMV</label>
                             <input type="text" name="crmv" class="form-input" placeholder="CRMV-SP 12345">
                             <p class="form-help">Formato: CRMV-UF NNNNN</p>
                             <span class="field-error" id="err-vet-crmv">⚠ Formato inválido. Ex: CRMV-SP 12345</span>
                         </div>
+                    </div>
+                    <div class="form-group" style="margin-top:6px">
+                        <label class="terms-check" style="margin:0">
+                            <input type="checkbox" id="vet-is-student">
+                            <span>Sou <strong>estudante de veterinária</strong> (ainda não tenho CRMV)</span>
+                        </label>
+                    </div>
+                    <div class="form-group" id="vet-institution-group" style="display:none">
+                        <label class="form-label">Instituição de ensino</label>
+                        <input type="text" name="student_institution" class="form-input" placeholder="Ex.: USP, UFMG...">
                     </div>
                 </div>
 
@@ -1233,11 +1243,23 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         validateOnBlur(emailEl, isValidEmail, 'err-vet-email');
         validateOnBlur(passEl, isValidPassword, 'err-vet-password');
 
+        // estudante: CRMV opcional + instituição
+        const studentCb = document.getElementById('vet-is-student');
+        const instGroup = document.getElementById('vet-institution-group');
+        const crmvLabel = document.getElementById('vet-crmv-label');
+        if (studentCb) studentCb.addEventListener('change', () => {
+            const s = studentCb.checked;
+            instGroup.style.display = s ? '' : 'none';
+            if (crmvLabel) crmvLabel.textContent = s ? 'CRMV (não obrigatório para estudante)' : 'CRMV';
+            if (s) { crmvEl.value = ''; showFieldError('err-vet-crmv', false); }
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            const isStudent = studentCb && studentCb.checked;
             let ok = true;
             if (!isValidName(nameEl.value)) { markField(nameEl, false); showFieldError('err-vet-full_name', true); ok = false; }
-            if (!isValidCRMV(crmvEl.value)) { markField(crmvEl, false); showFieldError('err-vet-crmv', true); ok = false; }
+            if (!isStudent && !isValidCRMV(crmvEl.value)) { markField(crmvEl, false); showFieldError('err-vet-crmv', true); ok = false; }
             if (!isValidEmail(emailEl.value)) { markField(emailEl, false); showFieldError('err-vet-email', true); ok = false; }
             if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-vet-password', true); ok = false; }
             const stateEl = form.querySelector('[name="state"]');
@@ -1245,7 +1267,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             if (!stateEl.value) { showFieldError('err-vet-state', true); ok = false; }
             if (!cityEl.value) { showFieldError('err-vet-city', true); ok = false; }
             const species = collectChips('vet-species');
-            if (!species.length) { showFieldError('err-vet-species', true); ok = false; }
+            if (!isStudent && !species.length) { showFieldError('err-vet-species', true); ok = false; }
             const termos = document.getElementById('termos-vet');
             if (!termos.checked) { showStatus('error', 'Você precisa aceitar os Termos de Uso para continuar.'); ok = false; }
             if (!ok) { showStatus('error', 'Corrija os campos destacados antes de continuar.'); return; }
@@ -1256,7 +1278,9 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             const payload = {
                 full_name: nameEl.value.trim(),
                 cpf: form.querySelector('[name="cpf"]').value || null,
-                crmv: crmvEl.value.trim(),
+                crmv: isStudent ? null : (crmvEl.value.trim() || null),
+                is_student: !!isStudent,
+                student_institution: isStudent ? (form.querySelector('[name="student_institution"]').value.trim() || null) : null,
                 specialty: form.querySelector('[name="specialty"]').value || null,
                 bio: form.querySelector('[name="bio"]').value || null,
                 phone: form.querySelector('[name="phone"]').value || null,

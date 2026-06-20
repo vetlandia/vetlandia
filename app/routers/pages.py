@@ -77,7 +77,7 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         )
-        .filter(Veterinarian.is_approved == True)
+        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False)
         .outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
@@ -136,7 +136,7 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
     from sqlalchemy import text as _text
     _counts = db.execute(_text(
         "SELECT "
-        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true) AS vc,"
+        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true AND is_student = false) AS vc,"
         "(SELECT COUNT(*) FROM clinics WHERE is_approved = true) AS cc,"
         "(SELECT COUNT(*) FROM reviews) AS rc"
     )).one()
@@ -193,7 +193,7 @@ def buscar(
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         ).filter(
-            Veterinarian.is_approved == True
+            Veterinarian.is_approved == True, Veterinarian.is_student == False
         ).outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
@@ -312,13 +312,13 @@ def buscar(
     especialidades_disponiveis = sorted([
         r[0] for r in
         db.query(Veterinarian.specialty)
-        .filter(Veterinarian.is_approved == True, Veterinarian.specialty != None, Veterinarian.specialty != "")
+        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False, Veterinarian.specialty != None, Veterinarian.specialty != "")
         .distinct().all()
     ])
     cidades_vets = [
         f"{r[0]}/{r[1]}" for r in
         db.query(Veterinarian.city, Veterinarian.state)
-        .filter(Veterinarian.is_approved == True, Veterinarian.city != None, Veterinarian.city != "")
+        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False, Veterinarian.city != None, Veterinarian.city != "")
         .distinct().all()
     ]
     cidades_clinicas = [
@@ -366,7 +366,7 @@ def buscar_veterinarios(
         func.avg(Review.rating).label("avg_rating"),
         func.count(Review.id).label("review_count"),
     ).filter(
-        Veterinarian.is_approved == True
+        Veterinarian.is_approved == True, Veterinarian.is_student == False
     ).outerjoin(
         Review,
         (Review.reviewee_id == Veterinarian.id)
@@ -431,13 +431,13 @@ def buscar_veterinarios(
     especialidades_disponiveis = sorted([
         r[0] for r in
         db.query(Veterinarian.specialty)
-        .filter(Veterinarian.is_approved == True, Veterinarian.specialty != None, Veterinarian.specialty != "")
+        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False, Veterinarian.specialty != None, Veterinarian.specialty != "")
         .distinct().all()
     ])
     cidades_disponiveis = sorted([
         f"{r[0]}/{r[1]}" for r in
         db.query(Veterinarian.city, Veterinarian.state)
-        .filter(Veterinarian.is_approved == True, Veterinarian.city != None, Veterinarian.city != "")
+        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False, Veterinarian.city != None, Veterinarian.city != "")
         .distinct().all()
     ])
 
@@ -711,6 +711,7 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "volante": vet.disp_volante,
             "oportunidades": vet.disp_oportunidades,
             "parcerias": vet.disp_parcerias,
+            "estagio": vet.disp_estagio,
         }
         # Histórico completo (atuais + encerrados) com dados da clínica
         for link in vet.clinic_links:

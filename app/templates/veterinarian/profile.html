@@ -285,6 +285,7 @@ body { background: #ffffff; }
                 </span>
                 {% endif %}
                 {% if veterinarian.crmv %}<span class="vp-meta-item">{{ veterinarian.crmv }}</span>{% endif %}
+                {% if veterinarian.is_student %}<span class="vp-meta-item" style="color:#7c3aed;font-weight:700">🎓 Estudante de Veterinária{% if veterinarian.student_institution %} · {{ veterinarian.student_institution }}{% endif %}</span>{% endif %}
                 {% if veterinarian.is_24h %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
                 {% if veterinarian.aplica_vacinas %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
             </div>
@@ -337,10 +338,14 @@ body { background: #ffffff; }
         <div class="vp-stat">
             {% if veterinarian.crmv %}
             <span class="vp-stat-val" style="font-size:1rem">{{ veterinarian.crmv }}</span>
+            <span class="vp-stat-lbl">CRMV</span>
+            {% elif veterinarian.is_student %}
+            <span class="vp-stat-val" style="font-size:1rem;color:#7c3aed">🎓</span>
+            <span class="vp-stat-lbl">Estudante</span>
             {% else %}
             <span class="vp-stat-val">—</span>
-            {% endif %}
             <span class="vp-stat-lbl">CRMV</span>
+            {% endif %}
         </div>
     </div>
 
@@ -574,8 +579,9 @@ body { background: #ffffff; }
 
             <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Disponibilidade</h3>
             {% set av = vet_availability %}
-            {% if av and (av.plantao or av.volante or av.oportunidades or av.parcerias) %}
+            {% if av and (av.plantao or av.volante or av.oportunidades or av.parcerias or av.estagio) %}
             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+                {% if av.estagio %}<span style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:700;">🎓 Disponível para estágio</span>{% endif %}
                 {% if av.plantao %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Plantões</span>{% endif %}
                 {% if av.volante %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Atendimentos volantes</span>{% endif %}
                 {% if av.oportunidades %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Novas oportunidades</span>{% endif %}

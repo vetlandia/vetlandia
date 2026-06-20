@@ -10,7 +10,9 @@ from app.utils.validators import validate_brazilian_state, validate_crmv
 class VeterinarianBase(BaseModel):
     full_name: str = Field(..., min_length=3, max_length=255)
     cpf: Optional[str] = Field(None, max_length=14)
-    crmv: str = Field(..., min_length=10, max_length=20)
+    crmv: Optional[str] = Field(None, max_length=20)  # opcional para estudantes
+    is_student: bool = False
+    student_institution: Optional[str] = Field(None, max_length=255)
     specialty: Optional[str] = Field(None, max_length=100)
     bio: Optional[str] = None
     phone: Optional[str] = Field(None, max_length=20)
@@ -33,7 +35,9 @@ class VeterinarianBase(BaseModel):
 
     @field_validator("crmv")
     @classmethod
-    def validate_crmv_format(cls, v: str) -> str:
+    def validate_crmv_format(cls, v):
+        if not v:
+            return v  # estudantes podem não ter CRMV
         if not validate_crmv(v):
             raise ValueError("CRMV inválido. Formato esperado: CRMV-UF XXXXX")
         return v
@@ -80,6 +84,8 @@ class VeterinarianUpdate(BaseModel):
     disp_volante: Optional[bool] = None
     disp_oportunidades: Optional[bool] = None
     disp_parcerias: Optional[bool] = None
+    disp_estagio: Optional[bool] = None
+    student_institution: Optional[str] = Field(None, max_length=255)
 
 
 class EducationItem(BaseModel):

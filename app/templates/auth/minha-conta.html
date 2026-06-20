@@ -480,9 +480,18 @@
                                 <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-volante" {% if profile and profile.disp_volante %}checked{% endif %}><span>Disponível para <strong>atendimentos volantes</strong></span></label>
                                 <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-oportunidades" {% if profile and profile.disp_oportunidades %}checked{% endif %}><span>Aberto a <strong>novas oportunidades profissionais</strong></span></label>
                                 <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-parcerias" {% if profile and profile.disp_parcerias %}checked{% endif %}><span>Aberto a <strong>parcerias profissionais</strong></span></label>
+                                {% if profile and profile.is_student %}
+                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-estagio" {% if profile.disp_estagio %}checked{% endif %}><span>🎓 Disponível para <strong>estágio</strong></span></label>
+                                {% endif %}
                             </div>
                             <p class="form-help">Use apenas se desejar ser encontrado para recrutamento. Não aparece no seu perfil público.</p>
                         </div>
+                        {% if profile and profile.is_student %}
+                        <div class="form-group">
+                            <label class="form-label">Instituição de ensino</label>
+                            <input type="text" name="student_institution" id="pc-student-institution" class="form-input" value="{{ profile.student_institution if profile.student_institution else '' }}" placeholder="Ex.: USP, UFMG...">
+                        </div>
+                        {% endif %}
 
                         {# ── Módulo 3: Vínculos / Experiência profissional ── #}
                         <div class="form-group">
@@ -937,6 +946,8 @@ function collectContents() {
                 instagram: g('instagram'),
                 lattes: g('lattes'),
                 crmv_card_url: gId('pc-vet-crmv-data'),
+                disp_estagio: chk('pc-disp-estagio'),
+                student_institution: gId('pc-student-institution'),
                 disp_plantao: chk('pc-disp-plantao'),
                 disp_volante: chk('pc-disp-volante'),
                 disp_oportunidades: chk('pc-disp-oportunidades'),

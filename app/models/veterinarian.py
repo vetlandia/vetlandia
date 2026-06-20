@@ -15,7 +15,7 @@ class Veterinarian(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True, nullable=False)
     full_name = Column(String(255), nullable=False)
     cpf = Column(String(14), nullable=True)
-    crmv = Column(String(20), unique=True, nullable=False, index=True)
+    crmv = Column(String(20), unique=True, nullable=True, index=True)  # opcional para estudantes
     specialty = Column(String(100))
     bio = Column(Text)
     phone = Column(String(20))
@@ -46,6 +46,10 @@ class Veterinarian(Base):
     disp_volante = Column(Boolean, default=False, nullable=False)
     disp_oportunidades = Column(Boolean, default=False, nullable=False)
     disp_parcerias = Column(Boolean, default=False, nullable=False)
+    # ── Estudantes de veterinária ───────────────────────────────────────
+    is_student = Column(Boolean, default=False, nullable=False, index=True)
+    student_institution = Column(String(255), nullable=True)
+    disp_estagio = Column(Boolean, default=False, nullable=False)  # disponível para estágio
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

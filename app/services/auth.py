@@ -102,7 +102,10 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
 def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
     if db.query(User).filter(User.email == data.email).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
-    if db.query(Veterinarian).filter(Veterinarian.crmv == data.crmv).first():
+    # Estudantes podem não ter CRMV; veterinários formados precisam informar.
+    if not data.is_student and not data.crmv:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Informe o CRMV ou marque que é estudante.")
+    if data.crmv and db.query(Veterinarian).filter(Veterinarian.crmv == data.crmv).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CRMV já está cadastrado na plataforma.")
     if data.cpf and db.query(Veterinarian).filter(Veterinarian.cpf == data.cpf).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CPF já está cadastrado.")
@@ -139,6 +142,8 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         cover_photo_url=data.cover_photo_url,
         is_24h=data.is_24h,
         aplica_vacinas=data.aplica_vacinas,
+        is_student=data.is_student,
+        student_institution=data.student_institution,
         slug=slug,
         clinic_id=data.clinic_id,
     )
