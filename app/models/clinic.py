@@ -34,6 +34,7 @@ class Clinic(Base):
     specialties = Column(Text(), nullable=True)     # JSON array
     is_24h = Column(Boolean, default=False, nullable=False)
     is_approved = Column(Boolean, default=False, nullable=False, index=True)
+    is_rejected = Column(Boolean, default=False, nullable=False)  # reprovado (reversível) — Módulo 9
     is_founder = Column(Boolean, default=False, nullable=False)
     cover_photo_url = Column(Text, nullable=True)
     aplica_vacinas = Column(Boolean, default=False, nullable=False)

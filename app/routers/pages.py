@@ -558,7 +558,9 @@ def buscar_clinicas(
 def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     vet = db.query(Veterinarian).filter(Veterinarian.slug == slug).first()
 
-    if not vet or not vet.is_approved:
+    # Admin pode pré-visualizar perfis ainda não aprovados (Módulo 9)
+    is_admin = bool(current_user and current_user.user_type.value == "admin")
+    if not vet or (not vet.is_approved and not is_admin):
         return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
     # Calcular rating (apenas aprovadas)
@@ -735,6 +737,7 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "can_see_recruitment": can_see_recruitment,
             "vet_availability": vet_availability,
             "vet_history": vet_history,
+            "admin_preview": is_admin and not vet.is_approved,
         },
     )
 
@@ -743,7 +746,9 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
 def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     clinic = db.query(Clinic).filter(Clinic.slug == slug).first()
 
-    if not clinic or not clinic.is_approved:
+    # Admin pode pré-visualizar perfis ainda não aprovados (Módulo 9)
+    is_admin = bool(current_user and current_user.user_type.value == "admin")
+    if not clinic or (not clinic.is_approved and not is_admin):
         return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
     # Calcular rating (apenas aprovadas)
@@ -835,6 +840,7 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "tutor_review": tutor_review,
             "reviewee_type": "clinic",
             "reviewee_id": str(clinic.id),
+            "admin_preview": is_admin and not clinic.is_approved,
         },
     )
 

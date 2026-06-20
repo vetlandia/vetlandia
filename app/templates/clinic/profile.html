@@ -198,6 +198,18 @@ body { background: #ffffff; }
 {% endblock %}
 
 {% block content %}
+{% if admin_preview %}
+<div style="position:sticky;top:0;z-index:1000;background:#1e293b;color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;font-size:0.9rem;">
+    <span>👁️ <strong>Pré-visualização do admin</strong> — perfil ainda NÃO aprovado, exatamente como será publicado.</span>
+    <form method="POST" action="/admin/clinics/{{ reviewee_id }}/approve" style="margin:0">
+        <button style="background:#059669;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">✓ Aprovar</button>
+    </form>
+    <form method="POST" action="/admin/clinics/{{ reviewee_id }}/reject" style="margin:0" onsubmit="return confirm('Reprovar esta clínica? (reversível — fica em Reprovados)')">
+        <button style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-weight:700;cursor:pointer">✕ Reprovar</button>
+    </form>
+    <a href="/admin/" style="color:#cbd5e1;text-decoration:none;font-size:0.82rem">← voltar ao admin</a>
+</div>
+{% endif %}
 {% set wpp = clinic.whatsapp or clinic.phone %}
 {% if wpp %}{% set wpp_clean = wpp | replace('(','') | replace(')','') | replace(' ','') | replace('-','') %}{% endif %}
 

@@ -157,11 +157,12 @@
                         <td>{{ vet.city or '—' }}{% if vet.state %}/{{ vet.state }}{% endif %}</td>
                         <td>{{ vet.created_at.strftime('%d/%m/%Y') }}</td>
                         <td style="white-space:nowrap">
-                            <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/approve">
+                            <a href="/veterinario/{{ vet.slug }}" target="_blank" class="btn-approve" style="background:#1e293b;text-decoration:none;display:inline-block">👁️ Visualizar Perfil</a>
+                            <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/approve" style="margin-left:6px">
                                 <button class="btn-approve" onclick="return confirm('Aprovar {{ vet.full_name }}?')">Aprovar</button>
                             </form>
                             <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject" onclick="return confirm('Rejeitar e remover {{ vet.full_name }}?')">Rejeitar</button>
+                                <button class="btn-reject" onclick="return confirm('Reprovar {{ vet.full_name }}? (reversível)')">Reprovar</button>
                             </form>
                         </td>
                     </tr>
@@ -198,11 +199,12 @@
                         <td>{{ clinic.phone or '—' }}</td>
                         <td>{{ clinic.created_at.strftime('%d/%m/%Y') }}</td>
                         <td style="white-space:nowrap">
-                            <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/approve">
+                            <a href="/clinica/{{ clinic.slug }}" target="_blank" class="btn-approve" style="background:#1e293b;text-decoration:none;display:inline-block">👁️ Visualizar Perfil</a>
+                            <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/approve" style="margin-left:6px">
                                 <button class="btn-approve" onclick="return confirm('Aprovar {{ clinic.name }}?')">Aprovar</button>
                             </form>
                             <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject" onclick="return confirm('Rejeitar e remover {{ clinic.name }}?')">Rejeitar</button>
+                                <button class="btn-reject" onclick="return confirm('Reprovar {{ clinic.name }}? (reversível)')">Reprovar</button>
                             </form>
                         </td>
                     </tr>
@@ -213,6 +215,46 @@
             </tbody>
         </table></div>
     </div>
+
+    <!-- Reprovados (Módulo 9 — reversível) -->
+    {% if rejected_vets or rejected_clinics %}
+    <div class="admin-section">
+        <h2>🚫 Reprovados <span style="font-size:0.75rem;font-weight:400;color:#888">(não foram apagados — podem ser restaurados)</span></h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead><tr><th>Tipo</th><th>Nome</th><th>Ações</th></tr></thead>
+            <tbody>
+                {% for vet in rejected_vets %}
+                <tr>
+                    <td>Veterinário(a)</td>
+                    <td><a href="/veterinario/{{ vet.slug }}" target="_blank" style="color:inherit">{{ vet.full_name }}</a> · {{ vet.crmv }}</td>
+                    <td style="white-space:nowrap">
+                        <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/restore">
+                            <button class="btn-approve">↩ Restaurar (p/ pendente)</button>
+                        </form>
+                        <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/delete" style="margin-left:6px">
+                            <button class="btn-delete" onclick="return confirm('Excluir {{ vet.full_name }} PERMANENTEMENTE? Não há volta.')">Excluir definitivo</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% for clinic in rejected_clinics %}
+                <tr>
+                    <td>Clínica</td>
+                    <td><a href="/clinica/{{ clinic.slug }}" target="_blank" style="color:inherit">{{ clinic.name }}</a></td>
+                    <td style="white-space:nowrap">
+                        <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/restore">
+                            <button class="btn-approve">↩ Restaurar (p/ pendente)</button>
+                        </form>
+                        <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/delete" style="margin-left:6px">
+                            <button class="btn-delete" onclick="return confirm('Excluir {{ clinic.name }} PERMANENTEMENTE? Não há volta.')">Excluir definitivo</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table></div>
+    </div>
+    {% endif %}
 
     <!-- Avaliações pendentes -->
     <div class="admin-section">
