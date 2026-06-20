@@ -14,7 +14,7 @@ from app.core.deps import get_current_user
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.entitlement import clinic_has_product
-from app.models.recommendation import Recommendation, RecommendationStatus
+from app.models.recommendation import Recommendation, RecommendationStatus, RecommenderType
 from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
@@ -637,7 +637,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     approved_recs = (
         db.query(Recommendation)
         .filter(
-            Recommendation.target_vet_id == vet.id,
+            Recommendation.target_type == RecommenderType.VETERINARIAN,
+            Recommendation.target_id == vet.id,
             Recommendation.status == RecommendationStatus.APPROVED,
         )
         .order_by(Recommendation.created_at.desc())
@@ -677,7 +678,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
                 .filter(
                     Recommendation.author_type == atype,
                     Recommendation.author_id == author.id,
-                    Recommendation.target_vet_id == vet.id,
+                    Recommendation.target_type == RecommenderType.VETERINARIAN,
+                    Recommendation.target_id == vet.id,
                 )
                 .first()
                 is not None
@@ -836,6 +838,48 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
         except (ValueError, TypeError):
             pass
 
+    # Indicações (recomendações) recebidas pela clínica
+    clinic_recommendations = []
+    for r in (
+        db.query(Recommendation)
+        .filter(
+            Recommendation.target_type == RecommenderType.CLINIC,
+            Recommendation.target_id == clinic.id,
+            Recommendation.status == RecommendationStatus.APPROVED,
+        )
+        .order_by(Recommendation.created_at.desc())
+        .all()
+    ):
+        if r.author_type.value == "veterinarian":
+            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id).first()
+            clinic_recommendations.append({"author_name": a.full_name if a else "Veterinário(a)", "author_label": "Veterinário(a)", "content": r.content})
+        else:
+            a = db.query(Clinic).filter(Clinic.id == r.author_id).first()
+            clinic_recommendations.append({"author_name": a.name if a else "Clínica", "author_label": "Clínica", "content": r.content})
+
+    can_recommend = False
+    already_recommended = False
+    if current_user and current_user.user_type.value in ("veterinarian", "clinic"):
+        if current_user.user_type.value == "veterinarian":
+            author = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
+            atype = "veterinarian"
+        else:
+            author = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
+            atype = "clinic"
+        if author and not (atype == "clinic" and author.id == clinic.id):
+            can_recommend = True
+            already_recommended = (
+                db.query(Recommendation)
+                .filter(
+                    Recommendation.author_type == atype,
+                    Recommendation.author_id == author.id,
+                    Recommendation.target_type == RecommenderType.CLINIC,
+                    Recommendation.target_id == clinic.id,
+                )
+                .first()
+                is not None
+            )
+
     return templates.TemplateResponse(
         "clinic/profile.html",
         {
@@ -852,6 +896,9 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "reviewee_type": "clinic",
             "reviewee_id": str(clinic.id),
             "admin_preview": is_admin and not clinic.is_approved,
+            "clinic_recommendations": clinic_recommendations,
+            "can_recommend": can_recommend,
+            "already_recommended": already_recommended,
         },
     )
 

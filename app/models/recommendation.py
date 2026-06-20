@@ -37,11 +37,14 @@ class Recommendation(Base):
     # quem recomenda (vet ou clínica) — polimórfico, como Review
     author_type = Column(Enum(RecommenderType, values_callable=_vals), nullable=False)
     author_id = Column(UUID(as_uuid=True), nullable=False, index=True)  # veterinarians.id ou clinics.id
-    # veterinário recomendado
+    # alvo recomendado (veterinário OU clínica) — polimórfico
+    target_type = Column(Enum(RecommenderType, values_callable=_vals), nullable=False)
+    target_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    # legado (mantido): FK para veterinário quando o alvo é vet
     target_vet_id = Column(
         UUID(as_uuid=True),
         ForeignKey("veterinarians.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True,
     )
     content = Column(Text, nullable=False)
@@ -54,9 +57,7 @@ class Recommendation(Base):
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    target = relationship("Veterinarian", backref="recommendations_received")
-
     __table_args__ = (
-        UniqueConstraint("author_type", "author_id", "target_vet_id", name="unique_recommendation"),
+        UniqueConstraint("author_type", "author_id", "target_type", "target_id", name="unique_recommendation_v2"),
         CheckConstraint("length(content) >= 10", name="min_recommendation_length"),
     )

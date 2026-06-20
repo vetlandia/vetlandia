@@ -267,6 +267,7 @@ body { background: #ffffff; }
                 {% endif %}
                 {% if clinic.is_24h %}<span class="cp-meta-item cp-badge-24h">Atendimento 24h</span>{% endif %}
                 {% if clinic.aplica_vacinas %}<span class="cp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
+                {% if clinic_recommendations %}<span class="cp-meta-item" style="color:#7c3aed;font-weight:700">👍 {{ clinic_recommendations|length }} indicaç{{ 'ões' if clinic_recommendations|length != 1 else 'ão' }}</span>{% endif %}
             </div>
             {% if clinic.avg_rating > 0 %}
             <div class="cp-rating-row">
@@ -426,6 +427,58 @@ body { background: #ffffff; }
                     <div class="cp-info-card-val" style="color:#059669">Aplica vacinas</div>
                 </div>
             </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# ── Indicações (recomendações) da clínica ── #}
+        {% if clinic_recommendations or can_recommend %}
+        <div style="margin-top:26px;max-width:720px;">
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">👍 Indicações</h3>
+            {% if clinic_recommendations %}
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                {% for rec in clinic_recommendations %}
+                <div style="border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;">
+                    <p style="font-size:0.9rem;color:#374151;line-height:1.7;margin:0 0 6px;">“{{ rec.content }}”</p>
+                    <div style="font-size:0.8rem;color:#64748b;"><strong style="color:#0d9488;">{{ rec.author_name }}</strong> · {{ rec.author_label }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="cp-no-content" style="padding:16px 0;text-align:left">Nenhuma indicação ainda.</p>
+            {% endif %}
+
+            {% if can_recommend %}
+                {% if already_recommended %}
+                <p style="margin-top:14px;font-size:0.85rem;color:#059669;">Você já indicou esta clínica.</p>
+                {% else %}
+                <div class="cp-form-section" id="rec-form-card" style="margin-top:16px;max-width:none">
+                    <h3>Indique esta clínica</h3>
+                    <textarea id="rec-content" rows="3" maxlength="1000" placeholder="Ex.: Excelente estrutura e equipe." style="width:100%;border:1px solid #d1d5db;border-radius:8px;padding:10px;"></textarea>
+                    <div id="rec-msg" style="font-size:0.82rem;margin:8px 0;"></div>
+                    <button type="button" class="btn btn-primary" id="rec-submit-btn">Enviar indicação</button>
+                    <p style="font-size:0.78rem;color:#9CA3AF;margin-top:8px;">Passa por moderação antes de aparecer.</p>
+                </div>
+                <script>
+                (function () {
+                    var btn = document.getElementById('rec-submit-btn');
+                    if (!btn) return;
+                    btn.addEventListener('click', async function () {
+                        var content = (document.getElementById('rec-content').value || '').trim();
+                        var msg = document.getElementById('rec-msg');
+                        if (content.length < 10) { msg.style.color = '#b91c1c'; msg.textContent = 'Escreva ao menos 10 caracteres.'; return; }
+                        btn.disabled = true; btn.textContent = 'Enviando...';
+                        try {
+                            var resp = await fetch('/api/recomendacoes/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_type: 'clinic', target_id: '{{ reviewee_id }}', content: content }) });
+                            var data = await resp.json().catch(function () { return {}; });
+                            if (!resp.ok) throw new Error(data.detail || 'Erro ao enviar');
+                            msg.style.color = '#059669'; msg.textContent = '✓ Indicação enviada! Em análise.';
+                            document.getElementById('rec-content').value = ''; btn.style.display = 'none';
+                        } catch (err) { msg.style.color = '#b91c1c'; msg.textContent = err.message || 'Erro de conexão.'; btn.disabled = false; btn.textContent = 'Enviar indicação'; }
+                    });
+                })();
+                </script>
+                {% endif %}
             {% endif %}
         </div>
         {% endif %}

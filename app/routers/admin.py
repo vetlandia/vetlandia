@@ -117,13 +117,20 @@ def _resolve_recommendations(db: Session, recs):
         else:
             a = db.query(Clinic).filter(Clinic.id == r.author_id).first()
             author_name = a.name if a else "Clínica"
-        target = db.query(Veterinarian).filter(Veterinarian.id == r.target_vet_id).first()
+        if r.target_type.value == "clinic":
+            t = db.query(Clinic).filter(Clinic.id == r.target_id).first()
+            target_name = t.name if t else "—"
+            target_url = ("/clinica/" + t.slug) if t else ""
+        else:
+            t = db.query(Veterinarian).filter(Veterinarian.id == r.target_id).first()
+            target_name = t.full_name if t else "—"
+            target_url = ("/veterinario/" + t.slug) if t else ""
         out.append({
             "id": str(r.id),
             "author_name": author_name,
             "author_type": r.author_type.value,
-            "target_name": target.full_name if target else "—",
-            "target_slug": target.slug if target else "",
+            "target_name": target_name,
+            "target_url": target_url,
             "content": r.content,
         })
     return out

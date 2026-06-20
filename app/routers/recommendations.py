@@ -18,8 +18,9 @@ def submit_recommendation(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    """Veterinário ou clínica indica um veterinário OU uma clínica."""
     if not current_user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Faça login para recomendar")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Faça login para indicar")
 
     utype = current_user.user_type.value
     if utype == "veterinarian":
@@ -29,34 +30,42 @@ def submit_recommendation(
         author = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
         author_type = RecommenderType.CLINIC
     else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Apenas veterinários e clínicas podem recomendar")
-
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Apenas veterinários e clínicas podem indicar")
     if not author:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil não encontrado")
 
-    target = db.query(Veterinarian).filter(Veterinarian.id == data.target_vet_id).first()
+    # Resolve o alvo (vet ou clínica)
+    if data.target_type == "veterinarian":
+        target = db.query(Veterinarian).filter(Veterinarian.id == data.target_id).first()
+        target_type = RecommenderType.VETERINARIAN
+    else:
+        target = db.query(Clinic).filter(Clinic.id == data.target_id).first()
+        target_type = RecommenderType.CLINIC
     if not target or not target.is_approved:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Veterinário(a) não encontrado(a)")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil a indicar não encontrado")
 
-    if author_type == RecommenderType.VETERINARIAN and author.id == target.id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Você não pode recomendar a si mesmo")
+    if author_type == target_type and author.id == target.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Você não pode indicar a si mesmo")
 
     existing = (
         db.query(Recommendation)
         .filter(
             Recommendation.author_type == author_type,
             Recommendation.author_id == author.id,
-            Recommendation.target_vet_id == target.id,
+            Recommendation.target_type == target_type,
+            Recommendation.target_id == target.id,
         )
         .first()
     )
     if existing:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Você já recomendou este(a) profissional")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Você já indicou este perfil")
 
     rec = Recommendation(
         author_type=author_type,
         author_id=author.id,
-        target_vet_id=target.id,
+        target_type=target_type,
+        target_id=target.id,
+        target_vet_id=(target.id if target_type == RecommenderType.VETERINARIAN else None),
         content=data.content,
     )
     db.add(rec)
