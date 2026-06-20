@@ -40,6 +40,11 @@ class Veterinarian(Base):
     lattes = Column(String(255), nullable=True)        # Currículo Lattes
     crmv_card_url = Column(Text, nullable=True)         # upload da carteira (validação manual)
     is_verified = Column(Boolean, default=False, nullable=False)  # selo "Perfil Verificado"
+    # ── Módulo 2: disponibilidades profissionais (recrutamento, opcionais) ──
+    disp_plantao = Column(Boolean, default=False, nullable=False)
+    disp_volante = Column(Boolean, default=False, nullable=False)
+    disp_oportunidades = Column(Boolean, default=False, nullable=False)
+    disp_parcerias = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

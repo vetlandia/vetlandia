@@ -75,6 +75,11 @@ class VeterinarianUpdate(BaseModel):
     instagram: Optional[str] = Field(None, max_length=255)
     lattes: Optional[str] = Field(None, max_length=255)
     crmv_card_url: Optional[str] = None
+    # ── Módulo 2: disponibilidades profissionais ────────────────────────
+    disp_plantao: Optional[bool] = None
+    disp_volante: Optional[bool] = None
+    disp_oportunidades: Optional[bool] = None
+    disp_parcerias: Optional[bool] = None
 
 
 class EducationItem(BaseModel):

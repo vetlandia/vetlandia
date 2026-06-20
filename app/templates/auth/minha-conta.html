@@ -472,6 +472,18 @@
                             <button type="button" class="btn btn-secondary btn-sm" id="pc-edu-add">+ Adicionar formação</button>
                         </div>
 
+                        {# ── Módulo 2: Disponibilidade profissional ── #}
+                        <div class="form-group">
+                            <label class="form-label">Disponibilidade profissional <span style="font-weight:400;color:#94a3b8;font-size:0.8rem">(opcional · visível apenas para clínicas com acesso)</span></label>
+                            <div style="display:flex;flex-direction:column;gap:8px;">
+                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-plantao" {% if profile and profile.disp_plantao %}checked{% endif %}><span>Disponível para <strong>plantões</strong></span></label>
+                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-volante" {% if profile and profile.disp_volante %}checked{% endif %}><span>Disponível para <strong>atendimentos volantes</strong></span></label>
+                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-oportunidades" {% if profile and profile.disp_oportunidades %}checked{% endif %}><span>Aberto a <strong>novas oportunidades profissionais</strong></span></label>
+                                <label class="terms-check" style="margin:0"><input type="checkbox" id="pc-disp-parcerias" {% if profile and profile.disp_parcerias %}checked{% endif %}><span>Aberto a <strong>parcerias profissionais</strong></span></label>
+                            </div>
+                            <p class="form-help">Use apenas se desejar ser encontrado para recrutamento. Não aparece no seu perfil público.</p>
+                        </div>
+
                         {% elif current_user.user_type.value == 'clinic' %}
                         <!-- CLÍNICA -->
                         <div class="form-group">
@@ -758,6 +770,7 @@ function collectEducations() {
     function buildPayload() {
         const g = (name) => { const el = form.querySelector('[name="' + name + '"]'); return el ? (el.value || null) : null; };
         const gId = (id) => { const el = document.getElementById(id); return el ? (el.value || null) : null; };
+        const chk = (id) => { const el = document.getElementById(id); return !!(el && el.checked); };
         if (userType === 'tutor') {
             return {
                 full_name: g('full_name'),
@@ -788,6 +801,10 @@ function collectEducations() {
                 instagram: g('instagram'),
                 lattes: g('lattes'),
                 crmv_card_url: gId('pc-vet-crmv-data'),
+                disp_plantao: chk('pc-disp-plantao'),
+                disp_volante: chk('pc-disp-volante'),
+                disp_oportunidades: chk('pc-disp-oportunidades'),
+                disp_parcerias: chk('pc-disp-parcerias'),
             };
         }
         if (userType === 'clinic') {
