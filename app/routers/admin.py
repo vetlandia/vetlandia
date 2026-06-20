@@ -680,25 +680,71 @@ def delete_case(case_id: str, db: Session = Depends(get_db), admin=Depends(requi
 
 
 @router.get("/test-email", response_class=HTMLResponse)
-def test_email(to: str = "", admin=Depends(require_admin)):
-    """Dispara e-mail de teste síncrono e retorna resultado. Uso: /admin/test-email?to=email@exemplo.com"""
-    from app.services.email import send_email_sync, tpl_boas_vindas_tutor, settings as _s
-    dest = to or _s.SMTP_USER
-    cfg = {
-        "SMTP_HOST": _s.SMTP_HOST,
-        "SMTP_PORT": _s.SMTP_PORT,
-        "SMTP_USER": _s.SMTP_USER,
-        "SMTP_PASSWORD": "***" if _s.SMTP_PASSWORD else "(vazio)",
-    }
-    try:
-        send_email_sync(dest, "Teste de e-mail — VetLândia", tpl_boas_vindas_tutor("Admin Teste"))
-        msg = f"<p style='color:green;font-weight:700'>✅ E-mail enviado com sucesso para <b>{dest}</b></p>"
-    except Exception as exc:
-        msg = f"<p style='color:red;font-weight:700'>❌ Erro: <code>{exc}</code></p>"
-    cfg_html = "".join(f"<li><b>{k}</b>: {v}</li>" for k, v in cfg.items())
-    return f"""<html><body style='font-family:sans-serif;padding:32px'>
+def test_email_form(admin=Depends(require_admin)):
+    """Mostra config SMTP atual e formulário para disparo de teste."""
+    from app.core.config import settings as _s
+    cfg = [
+        ("SMTP_HOST", _s.SMTP_HOST),
+        ("SMTP_PORT", str(_s.SMTP_PORT)),
+        ("SMTP_USER", _s.SMTP_USER or "(vazio)"),
+        ("SMTP_PASSWORD", "configurada" if _s.SMTP_PASSWORD else "(vazio — e-mails ignorados)"),
+    ]
+    cfg_html = "".join(f"<tr><td style='padding:6px 12px;font-weight:700'>{k}</td><td style='padding:6px 12px;font-family:monospace'>{v}</td></tr>" for k, v in cfg)
+    return f"""<html><body style='font-family:sans-serif;padding:32px;max-width:600px'>
     <h2>Teste SMTP — VetLândia</h2>
-    <ul>{cfg_html}</ul>
-    {msg}
-    <p><a href='/admin'>← Voltar ao admin</a></p>
+    <table border='1' cellspacing='0' style='border-collapse:collapse;margin-bottom:24px;width:100%'>{cfg_html}</table>
+    <form method='POST' action='/admin/test-email'>
+        <label style='display:block;margin-bottom:6px'>Enviar para:</label>
+        <input name='to' type='email' placeholder='email@exemplo.com' required
+               style='padding:8px 12px;border:1px solid #ccc;border-radius:6px;width:300px;margin-right:8px'>
+        <button type='submit' style='padding:8px 18px;background:#088395;color:#fff;border:none;border-radius:6px;cursor:pointer'>Enviar teste</button>
+    </form>
+    <p style='margin-top:24px'><a href='/admin'>← Voltar ao admin</a></p>
+    </body></html>"""
+
+
+@router.post("/test-email", response_class=HTMLResponse)
+def test_email_send(to: str = Form(...), admin=Depends(require_admin)):
+    """Dispara e-mail de teste síncrono com timeout curto e retorna erro exato."""
+    import smtplib
+    from app.core.config import settings as _s
+    from app.services.email import tpl_boas_vindas_tutor
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+
+    steps = []
+    error = None
+    try:
+        steps.append("Conectando a {}:{}...".format(_s.SMTP_HOST, _s.SMTP_PORT))
+        srv = smtplib.SMTP(_s.SMTP_HOST, _s.SMTP_PORT, timeout=8)
+        steps.append("Conexão OK")
+        srv.ehlo()
+        steps.append("EHLO OK")
+        srv.starttls()
+        steps.append("STARTTLS OK")
+        srv.ehlo()
+        srv.login(_s.SMTP_USER, _s.SMTP_PASSWORD)
+        steps.append("Login OK")
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "Teste SMTP — VetLândia"
+        msg["From"] = f"VetLândia <{_s.SMTP_USER}>"
+        msg["To"] = to
+        msg.attach(MIMEText(tpl_boas_vindas_tutor("Admin"), "html", "utf-8"))
+        srv.sendmail(_s.SMTP_USER, [to], msg.as_string())
+        srv.quit()
+        steps.append(f"E-mail enviado para {to} ✅")
+    except Exception as exc:
+        error = str(exc)
+
+    steps_html = "".join(f"<li>{s}</li>" for s in steps)
+    result = (
+        f"<p style='color:red;font-weight:700'>❌ Falhou em: <code>{error}</code></p>"
+        if error else
+        f"<p style='color:green;font-weight:700'>✅ Sucesso!</p>"
+    )
+    return f"""<html><body style='font-family:sans-serif;padding:32px;max-width:600px'>
+    <h2>Resultado do teste SMTP</h2>
+    <ol>{steps_html}</ol>
+    {result}
+    <p><a href='/admin/test-email'>← Tentar novamente</a> &nbsp; <a href='/admin'>← Admin</a></p>
     </body></html>"""
