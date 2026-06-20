@@ -690,6 +690,36 @@
     })();
     </script>
 
+    <!-- Histórico de exclusões e moderação -->
+    <div class="admin-section">
+        <h2>🕓 Histórico (exclusões e moderação) <span style="font-size:0.75rem;font-weight:400;color:#888">últimos 100 registros</span></h2>
+        <div class="table-scroll"><table class="admin-table">
+            <thead><tr><th>Data/Hora</th><th>Quem</th><th>Ação</th><th>Descrição</th></tr></thead>
+            <tbody>
+                {% if audit_logs %}
+                    {% for log in audit_logs %}
+                    <tr>
+                        <td style="white-space:nowrap;font-size:0.8rem;color:#555">{{ log.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td style="white-space:nowrap;font-size:0.82rem">{{ log.actor_label }}</td>
+                        <td style="white-space:nowrap">
+                            {% if log.action == 'delete' %}<span style="color:#b91c1c;font-weight:700">🗑 Excluiu</span>
+                            {% elif log.action == 'reject' %}<span style="color:#ea580c;font-weight:600">Reprovou</span>
+                            {% elif log.action == 'approve' %}<span style="color:#059669;font-weight:600">Aprovou</span>
+                            {% elif log.action == 'verify' %}<span style="color:#0d9488;font-weight:600">Verificou</span>
+                            {% elif log.action == 'unverify' %}<span style="color:#94a3b8;font-weight:600">Tirou verif.</span>
+                            {% else %}{{ log.action }}{% endif %}
+                            <span style="color:#94a3b8;font-size:0.72rem">({{ log.entity_type }})</span>
+                        </td>
+                        <td style="font-size:0.85rem">{{ log.description }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="empty-row"><td colspan="4">Nenhum registro ainda</td></tr>
+                {% endif %}
+            </tbody>
+        </table></div>
+    </div>
+
 </div>
 </body>
 </html>

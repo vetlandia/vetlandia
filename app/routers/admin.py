@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import require_admin
+from app.models.audit import AuditLog, log_action
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.comment import Comment
@@ -85,6 +86,8 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         for c in approved_clinics
     }
 
+    audit_logs = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(100).all()
+
     return templates.TemplateResponse(
         "admin/dashboard.html",
         _admin_context(
@@ -98,6 +101,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             pending_recs=pending_recs,
             clinic_products=clinic_products,
             clinic_products_catalog=CLINIC_PRODUCTS,
+            audit_logs=audit_logs,
             users=users, admin=admin,
         ),
     )
@@ -134,6 +138,7 @@ def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(requir
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_approved = True
     vet.is_rejected = False
+    log_action(db, admin, "approve", "veterinarian", vet_id, f"Aprovou veterinário(a) {vet.full_name}")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -146,6 +151,7 @@ def reject_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_rejected = True
     vet.is_approved = False
+    log_action(db, admin, "reject", "veterinarian", vet_id, f"Reprovou veterinário(a) {vet.full_name}")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -168,6 +174,7 @@ def delete_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     db.query(Review).filter(Review.reviewee_id == vet.id).delete()
     db.delete(vet)
+    log_action(db, admin, "delete", "veterinarian", vet_id, f"Excluiu veterinário(a) {vet.full_name} ({vet.crmv})")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -189,6 +196,8 @@ def verify_vet(vet_id: str, verified: str = Form(...), db: Session = Depends(get
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_verified = (verified == "true")
+    log_action(db, admin, "verify" if vet.is_verified else "unverify", "veterinarian", vet_id,
+               ("Verificou CRMV de " if vet.is_verified else "Removeu verificação de ") + vet.full_name)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -232,6 +241,7 @@ def approve_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_approved = True
     clinic.is_rejected = False
+    log_action(db, admin, "approve", "clinic", clinic_id, f"Aprovou clínica {clinic.name}")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -304,6 +314,7 @@ def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(r
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     db.query(Review).filter(Review.reviewee_id == clinic.id).delete()
     db.delete(clinic)
+    log_action(db, admin, "delete", "clinic", clinic_id, f"Excluiu clínica {clinic.name}")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -316,6 +327,7 @@ def reject_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(r
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_rejected = True
     clinic.is_approved = False
+    log_action(db, admin, "reject", "clinic", clinic_id, f"Reprovou clínica {clinic.name}")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -349,6 +361,7 @@ def reject_review(review_id: str, db: Session = Depends(get_db), admin=Depends(r
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
     review.status = ReviewStatus.REJECTED
+    log_action(db, admin, "reject", "review", review_id, f"Reprovou avaliação (nota {review.rating})")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -358,6 +371,7 @@ def delete_review(review_id: str, db: Session = Depends(get_db), admin=Depends(r
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
+    log_action(db, admin, "delete", "review", review_id, f"Excluiu avaliação (nota {review.rating}): {(review.comment or '')[:60]}")
     db.delete(review)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
@@ -390,6 +404,7 @@ def delete_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depe
     rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
     if not rec:
         raise HTTPException(status_code=404, detail="Recomendação não encontrada")
+    log_action(db, admin, "delete", "recommendation", rec_id, "Excluiu recomendação")
     db.delete(rec)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
@@ -493,6 +508,7 @@ def delete_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requi
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     if user.user_type == UserType.ADMIN:
         raise HTTPException(status_code=400, detail="Não é possível excluir admin")
+    log_action(db, admin, "delete", "user", user_id, f"Excluiu usuário {user.display_name} ({user.email})")
     _delete_user_and_profiles(user, db)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
@@ -558,6 +574,7 @@ def delete_comment(comment_id: str, db: Session = Depends(get_db), admin=Depends
     comment = db.query(CaseComment).filter(CaseComment.id == comment_id).first()
     if not comment:
         raise HTTPException(status_code=404, detail="Comentário não encontrado")
+    log_action(db, admin, "delete", "case_comment", comment_id, "Excluiu comentário de caso")
     db.delete(comment)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
@@ -588,6 +605,7 @@ def delete_case(case_id: str, db: Session = Depends(get_db), admin=Depends(requi
     case = db.query(ClinicalCase).filter(ClinicalCase.id == case_id).first()
     if not case:
         raise HTTPException(status_code=404, detail="Caso não encontrado")
+    log_action(db, admin, "delete", "clinical_case", case_id, f"Excluiu caso clínico: {case.title}")
     db.delete(case)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
