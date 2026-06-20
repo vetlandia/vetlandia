@@ -249,7 +249,7 @@ body { background: #ffffff; }
                         <path d="M6 10.5L8.5 13.5L14 7.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                     </svg>
                 </span>
-                {% elif veterinarian.is_approved %}
+                {% elif veterinarian.is_verified %}
                 <span class="vp-seal vp-seal-green" title="Perfil Verificado">
                     <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
                         <title>Perfil Verificado</title>
@@ -260,6 +260,11 @@ body { background: #ffffff; }
                 {% endif %}
             </div>
             {% if veterinarian.specialty %}<p class="vp-specialty">{{ veterinarian.specialty }}</p>{% endif %}
+            {% if vet_specialties %}
+            <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 10px;" class="vp-spec-chips">
+                {% for sp in vet_specialties %}<span style="background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;border-radius:999px;padding:3px 11px;font-size:0.76rem;font-weight:600;">{{ sp }}</span>{% endfor %}
+            </div>
+            {% endif %}
             <div class="vp-meta-row">
                 {% if veterinarian.city %}
                 <span class="vp-meta-item">
@@ -400,6 +405,30 @@ body { background: #ffffff; }
                 </div>
             </div>
             {% endif %}
+        </div>
+        {% endif %}
+
+        {% if veterinarian.educations %}
+        <div class="vp-formacao" style="margin-top:22px;max-width:720px;">
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Formação acadêmica</h3>
+            {% for e in veterinarian.educations %}
+            <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+                <span style="flex-shrink:0;font-size:0.72rem;font-weight:700;color:#0d9488;background:#f0fdfa;border:1px solid #99f6e4;border-radius:6px;padding:3px 8px;height:fit-content;">{{ e.tipo }}</span>
+                <div>
+                    <div style="font-size:0.88rem;font-weight:600;color:#1f2937;">{{ e.curso or e.area or e.instituicao }}{% if e.ano_conclusao %} · {{ e.ano_conclusao }}{% endif %}</div>
+                    <div style="font-size:0.8rem;color:#64748b;">{{ e.instituicao }}{% if e.area and (e.curso or e.area != e.curso) %} — {{ e.area }}{% endif %}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if veterinarian.website or veterinarian.linkedin or veterinarian.instagram or veterinarian.lattes %}
+        <div class="vp-links" style="margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;">
+            {% if veterinarian.website %}<a href="{{ veterinarian.website }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🌐 Site</a>{% endif %}
+            {% if veterinarian.linkedin %}<a href="{{ veterinarian.linkedin if '://' in veterinarian.linkedin else 'https://' + veterinarian.linkedin }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">in LinkedIn</a>{% endif %}
+            {% if veterinarian.instagram %}<a href="https://instagram.com/{{ veterinarian.instagram|replace('@','')|replace('https://instagram.com/','') }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">📷 Instagram</a>{% endif %}
+            {% if veterinarian.lattes %}<a href="{{ veterinarian.lattes if '://' in veterinarian.lattes else 'https://' + veterinarian.lattes }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🎓 Lattes</a>{% endif %}
         </div>
         {% endif %}
     </div>

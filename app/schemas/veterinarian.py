@@ -23,6 +23,13 @@ class VeterinarianBase(BaseModel):
     cover_photo_url: Optional[str] = None
     is_24h: bool = False
     aplica_vacinas: bool = False
+    # ── Módulo 1: enriquecimento do perfil ──────────────────────────────
+    specialties: Optional[str] = None  # JSON array (especialidades múltiplas)
+    website: Optional[str] = Field(None, max_length=500)
+    linkedin: Optional[str] = Field(None, max_length=255)
+    instagram: Optional[str] = Field(None, max_length=255)
+    lattes: Optional[str] = Field(None, max_length=255)
+    crmv_card_url: Optional[str] = None  # data URL ou https URL (carteira)
 
     @field_validator("crmv")
     @classmethod
@@ -61,6 +68,29 @@ class VeterinarianUpdate(BaseModel):
     is_24h: Optional[bool] = None
     aplica_vacinas: Optional[bool] = None
     clinic_id: Optional[UUID] = None
+    # ── Módulo 1 ────────────────────────────────────────────────────────
+    specialties: Optional[str] = None
+    website: Optional[str] = Field(None, max_length=500)
+    linkedin: Optional[str] = Field(None, max_length=255)
+    instagram: Optional[str] = Field(None, max_length=255)
+    lattes: Optional[str] = Field(None, max_length=255)
+    crmv_card_url: Optional[str] = None
+
+
+class EducationItem(BaseModel):
+    """Uma formação acadêmica do veterinário."""
+    tipo: str = Field(..., max_length=50)
+    instituicao: str = Field(..., min_length=1, max_length=255)
+    curso: Optional[str] = Field(None, max_length=255)
+    area: Optional[str] = Field(None, max_length=255)
+    ano_conclusao: Optional[str] = Field(None, max_length=4)
+
+
+class EducationResponse(EducationItem):
+    id: UUID
+
+    class Config:
+        from_attributes = True
 
 
 class VeterinarianResponse(VeterinarianBase):

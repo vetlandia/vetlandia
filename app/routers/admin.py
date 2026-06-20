@@ -120,6 +120,17 @@ def set_vet_badge(vet_id: str, badge_type: str = Form(...), db: Session = Depend
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.post("/vets/{vet_id}/verify")
+def verify_vet(vet_id: str, verified: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Concede/remove o selo 'Perfil Verificado' (identidade + CRMV validado)."""
+    vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
+    vet.is_verified = (verified == "true")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
 # ── Clínicas ──────────────────────────────────────────────────────────────────
 
 @router.post("/clinics/{clinic_id}/approve")
@@ -138,6 +149,17 @@ def set_clinic_badge(clinic_id: str, badge_type: str = Form(...), db: Session = 
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_founder = (badge_type == "founder")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/clinics/{clinic_id}/verify")
+def verify_clinic(clinic_id: str, verified: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Concede/remove o selo 'Perfil Verificado' da clínica."""
+    clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica não encontrada")
+    clinic.is_verified = (verified == "true")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 

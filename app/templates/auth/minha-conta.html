@@ -178,6 +178,13 @@
 
 .photo-preview.clinic-preview { border-radius: var(--radius-lg); }
 .photo-preview.cover-preview { width: 142px; height: 80px; border-radius: var(--radius-lg); }
+.chips-multi { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-check { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1.5px solid var(--border-medium); border-radius: 999px; cursor: pointer; font-size: 0.85rem; user-select: none; }
+.chip-check input { margin: 0; }
+.chip-check:has(input:checked) { border-color: var(--brand-primary, #0d9488); background: var(--brand-subtle, #f0fdfa); color: var(--brand-primary, #0d9488); font-weight: 600; }
+.edu-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; padding: 10px; background: var(--surface-secondary); border-radius: var(--radius-lg); }
+.edu-row .form-input, .edu-row .form-select { flex: 1; min-width: 120px; }
+.edu-row .edu-del { background: #fee2e2; color: #b91c1c; border: none; cursor: pointer; border-radius: 8px; padding: 6px 10px; }
 .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
 .photo-preview-placeholder { font-size: 2rem; opacity: 0.4; }
 .photo-upload-actions { flex: 1; min-width: 0; }
@@ -409,6 +416,62 @@
                             </label>
                         </div>
 
+                        {# ── Módulo 1: Especialidades múltiplas ── #}
+                        <div class="form-group">
+                            <label class="form-label">Especialidades — marque todas em que atua</label>
+                            <div class="chips-multi" id="pc-vet-specs">
+                                {% for sp in ['Acupuntura Veterinária','Anestesiologia','Cardiologia','Clínica Geral','Dermatologia','Diagnóstico por Imagem','Endocrinologia','Fisioterapia e Reabilitação','Gastroenterologia','Hematologia','Infectologia','Medicina de Animais Selvagens','Nefrologia e Urologia','Neurologia','Nutrição Animal','Odontologia Veterinária','Oftalmologia','Oncologia','Ortopedia e Cirurgia','Parasitologia','Reprodução Animal','Toxicologia','Zootecnia'] %}
+                                <label class="chip-check"><input type="checkbox" value="{{ sp }}" {% if sp in vet_specialties %}checked{% endif %}><span>{{ sp }}</span></label>
+                                {% endfor %}
+                            </div>
+                            <p class="form-help">A "Especialidade principal" acima é usada na busca; aqui você lista todas.</p>
+                        </div>
+
+                        {# ── Links profissionais ── #}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Site pessoal</label>
+                                <input type="url" name="website" class="form-input" value="{{ profile.website if profile and profile.website else '' }}" placeholder="https://...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">LinkedIn</label>
+                                <input type="text" name="linkedin" class="form-input" value="{{ profile.linkedin if profile and profile.linkedin else '' }}" placeholder="linkedin.com/in/...">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Instagram profissional</label>
+                                <input type="text" name="instagram" class="form-input" value="{{ profile.instagram if profile and profile.instagram else '' }}" placeholder="@seu_perfil">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Currículo Lattes</label>
+                                <input type="text" name="lattes" class="form-input" value="{{ profile.lattes if profile and profile.lattes else '' }}" placeholder="lattes.cnpq.br/...">
+                            </div>
+                        </div>
+
+                        {# ── Carteira CRMV (validação) ── #}
+                        <div class="form-group">
+                            <label class="form-label">Carteira profissional (CRMV) — para verificação</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview cover-preview" id="pc-vet-crmv-preview">
+                                    {% if profile and profile.crmv_card_url %}<img src="{{ profile.crmv_card_url }}" alt="Carteira">{% else %}<span class="photo-preview-placeholder">🪪</span>{% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-vet-crmv-input">🪪 Enviar carteira</label>
+                                    <input type="file" id="pc-vet-crmv-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="crmv_card_url" id="pc-vet-crmv-data" value="{{ profile.crmv_card_url if profile and profile.crmv_card_url else '' }}">
+                                    <p class="form-help">Usada apenas para validar o selo "Perfil Verificado". Não aparece no perfil público.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {# ── Formação acadêmica (múltipla) ── #}
+                        <div class="form-group">
+                            <label class="form-label">Formação acadêmica</label>
+                            <div id="pc-edu-list"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="pc-edu-add">+ Adicionar formação</button>
+                        </div>
+
                         {% elif current_user.user_type.value == 'clinic' %}
                         <!-- CLÍNICA -->
                         <div class="form-group">
@@ -567,6 +630,67 @@ setupPhotoUpload('pc-vet-photo-input',    'pc-vet-preview',    'pc-vet-photo-dat
 setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-data');
 setupPhotoUpload('pc-vet-cover-input',    'pc-vet-cover-preview',    'pc-vet-cover-data');
 setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-cover-data');
+setupPhotoUpload('pc-vet-crmv-input',     'pc-vet-crmv-preview',     'pc-vet-crmv-data');
+
+// ── Módulo 1: especialidades múltiplas ──
+function collectSpecialties() {
+    const box = document.getElementById('pc-vet-specs');
+    if (!box) return null;
+    const vals = Array.from(box.querySelectorAll('input:checked')).map(i => i.value);
+    return vals.length ? JSON.stringify(vals) : null;
+}
+
+// ── Módulo 1: formação acadêmica (linhas dinâmicas) ──
+function addEduRow(d) {
+    const list = document.getElementById('pc-edu-list');
+    if (!list) return;
+    d = d || {};
+    const tipos = ['Graduação','Pós-graduação','Especialização','Residência','MBA','Mestrado','Doutorado'];
+    const row = document.createElement('div');
+    row.className = 'edu-row';
+    row.innerHTML = `
+        <select class="edu-tipo form-select"><option value="">Tipo...</option>${tipos.map(t => `<option ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+        <input class="edu-inst form-input" placeholder="Instituição">
+        <input class="edu-curso form-input" placeholder="Curso">
+        <input class="edu-area form-input" placeholder="Área">
+        <input class="edu-ano form-input" placeholder="Ano" maxlength="4" style="max-width:90px">
+        <button type="button" class="btn btn-sm edu-del" title="Remover">✕</button>`;
+    row.querySelector('.edu-inst').value = d.instituicao || '';
+    row.querySelector('.edu-curso').value = d.curso || '';
+    row.querySelector('.edu-area').value = d.area || '';
+    row.querySelector('.edu-ano').value = d.ano_conclusao || '';
+    row.querySelector('.edu-del').addEventListener('click', () => row.remove());
+    list.appendChild(row);
+}
+
+function collectEducations() {
+    const out = [];
+    document.querySelectorAll('#pc-edu-list .edu-row').forEach(r => {
+        const tipo = r.querySelector('.edu-tipo').value.trim();
+        const inst = r.querySelector('.edu-inst').value.trim();
+        if (!tipo || !inst) return; // tipo + instituição são obrigatórios
+        out.push({
+            tipo: tipo,
+            instituicao: inst,
+            curso: r.querySelector('.edu-curso').value.trim() || null,
+            area: r.querySelector('.edu-area').value.trim() || null,
+            ano_conclusao: r.querySelector('.edu-ano').value.trim() || null,
+        });
+    });
+    return out;
+}
+
+(function initEdu() {
+    const addBtn = document.getElementById('pc-edu-add');
+    if (!addBtn) return;
+    addBtn.addEventListener('click', () => addEduRow());
+    const existing = [
+        {% for e in vet_educations %}
+        { tipo: {{ e.tipo|tojson }}, instituicao: {{ e.instituicao|tojson }}, curso: {{ (e.curso or '')|tojson }}, area: {{ (e.area or '')|tojson }}, ano_conclusao: {{ (e.ano_conclusao or '')|tojson }} },
+        {% endfor %}
+    ];
+    existing.forEach(addEduRow);
+})();
 </script>
 
 <script>
@@ -658,6 +782,12 @@ setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-
                 cover_photo_url: gId('pc-vet-cover-data'),
                 is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
                 aplica_vacinas: !!(document.getElementById('pc-vet-vacinas') && document.getElementById('pc-vet-vacinas').checked),
+                specialties: collectSpecialties(),
+                website: g('website'),
+                linkedin: g('linkedin'),
+                instagram: g('instagram'),
+                lattes: g('lattes'),
+                crmv_card_url: gId('pc-vet-crmv-data'),
             };
         }
         if (userType === 'clinic') {
@@ -697,6 +827,18 @@ setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-
             });
             const data = await resp.json().catch(() => ({}));
             if (!resp.ok) throw new Error(data.detail || 'Erro ao salvar');
+            // Veterinário: salva também as formações acadêmicas (substitui a lista)
+            if (userType === 'veterinarian') {
+                const eduResp = await fetch('/api/perfil/veterinarian/educations', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(collectEducations()),
+                });
+                if (!eduResp.ok) {
+                    const ed = await eduResp.json().catch(() => ({}));
+                    throw new Error(ed.detail || 'Perfil salvo, mas falhou ao salvar formações.');
+                }
+            }
             showStatus('success', '✓ Perfil atualizado com sucesso!');
             // Atualiza avatar do header com a foto recém-salva
             const photoId = userType === 'tutor' ? 'pc-tutor-photo-data'

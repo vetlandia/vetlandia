@@ -617,6 +617,11 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     except (ValueError, TypeError):
         vet_species = []
 
+    try:
+        vet_specialties = json.loads(vet.specialties) if vet.specialties else []
+    except (ValueError, TypeError):
+        vet_specialties = []
+
     return templates.TemplateResponse(
         "veterinarian/profile.html",
         {
@@ -629,6 +634,8 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "reviewee_id": str(vet.id),
             "vet_cases": vet_cases,
             "vet_species": vet_species,
+            "vet_specialties": vet_specialties,
+            "vet_educations": vet.educations,
         },
     )
 
@@ -742,16 +749,30 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
     if not current_user:
         return RedirectResponse("/login")
     profile = None
+    vet_specialties = []
+    vet_educations = []
     if current_user.user_type.value == "tutor":
         from app.models.tutor import Tutor
         profile = db.query(Tutor).filter(Tutor.user_id == current_user.id).first()
     elif current_user.user_type.value == "veterinarian":
         profile = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
+        if profile:
+            try:
+                vet_specialties = json.loads(profile.specialties) if profile.specialties else []
+            except (ValueError, TypeError):
+                vet_specialties = []
+            vet_educations = profile.educations
     elif current_user.user_type.value == "clinic":
         profile = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
     return templates.TemplateResponse(
         "auth/minha-conta.html",
-        {"request": request, "current_user": current_user, "profile": profile},
+        {
+            "request": request,
+            "current_user": current_user,
+            "profile": profile,
+            "vet_specialties": vet_specialties,
+            "vet_educations": vet_educations,
+        },
     )
 
 

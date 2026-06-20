@@ -32,8 +32,22 @@ class Veterinarian(Base):
     is_founder = Column(Boolean, default=False, nullable=False)
     cover_photo_url = Column(Text, nullable=True)
     aplica_vacinas = Column(Boolean, default=False, nullable=False)
+    # ── Módulo 1: enriquecimento do perfil ──────────────────────────────
+    specialties = Column(Text(), nullable=True)        # JSON array (especialidades múltiplas)
+    website = Column(String(500), nullable=True)       # site pessoal
+    linkedin = Column(String(255), nullable=True)
+    instagram = Column(String(255), nullable=True)
+    lattes = Column(String(255), nullable=True)        # Currículo Lattes
+    crmv_card_url = Column(Text, nullable=True)         # upload da carteira (validação manual)
+    is_verified = Column(Boolean, default=False, nullable=False)  # selo "Perfil Verificado"
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     user = relationship("User", backref="veterinarian", uselist=False)
     clinic = relationship("Clinic", backref="veterinarians", foreign_keys=[clinic_id])
+    educations = relationship(
+        "VetEducation",
+        back_populates="veterinarian",
+        cascade="all, delete-orphan",
+        order_by="VetEducation.created_at",
+    )
