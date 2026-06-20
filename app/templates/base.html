@@ -32,9 +32,11 @@
                     <nav class="nav nav-primary">
                         <a href="/buscar/veterinarios" class="nav-link">Veterinários</a>
                         <a href="/buscar/clinicas" class="nav-link">Clínicas</a>
+                        {# Módulo 4: Casos Clínicos ocultos da interface (rota preservada)
                         {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
                         <a href="/casos-clinicos" class="nav-link">Casos Clínicos</a>
                         {% endif %}
+                        #}
                     </nav>
                 </div>
 
@@ -72,9 +74,11 @@
         <div class="mobile-menu-content">
             <a href="/buscar/veterinarios" class="mobile-menu-link">Veterinários</a>
             <a href="/buscar/clinicas" class="mobile-menu-link">Clínicas</a>
+            {# Módulo 4: Casos Clínicos ocultos da interface (rota preservada)
             {% if current_user and current_user.user_type.value in ('veterinarian', 'admin') %}
             <a href="/casos-clinicos" class="mobile-menu-link">Casos Clínicos</a>
             {% endif %}
+            #}
 
             {% if current_user %}
                 {% if current_user.user_type.value == 'admin' %}
@@ -127,7 +131,7 @@
 
                 <div class="footer-section">
                     <h3>Para Veterinários</h3>
-                    <a href="/casos-clinicos" class="footer-link">Casos Clínicos</a>
+                    {# Módulo 4: oculto da interface (rota preservada) <a href="/casos-clinicos" class="footer-link">Casos Clínicos</a> #}
                     <a href="/cadastro" class="footer-link">Criar Perfil</a>
                 </div>
 

@@ -7,13 +7,14 @@ from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.models.affiliation import VetClinicLink
 from app.models.clinic import Clinic
+from app.models.content import VetContent
 from app.models.education import VetEducation
 from app.models.tutor import Tutor
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 from app.schemas.clinic import ClinicUpdate
 from app.schemas.tutor import TutorUpdate
-from app.schemas.veterinarian import ClinicLinkItem, EducationItem, VeterinarianUpdate
+from app.schemas.veterinarian import ClinicLinkItem, ContentItem, EducationItem, VeterinarianUpdate
 
 router = APIRouter()
 
@@ -87,6 +88,21 @@ def replace_vet_clinic_links(
         saved += 1
     db.commit()
     return {"ok": True, "count": saved}
+
+
+@router.put("/veterinarian/contents")
+def replace_vet_contents(
+    contents: List[ContentItem],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Substitui a lista de conteúdos profissionais (links) do vet logado."""
+    vet = _get_own_vet(db, current_user)
+    db.query(VetContent).filter(VetContent.veterinarian_id == vet.id).delete()
+    for item in contents:
+        db.add(VetContent(veterinarian_id=vet.id, **item.model_dump()))
+    db.commit()
+    return {"ok": True, "count": len(contents)}
 
 
 @router.put("/clinic")

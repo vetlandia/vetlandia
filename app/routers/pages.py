@@ -644,6 +644,7 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "vet_specialties": vet_specialties,
             "vet_educations": vet.educations,
             "vet_current_clinics": vet_current_clinics,
+            "vet_contents": vet.contents,
         },
     )
 
@@ -781,6 +782,7 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
     vet_specialties = []
     vet_educations = []
     vet_clinic_links = []
+    vet_contents = []
     all_clinics = []
     if current_user.user_type.value == "tutor":
         from app.models.tutor import Tutor
@@ -794,6 +796,7 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
                 vet_specialties = []
             vet_educations = profile.educations
             vet_clinic_links = profile.clinic_links
+            vet_contents = profile.contents
             all_clinics = (
                 db.query(Clinic).filter(Clinic.is_approved == True).order_by(Clinic.name).all()
             )
@@ -808,6 +811,7 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
             "vet_specialties": vet_specialties,
             "vet_educations": vet_educations,
             "vet_clinic_links": vet_clinic_links,
+            "vet_contents": vet_contents,
             "all_clinics": all_clinics,
         },
     )

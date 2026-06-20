@@ -492,6 +492,14 @@
                             <p class="form-help">Vínculos marcados como <strong>atual</strong> aparecem no seu perfil e no corpo clínico da clínica. O histórico (encerrados) é visível apenas para clínicas com acesso.</p>
                         </div>
 
+                        {# ── Módulo 4: Conteúdo Profissional (links externos) ── #}
+                        <div class="form-group">
+                            <label class="form-label">Conteúdo profissional <span style="font-weight:400;color:#94a3b8;font-size:0.8rem">(links: artigos, casos publicados, congressos, redes...)</span></label>
+                            <div id="pc-content-list"></div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="pc-content-add">+ Adicionar conteúdo</button>
+                            <p class="form-help">Apenas links externos (sem upload). Aparece na aba "Conteúdo Profissional" do seu perfil público.</p>
+                        </div>
+
                         {% elif current_user.user_type.value == 'clinic' %}
                         <!-- CLÍNICA -->
                         <div class="form-group">
@@ -767,6 +775,49 @@ function collectLinks() {
     ];
     existing.forEach(addLinkRow);
 })();
+
+// ── Módulo 4: conteúdo profissional (links) ──
+function addContentRow(d) {
+    const list = document.getElementById('pc-content-list');
+    if (!list) return;
+    d = d || {};
+    const tipos = ['Artigo','Caso clínico','Revista científica','Congresso','Publicação','Instagram','LinkedIn','YouTube','Site'];
+    const row = document.createElement('div');
+    row.className = 'edu-row';
+    row.innerHTML = `
+        <select class="ct-tipo form-select"><option value="">Tipo...</option>${tipos.map(t => `<option ${d.tipo===t?'selected':''}>${t}</option>`).join('')}</select>
+        <input class="ct-title form-input" placeholder="Título">
+        <input class="ct-url form-input" placeholder="https://...">
+        <button type="button" class="btn btn-sm edu-del" title="Remover">✕</button>`;
+    row.querySelector('.ct-title').value = d.title || '';
+    row.querySelector('.ct-url').value = d.url || '';
+    row.querySelector('.edu-del').addEventListener('click', () => row.remove());
+    list.appendChild(row);
+}
+
+function collectContents() {
+    const out = [];
+    document.querySelectorAll('#pc-content-list .edu-row').forEach(r => {
+        const tipo = r.querySelector('.ct-tipo').value.trim();
+        const title = r.querySelector('.ct-title').value.trim();
+        const url = r.querySelector('.ct-url').value.trim();
+        if (!tipo || !title || !url) return; // todos obrigatórios
+        out.push({ tipo, title, url });
+    });
+    return out;
+}
+
+(function initContents() {
+    const addBtn = document.getElementById('pc-content-add');
+    if (!addBtn) return;
+    addBtn.addEventListener('click', () => addContentRow());
+    const existing = [
+        {% for c in vet_contents %}
+        { tipo: {{ c.tipo|tojson }}, title: {{ c.title|tojson }}, url: {{ c.url|tojson }} },
+        {% endfor %}
+    ];
+    existing.forEach(addContentRow);
+})();
 </script>
 
 <script>
@@ -927,6 +978,15 @@ function collectLinks() {
                 if (!lkResp.ok) {
                     const lk = await lkResp.json().catch(() => ({}));
                     throw new Error(lk.detail || 'Perfil salvo, mas falhou ao salvar vínculos.');
+                }
+                const ctResp = await fetch('/api/perfil/veterinarian/contents', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(collectContents()),
+                });
+                if (!ctResp.ok) {
+                    const ct = await ctResp.json().catch(() => ({}));
+                    throw new Error(ct.detail || 'Perfil salvo, mas falhou ao salvar conteúdos.');
                 }
             }
             showStatus('success', '✓ Perfil atualizado com sucesso!');

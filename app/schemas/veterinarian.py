@@ -107,6 +107,13 @@ class ClinicLinkItem(BaseModel):
     is_current: bool = True
 
 
+class ContentItem(BaseModel):
+    """Conteúdo profissional (link externo)."""
+    tipo: str = Field(..., max_length=50)
+    title: str = Field(..., min_length=1, max_length=255)
+    url: str = Field(..., min_length=1, max_length=1000)
+
+
 class VeterinarianResponse(VeterinarianBase):
     id: UUID
     user_id: UUID

@@ -311,8 +311,8 @@ body { background: #ffffff; }
     {# ── STATS STRIP ── #}
     <div class="vp-stats">
         <div class="vp-stat">
-            <span class="vp-stat-val">{{ vet_cases|length }}</span>
-            <span class="vp-stat-lbl">Casos Clínicos</span>
+            <span class="vp-stat-val">{{ vet_contents|length }}</span>
+            <span class="vp-stat-lbl">Conteúdos</span>
         </div>
         <div class="vp-stat">
             <span class="vp-stat-val">{{ veterinarian.review_count }}</span>
@@ -336,7 +336,10 @@ body { background: #ffffff; }
     <div class="vp-tabs-bar">
         <button class="vp-tab-btn active" data-tab="sobre">Sobre</button>
         {% if vet_species %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
+        {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Conteúdo Profissional ({{ vet_contents|length }})</button>{% endif %}
+        {# Módulo 4: aba de Casos Clínicos oculta (código preservado)
         <button class="vp-tab-btn" data-tab="casos">Casos Clínicos{% if vet_cases %} ({{ vet_cases|length }}){% endif %}</button>
+        #}
         <button class="vp-tab-btn" data-tab="avaliacoes">Avaliações ({{ veterinarian.review_count }})</button>
     </div>
 
@@ -455,7 +458,22 @@ body { background: #ffffff; }
     </div>
     {% endif %}
 
-    {# ── PANE: CASOS ── #}
+    {# ── PANE: CONTEÚDO PROFISSIONAL (Módulo 4) ── #}
+    {% if vet_contents %}
+    <div class="vp-pane" id="pane-conteudo">
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:720px;">
+            {% for c in vet_contents %}
+            <a href="{{ c.url if '://' in c.url else 'https://' + c.url }}" target="_blank" rel="noopener nofollow" style="display:flex;align-items:center;gap:12px;border:1px solid #e2e8f0;border-radius:12px;padding:13px 15px;text-decoration:none;">
+                <span style="flex-shrink:0;font-size:0.72rem;font-weight:700;color:#0d9488;background:#f0fdfa;border:1px solid #99f6e4;border-radius:6px;padding:4px 9px;">{{ c.tipo }}</span>
+                <span style="flex:1;font-size:0.9rem;font-weight:600;color:#1f2937;">{{ c.title }}</span>
+                <span style="color:#94a3b8;font-size:1.1rem;">↗</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {# Módulo 4: PANE de Casos Clínicos oculto da interface (código preservado)
     <div class="vp-pane" id="pane-casos">
         {% if vet_cases %}
         <div class="vp-cases-grid">
@@ -472,6 +490,7 @@ body { background: #ffffff; }
         <p class="vp-no-content">Nenhum caso clínico publicado ainda.</p>
         {% endif %}
     </div>
+    #}
 
     {# ── PANE: AVALIAÇÕES ── #}
     <div class="vp-pane" id="pane-avaliacoes">
