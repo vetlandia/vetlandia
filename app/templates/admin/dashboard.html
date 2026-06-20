@@ -489,14 +489,14 @@
                         </td>
                         <td>
                             <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                                {% if vet.is_verified %}
                                 <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/verify">
-                                    <input type="hidden" name="verified" value="{{ 'false' if vet.is_verified else 'true' }}">
-                                    {% if vet.is_verified %}
+                                    <input type="hidden" name="verified" value="false">
                                     <button class="btn-approve" style="padding:4px 10px;background:#94a3b8" onclick="return confirm('Remover o selo Verificado de {{ vet.full_name }}?')">Remover verif.</button>
-                                    {% else %}
-                                    <button class="btn-approve" style="padding:4px 10px" onclick="return confirm('CONFIRMAÇÃO MANUAL\n\nVocê confirma que CONSULTOU o CFMV e que o registro {{ vet.crmv }} está ATIVO e pertence a {{ vet.full_name }}?\n\n(Use os links "ver carteira" e "consultar CFMV" antes de confirmar.)')">Verificar CRMV</button>
-                                    {% endif %}
                                 </form>
+                                {% else %}
+                                <a class="btn-approve" href="/admin/vets/{{ vet.id }}/validar-crmv" target="_blank" style="padding:4px 10px;text-decoration:none;display:inline-block">🔎 Validar CRMV</a>
+                                {% endif %}
                                 <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/set-badge">
                                     <input type="hidden" name="badge_type" value="{{ 'none' if vet.is_founder else 'founder' }}">
                                     <button class="btn-approve" style="padding:4px 10px;background:#1D4ED8">{{ 'Tirar Parceiro' if vet.is_founder else 'Tornar Parceiro' }}</button>

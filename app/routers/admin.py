@@ -213,6 +213,16 @@ def view_vet_carteira(vet_id: str, db: Session = Depends(get_db), admin=Depends(
     return RedirectResponse(url)
 
 
+@router.get("/vets/{vet_id}/validar-crmv", response_class=HTMLResponse)
+def validar_crmv_page(vet_id: str, request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Tela de validação: dados do vet + carteira ao lado da consulta oficial
+    do CFMV (embutida), para o admin conferir e confirmar."""
+    vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
+    if not vet:
+        raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
+    return templates.TemplateResponse("admin/validar_crmv.html", {"request": request, "vet": vet})
+
+
 # ── Clínicas ──────────────────────────────────────────────────────────────────
 
 @router.post("/clinics/{clinic_id}/approve")

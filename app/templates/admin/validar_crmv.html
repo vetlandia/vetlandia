@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validar CRMV — {{ vet.full_name }}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; }
+        .topbar { background: #1e293b; color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .topbar h1 { font-size: 1rem; font-weight: 700; }
+        .topbar a { color: #cbd5e1; text-decoration: none; font-size: 0.85rem; }
+        .wrap { display: grid; grid-template-columns: 360px 1fr; gap: 0; height: calc(100vh - 49px); }
+        @media (max-width: 880px) { .wrap { grid-template-columns: 1fr; height: auto; } }
+        .panel { padding: 20px; overflow-y: auto; }
+        .left { background: #fff; border-right: 1px solid #e2e8f0; }
+        .right { padding: 0; display: flex; flex-direction: column; }
+        .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 700; margin-bottom: 2px; }
+        .val { font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; word-break: break-word; }
+        .crmv-big { font-size: 1.5rem; font-weight: 800; color: #0d9488; letter-spacing: .02em; user-select: all; }
+        .carteira { width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; margin-top: 6px; }
+        .no-carteira { font-size: 0.82rem; color: #ef4444; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 8px 12px; }
+        .iframe-note { background: #fffbeb; border-bottom: 1px solid #fde68a; padding: 8px 16px; font-size: 0.8rem; color: #92400e; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        iframe { flex: 1; width: 100%; border: none; min-height: 520px; }
+        .btn { display: inline-block; border: none; border-radius: 8px; padding: 11px 16px; font-weight: 700; font-size: 0.9rem; cursor: pointer; text-decoration: none; text-align: center; }
+        .btn-ok { background: #059669; color: #fff; width: 100%; margin-top: 6px; }
+        .btn-no { background: #fff; color: #b91c1c; border: 1px solid #fecaca; width: 100%; margin-top: 8px; }
+        .btn-link { background: #7c3aed; color: #fff; font-size: 0.78rem; padding: 6px 12px; }
+        .divider { border-top: 1px solid #e2e8f0; margin: 18px 0; }
+        .hint { font-size: 0.78rem; color: #64748b; margin-top: 14px; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/admin/">← Voltar ao admin</a>
+        <h1>🪪 Validar CRMV — {{ vet.full_name }}</h1>
+        {% if vet.is_verified %}<span style="color:#34d399;font-weight:600;font-size:0.85rem">✓ já verificado</span>{% endif %}
+    </div>
+    <div class="wrap">
+        <div class="panel left">
+            <div class="lbl">Nome cadastrado</div>
+            <div class="val">{{ vet.full_name }}</div>
+
+            <div class="lbl">CRMV informado (busque este número)</div>
+            <div class="val crmv-big">{{ vet.crmv }}</div>
+
+            {% if vet.cpf %}<div class="lbl">CPF</div><div class="val">{{ vet.cpf }}</div>{% endif %}
+            <div class="lbl">Cidade / UF</div>
+            <div class="val">{{ vet.city or '—' }}{% if vet.state %} / {{ vet.state }}{% endif %}</div>
+
+            <div class="lbl">Carteira enviada pelo profissional</div>
+            {% if vet.crmv_card_url %}
+            <a href="/admin/vets/{{ vet.id }}/carteira" target="_blank"><img class="carteira" src="/admin/vets/{{ vet.id }}/carteira" alt="Carteira do CRMV"></a>
+            {% else %}
+            <div class="no-carteira">O profissional não enviou foto da carteira.</div>
+            {% endif %}
+
+            <div class="divider"></div>
+
+            <p class="hint"><strong>Como validar:</strong> ao lado, resolva o captcha e busque pelo CRMV acima. Confira se o <strong>nome</strong> e a <strong>situação (ativa)</strong> batem com os dados do cadastro. Só então confirme.</p>
+
+            <form method="POST" action="/admin/vets/{{ vet.id }}/verify" style="margin-top:8px">
+                <input type="hidden" name="verified" value="true">
+                <button class="btn btn-ok" onclick="return confirm('Confirmar que o CRMV {{ vet.crmv }} está ATIVO e pertence a {{ vet.full_name }}, conforme a consulta oficial?')">✓ Confere — marcar como Verificado</button>
+            </form>
+            {% if vet.is_verified %}
+            <form method="POST" action="/admin/vets/{{ vet.id }}/verify">
+                <input type="hidden" name="verified" value="false">
+                <button class="btn btn-no">Remover selo Verificado</button>
+            </form>
+            {% endif %}
+        </div>
+
+        <div class="panel right">
+            <div class="iframe-note">
+                <span>🔎 Consulta oficial do CFMV (resolva o captcha e busque pelo CRMV).</span>
+                <a class="btn btn-link" href="https://siscad.cfmv.gov.br/paginas/busca" target="_blank" rel="noopener">Abrir em nova aba ↗</a>
+            </div>
+            <iframe src="https://siscad.cfmv.gov.br/paginas/busca" title="Consulta CFMV"></iframe>
+        </div>
+    </div>
+</body>
+</html>
