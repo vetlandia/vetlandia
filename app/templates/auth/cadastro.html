@@ -439,16 +439,18 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">CPF</label>
+                            <label class="form-label form-label-required">CPF</label>
                             <input type="text" name="cpf" class="form-input" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
+                            <span class="field-error" id="err-tutor-cpf">⚠ Informe um CPF válido</span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Telefone / WhatsApp</label>
+                            <label class="form-label form-label-required">Celular / WhatsApp</label>
                             <input type="tel" name="phone" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
+                            <span class="field-error" id="err-tutor-phone">⚠ Informe um número de celular válido</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto de perfil</label>
+                        <label class="form-label form-label-required">Foto de perfil</label>
                         <div class="photo-upload-widget" id="tutor-photo-widget">
                             <div class="photo-preview" id="tutor-photo-preview">
                                 <span class="photo-preview-placeholder">🐾</span>
@@ -457,9 +459,10 @@
                                 <label class="btn btn-secondary btn-sm photo-upload-btn" for="tutor-photo-input">📷 Escolher foto</label>
                                 <input type="file" id="tutor-photo-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="photo_url" id="tutor-photo-data">
-                                <p class="form-help">JPG, PNG ou WEBP. Opcional.</p>
+                                <p class="form-help">JPG, PNG ou WEBP. Obrigatória.</p>
                             </div>
                         </div>
+                        <span class="field-error" id="err-tutor-photo">⚠ Adicione uma foto de perfil</span>
                     </div>
                 </div>
 
@@ -467,12 +470,14 @@
                     <p class="section-title">Endereço</p>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Estado</label>
+                            <label class="form-label form-label-required">Estado</label>
                             <select name="state" class="form-select" id="tutor-state"></select>
+                            <span class="field-error" id="err-tutor-state">⚠ Selecione o estado</span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Cidade</label>
+                            <label class="form-label form-label-required">Cidade</label>
                             <select name="city" class="form-select" id="tutor-city" disabled></select>
+                            <span class="field-error" id="err-tutor-city">⚠ Selecione a cidade</span>
                         </div>
                     </div>
                 </div>
@@ -484,6 +489,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
                         Adicionar animal
                     </button>
+                    <span class="field-error" id="err-tutor-pets">⚠ Adicione pelo menos um animal de estimação</span>
                 </div>
 
                 <div class="form-section">
@@ -524,8 +530,9 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">CPF</label>
+                            <label class="form-label form-label-required">CPF</label>
                             <input type="text" name="cpf" class="form-input" placeholder="000.000.000-00" maxlength="14" inputmode="numeric">
+                            <span class="field-error" id="err-vet-cpf">⚠ Informe um CPF válido</span>
                         </div>
                         <div class="form-group" id="vet-crmv-group">
                             <label class="form-label form-label-required" id="vet-crmv-label">CRMV</label>
@@ -577,6 +584,7 @@
                             <option>Toxicologia</option>
                             <option>Zootecnia</option>
                         </select>
+                        <span class="field-error" id="err-vet-specialty">⚠ Selecione a especialidade principal</span>
                     </div>
                     <div class="form-group" id="vet-grp-species">
                         <label class="form-label form-label-required">Espécies Atendidas</label>
@@ -593,11 +601,12 @@
                         <span class="field-error" id="err-vet-species">⚠ Selecione ao menos uma espécie</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Sobre você / Bio</label>
+                        <label class="form-label form-label-required">Sobre você / Bio</label>
                         <textarea name="bio" class="form-textarea" placeholder="Conte um pouco sobre sua formação e experiência..." rows="3"></textarea>
+                        <span class="field-error" id="err-vet-bio">⚠ Conte um pouco sobre você (mín. 10 caracteres)</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto de Perfil</label>
+                        <label class="form-label form-label-required">Foto de Perfil</label>
                         <div class="photo-upload-widget" id="vet-photo-widget">
                             <div class="photo-preview" id="vet-photo-preview">
                                 <span class="photo-preview-placeholder">⚕️</span>
@@ -608,12 +617,13 @@
                                 </label>
                                 <input type="file" id="vet-photo-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="photo_url" id="vet-photo-data">
-                                <p class="form-help">JPG, PNG ou WEBP. A imagem será redimensionada automaticamente.<br>Opcional — pode adicionar depois no perfil.</p>
+                                <p class="form-help">JPG, PNG ou WEBP. Obrigatória.</p>
                             </div>
                         </div>
+                        <span class="field-error" id="err-vet-photo">⚠ Adicione uma foto de perfil</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto de Capa</label>
+                        <label class="form-label form-label-required">Foto de Capa</label>
                         <div class="photo-upload-widget" id="vet-cover-widget">
                             <div class="photo-preview" id="vet-cover-preview" style="border-radius:6px;width:120px;height:60px">
                                 <span class="photo-preview-placeholder">🖼</span>
@@ -624,9 +634,10 @@
                                 </label>
                                 <input type="file" id="vet-cover-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="cover_photo_url" id="vet-cover-data">
-                                <p class="form-help">Aparece no topo do seu perfil público.<br>Opcional — pode adicionar depois.</p>
+                                <p class="form-help">Aparece no topo do seu perfil público. Obrigatória.</p>
                             </div>
                         </div>
+                        <span class="field-error" id="err-vet-cover">⚠ Adicione uma foto de capa</span>
                     </div>
                 </div>
 
@@ -654,12 +665,14 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Telefone</label>
+                            <label class="form-label form-label-required">Telefone</label>
                             <input type="tel" name="phone" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
+                            <span class="field-error" id="err-vet-phone">⚠ Informe um telefone válido</span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">WhatsApp</label>
+                            <label class="form-label form-label-required">WhatsApp</label>
                             <input type="tel" name="whatsapp" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
+                            <span class="field-error" id="err-vet-whatsapp">⚠ Informe um WhatsApp válido</span>
                         </div>
                     </div>
                 </div>
@@ -725,20 +738,22 @@
                         <span class="field-error" id="err-clinic-name">⚠ Informe o nome fantasia</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Razão Social</label>
+                        <label class="form-label form-label-required">Razão Social</label>
                         <input type="text" name="razao_social" class="form-input" placeholder="Ex: VetAmor Serviços Veterinários LTDA">
+                        <span class="field-error" id="err-clinic-razao">⚠ Informe a razão social</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">CNPJ</label>
+                        <label class="form-label form-label-required">CNPJ</label>
                         <input type="text" name="cnpj" class="form-input" placeholder="00.000.000/0000-00" maxlength="18" inputmode="numeric">
-                        <p class="form-help">Informe o CNPJ da sua empresa (opcional por enquanto)</p>
+                        <span class="field-error" id="err-clinic-cnpj">⚠ Informe um CNPJ válido</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Descrição da Clínica</label>
+                        <label class="form-label form-label-required">Descrição da Clínica</label>
                         <textarea name="description" class="form-textarea" placeholder="Fale sobre os diferenciais da sua clínica..." rows="3"></textarea>
+                        <span class="field-error" id="err-clinic-description">⚠ Descreva a clínica (mín. 10 caracteres)</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto da Clínica</label>
+                        <label class="form-label form-label-required">Foto da Clínica</label>
                         <div class="photo-upload-widget" id="clinic-photo-widget">
                             <div class="photo-preview clinic-preview" id="clinic-photo-preview">
                                 <span class="photo-preview-placeholder">🏥</span>
@@ -749,12 +764,13 @@
                                 </label>
                                 <input type="file" id="clinic-photo-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="photo_url" id="clinic-photo-data">
-                                <p class="form-help">JPG, PNG ou WEBP. Fachada ou interior da clínica.<br>Opcional — pode adicionar depois no perfil.</p>
+                                <p class="form-help">JPG, PNG ou WEBP. Fachada ou interior da clínica. Obrigatória.</p>
                             </div>
                         </div>
+                        <span class="field-error" id="err-clinic-photo">⚠ Adicione uma foto da clínica</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Foto de Capa</label>
+                        <label class="form-label form-label-required">Foto de Capa</label>
                         <div class="photo-upload-widget" id="clinic-cover-widget">
                             <div class="photo-preview clinic-preview" id="clinic-cover-preview" style="border-radius:6px;width:120px;height:60px">
                                 <span class="photo-preview-placeholder">🖼</span>
@@ -765,9 +781,10 @@
                                 </label>
                                 <input type="file" id="clinic-cover-input" accept="image/*" class="photo-file-input">
                                 <input type="hidden" name="cover_photo_url" id="clinic-cover-data">
-                                <p class="form-help">Aparece no topo do perfil público da clínica.<br>Opcional — pode adicionar depois.</p>
+                                <p class="form-help">Aparece no topo do perfil público da clínica. Obrigatória.</p>
                             </div>
                         </div>
+                        <span class="field-error" id="err-clinic-cover">⚠ Adicione uma foto de capa</span>
                     </div>
                 </div>
 
@@ -834,12 +851,14 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Endereço</label>
+                        <label class="form-label form-label-required">Endereço</label>
                         <input type="text" name="address" class="form-input" placeholder="Rua, número">
+                        <span class="field-error" id="err-clinic-address">⚠ Informe o endereço da clínica</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Complemento</label>
-                        <input type="text" name="complement" class="form-input" placeholder="Sala, bloco (opcional)">
+                        <label class="form-label form-label-required">Complemento</label>
+                        <input type="text" name="complement" class="form-input" placeholder="Sala, bloco, andar...">
+                        <span class="field-error" id="err-clinic-complement">⚠ Informe o complemento</span>
                     </div>
                 </div>
 
@@ -847,17 +866,20 @@
                     <p class="section-title">Contato da clínica</p>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Telefone Fixo</label>
-                            <input type="tel" name="phone" class="form-input" placeholder="(11) 3333-4444" maxlength="14" inputmode="numeric">
+                            <label class="form-label form-label-required">Telefone</label>
+                            <input type="tel" name="phone" class="form-input" placeholder="(11) 3333-4444" maxlength="15" inputmode="numeric">
+                            <span class="field-error" id="err-clinic-phone">⚠ Informe um telefone válido</span>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">WhatsApp</label>
+                            <label class="form-label form-label-required">WhatsApp</label>
                             <input type="tel" name="whatsapp" class="form-input" placeholder="(11) 99999-9999" maxlength="15" inputmode="numeric">
+                            <span class="field-error" id="err-clinic-whatsapp">⚠ Informe um WhatsApp válido</span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">E-mail da Clínica (público)</label>
+                        <label class="form-label form-label-required">E-mail da Clínica (público)</label>
                         <input type="email" name="email" class="form-input" placeholder="contato@clinica.com.br">
+                        <span class="field-error" id="err-clinic-email">⚠ Informe um e-mail válido</span>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Website</label>
@@ -1060,6 +1082,42 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         return /^CRMV-[A-Z]{2}\s\d{4,6}$/.test(v.trim());
     }
 
+    function isValidCPF(v) {
+        v = v.replace(/\D/g, '');
+        if (v.length !== 11 || /^(\d)\1{10}$/.test(v)) return false;
+        let s = 0;
+        for (let i = 0; i < 9; i++) s += +v[i] * (10 - i);
+        let r = (s * 10) % 11; if (r >= 10) r = 0;
+        if (r !== +v[9]) return false;
+        s = 0;
+        for (let i = 0; i < 10; i++) s += +v[i] * (11 - i);
+        r = (s * 10) % 11; if (r >= 10) r = 0;
+        return r === +v[10];
+    }
+
+    function isValidCNPJ(v) {
+        v = v.replace(/\D/g, '');
+        if (v.length !== 14 || /^(\d)\1{13}$/.test(v)) return false;
+        const w = [5,4,3,2,9,8,7,6,5,4,3,2];
+        const sum = (digits, weights) => digits.reduce((a, d, i) => a + d * weights[i], 0);
+        const d1 = sum(v.slice(0,12).split('').map(Number), w);
+        const r1 = d1 % 11 < 2 ? 0 : 11 - d1 % 11;
+        if (r1 !== +v[12]) return false;
+        const d2 = sum(v.slice(0,13).split('').map(Number), [6,...w]);
+        const r2 = d2 % 11 < 2 ? 0 : 11 - d2 % 11;
+        return r2 === +v[13];
+    }
+
+    function isValidMobile(v) {
+        const d = v.replace(/\D/g, '');
+        return d.length === 11 && d[2] === '9';
+    }
+
+    function isValidPhone(v) {
+        const d = v.replace(/\D/g, '');
+        return d.length === 10 || d.length === 11;
+    }
+
     function showFieldError(errId, show) {
         const el = document.getElementById(errId);
         if (el) el.classList.toggle('visible', show);
@@ -1202,22 +1260,35 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const form = forms.tutor;
         setupMasks(form);
         const nameEl = form.querySelector('[name="full_name"]');
+        const cpfEl = form.querySelector('[name="cpf"]');
+        const phoneEl = form.querySelector('[name="phone"]');
         const emailEl = form.querySelector('[name="email"]');
         const passEl = form.querySelector('[name="password"]');
         validateOnBlur(nameEl, isValidName, 'err-tutor-full_name');
+        validateOnBlur(cpfEl, isValidCPF, 'err-tutor-cpf');
+        validateOnBlur(phoneEl, isValidMobile, 'err-tutor-phone');
         validateOnBlur(emailEl, isValidEmail, 'err-tutor-email');
         validateOnBlur(passEl, isValidPassword, 'err-tutor-password');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Revalidar
             let ok = true;
             if (!isValidName(nameEl.value)) { markField(nameEl, false); showFieldError('err-tutor-full_name', true); ok = false; }
+            if (!isValidCPF(cpfEl.value)) { markField(cpfEl, false); showFieldError('err-tutor-cpf', true); ok = false; }
+            if (!isValidMobile(phoneEl.value)) { markField(phoneEl, false); showFieldError('err-tutor-phone', true); ok = false; }
+            const photoData = document.getElementById('tutor-photo-data');
+            if (!photoData || !photoData.value) { showFieldError('err-tutor-photo', true); ok = false; }
+            const stateEl = form.querySelector('[name="state"]');
+            const cityEl = form.querySelector('[name="city"]');
+            if (!stateEl.value) { showFieldError('err-tutor-state', true); ok = false; }
+            if (!cityEl.value) { showFieldError('err-tutor-city', true); ok = false; }
+            const petEntries = document.getElementById('petList').querySelectorAll('.pet-entry');
+            if (!petEntries.length) { showFieldError('err-tutor-pets', true); ok = false; }
             if (!isValidEmail(emailEl.value)) { markField(emailEl, false); showFieldError('err-tutor-email', true); ok = false; }
             if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-tutor-password', true); ok = false; }
             const termos = document.getElementById('termos-tutor');
             if (!termos.checked) { showStatus('error', 'Você precisa aceitar os Termos de Uso para continuar.'); ok = false; }
-            if (!ok) return;
+            if (!ok) { showStatus('error', 'Corrija os campos destacados antes de continuar.'); return; }
 
             const btn = form.querySelector('button[type="submit"]');
             setLoading(btn, true);
@@ -1257,11 +1328,19 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const form = forms.veterinarian;
         setupMasks(form);
         const nameEl = form.querySelector('[name="full_name"]');
+        const cpfEl = form.querySelector('[name="cpf"]');
         const crmvEl = form.querySelector('[name="crmv"]');
+        const bioEl = form.querySelector('[name="bio"]');
+        const phoneEl = form.querySelector('[name="phone"]');
+        const whatsappEl = form.querySelector('[name="whatsapp"]');
         const emailEl = form.querySelector('[name="email"]');
         const passEl = form.querySelector('[name="password"]');
         validateOnBlur(nameEl, isValidName, 'err-vet-full_name');
+        validateOnBlur(cpfEl, isValidCPF, 'err-vet-cpf');
         validateOnBlur(crmvEl, isValidCRMV, 'err-vet-crmv');
+        validateOnBlur(bioEl, v => v.trim().length >= 10, 'err-vet-bio');
+        validateOnBlur(phoneEl, isValidPhone, 'err-vet-phone');
+        validateOnBlur(whatsappEl, isValidMobile, 'err-vet-whatsapp');
         validateOnBlur(emailEl, isValidEmail, 'err-vet-email');
         validateOnBlur(passEl, isValidPassword, 'err-vet-password');
 
@@ -1286,15 +1365,27 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             const isStudent = studentCb && studentCb.checked;
             let ok = true;
             if (!isValidName(nameEl.value)) { markField(nameEl, false); showFieldError('err-vet-full_name', true); ok = false; }
+            if (!isValidCPF(cpfEl.value)) { markField(cpfEl, false); showFieldError('err-vet-cpf', true); ok = false; }
             if (!isStudent && !isValidCRMV(crmvEl.value)) { markField(crmvEl, false); showFieldError('err-vet-crmv', true); ok = false; }
-            if (!isValidEmail(emailEl.value)) { markField(emailEl, false); showFieldError('err-vet-email', true); ok = false; }
-            if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-vet-password', true); ok = false; }
+            if (!isStudent) {
+                const specialtyEl = form.querySelector('[name="specialty"]');
+                if (!specialtyEl.value) { showFieldError('err-vet-specialty', true); ok = false; }
+                const species = collectChips('vet-species');
+                if (!species.length) { showFieldError('err-vet-species', true); ok = false; }
+                if (!bioEl.value.trim() || bioEl.value.trim().length < 10) { markField(bioEl, false); showFieldError('err-vet-bio', true); ok = false; }
+                const photoData = document.getElementById('vet-photo-data');
+                if (!photoData || !photoData.value) { showFieldError('err-vet-photo', true); ok = false; }
+                const coverData = document.getElementById('vet-cover-data');
+                if (!coverData || !coverData.value) { showFieldError('err-vet-cover', true); ok = false; }
+                if (!isValidPhone(phoneEl.value)) { markField(phoneEl, false); showFieldError('err-vet-phone', true); ok = false; }
+                if (!isValidMobile(whatsappEl.value)) { markField(whatsappEl, false); showFieldError('err-vet-whatsapp', true); ok = false; }
+            }
             const stateEl = form.querySelector('[name="state"]');
             const cityEl = form.querySelector('[name="city"]');
             if (!stateEl.value) { showFieldError('err-vet-state', true); ok = false; }
             if (!cityEl.value) { showFieldError('err-vet-city', true); ok = false; }
-            const species = collectChips('vet-species');
-            if (!isStudent && !species.length) { showFieldError('err-vet-species', true); ok = false; }
+            if (!isValidEmail(emailEl.value)) { markField(emailEl, false); showFieldError('err-vet-email', true); ok = false; }
+            if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-vet-password', true); ok = false; }
             const termos = document.getElementById('termos-vet');
             if (!termos.checked) { showStatus('error', 'Você precisa aceitar os Termos de Uso para continuar.'); ok = false; }
             if (!ok) { showStatus('error', 'Corrija os campos destacados antes de continuar.'); return; }
@@ -1351,9 +1442,25 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const form = forms.clinic;
         setupMasks(form);
         const nameEl = form.querySelector('[name="name"]');
+        const razaoEl = form.querySelector('[name="razao_social"]');
+        const cnpjEl = form.querySelector('[name="cnpj"]');
+        const descEl = form.querySelector('[name="description"]');
+        const addressEl = form.querySelector('[name="address"]');
+        const complementEl = form.querySelector('[name="complement"]');
+        const phoneEl = form.querySelector('[name="phone"]');
+        const whatsappEl = form.querySelector('[name="whatsapp"]');
+        const clinicEmailEl = form.querySelector('[name="email"]');
         const emailUserEl = form.querySelector('[name="email_user"]');
         const passEl = form.querySelector('[name="password"]');
         validateOnBlur(nameEl, v => v.trim().length >= 2, 'err-clinic-name');
+        validateOnBlur(razaoEl, v => v.trim().length >= 2, 'err-clinic-razao');
+        validateOnBlur(cnpjEl, isValidCNPJ, 'err-clinic-cnpj');
+        validateOnBlur(descEl, v => v.trim().length >= 10, 'err-clinic-description');
+        validateOnBlur(addressEl, v => v.trim().length >= 5, 'err-clinic-address');
+        validateOnBlur(complementEl, v => v.trim().length >= 1, 'err-clinic-complement');
+        validateOnBlur(phoneEl, isValidPhone, 'err-clinic-phone');
+        validateOnBlur(whatsappEl, isValidMobile, 'err-clinic-whatsapp');
+        validateOnBlur(clinicEmailEl, isValidEmail, 'err-clinic-email');
         validateOnBlur(emailUserEl, isValidEmail, 'err-clinic-email_user');
         validateOnBlur(passEl, isValidPassword, 'err-clinic-password');
 
@@ -1361,14 +1468,26 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             e.preventDefault();
             let ok = true;
             if (nameEl.value.trim().length < 2) { markField(nameEl, false); showFieldError('err-clinic-name', true); ok = false; }
-            if (!isValidEmail(emailUserEl.value)) { markField(emailUserEl, false); showFieldError('err-clinic-email_user', true); ok = false; }
-            if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-clinic-password', true); ok = false; }
+            if (!razaoEl.value.trim() || razaoEl.value.trim().length < 2) { markField(razaoEl, false); showFieldError('err-clinic-razao', true); ok = false; }
+            if (!isValidCNPJ(cnpjEl.value)) { markField(cnpjEl, false); showFieldError('err-clinic-cnpj', true); ok = false; }
+            if (!descEl.value.trim() || descEl.value.trim().length < 10) { markField(descEl, false); showFieldError('err-clinic-description', true); ok = false; }
+            const photoData = document.getElementById('clinic-photo-data');
+            if (!photoData || !photoData.value) { showFieldError('err-clinic-photo', true); ok = false; }
+            const coverData = document.getElementById('clinic-cover-data');
+            if (!coverData || !coverData.value) { showFieldError('err-clinic-cover', true); ok = false; }
             const stateEl = form.querySelector('[name="state"]');
             const cityEl = form.querySelector('[name="city"]');
             if (!stateEl.value) { showFieldError('err-clinic-state', true); ok = false; }
             if (!cityEl.value) { showFieldError('err-clinic-city', true); ok = false; }
+            if (!addressEl.value.trim() || addressEl.value.trim().length < 5) { markField(addressEl, false); showFieldError('err-clinic-address', true); ok = false; }
+            if (!complementEl.value.trim()) { markField(complementEl, false); showFieldError('err-clinic-complement', true); ok = false; }
             const species = collectChips('clinic-species');
             if (!species.length) { showFieldError('err-clinic-species', true); ok = false; }
+            if (!isValidPhone(phoneEl.value)) { markField(phoneEl, false); showFieldError('err-clinic-phone', true); ok = false; }
+            if (!isValidMobile(whatsappEl.value)) { markField(whatsappEl, false); showFieldError('err-clinic-whatsapp', true); ok = false; }
+            if (!isValidEmail(clinicEmailEl.value)) { markField(clinicEmailEl, false); showFieldError('err-clinic-email', true); ok = false; }
+            if (!isValidEmail(emailUserEl.value)) { markField(emailUserEl, false); showFieldError('err-clinic-email_user', true); ok = false; }
+            if (!isValidPassword(passEl.value)) { markField(passEl, false); showFieldError('err-clinic-password', true); ok = false; }
             const termos = document.getElementById('termos-clinic');
             if (!termos.checked) { showStatus('error', 'Você precisa aceitar os Termos de Uso para continuar.'); ok = false; }
             if (!ok) { showStatus('error', 'Corrija os campos destacados antes de continuar.'); return; }
