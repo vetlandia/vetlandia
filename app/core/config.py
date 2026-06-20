@@ -15,11 +15,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "VetLândia"
     APP_VERSION: str = "1.0.0"
 
-    # SMTP (Outlook)
-    SMTP_HOST: str = "smtp-mail.outlook.com"
-    SMTP_PORT: int = 587
-    SMTP_USER: str = ""
-    SMTP_PASSWORD: str = ""
+    # E-mail (Resend)
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "VetLândia <nao-responda@vetlandia.com.br>"
 
     @property
     def db_url(self) -> str:

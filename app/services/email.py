@@ -1,17 +1,14 @@
-"""Serviço de e-mail via SMTP (Outlook).
+"""Serviço de e-mail via Resend (HTTP API).
 
 Uso:
     from app.services.email import send_email, tpl_*
     send_email(to="user@example.com", subject="Assunto", html=tpl_aprovacao(...))
 
 Envio assíncrono em thread daemon — falhas são logadas, nunca propagadas.
-Se SMTP_USER ou SMTP_PASSWORD não estiverem configurados, os envios são ignorados.
+Se RESEND_API_KEY não estiver configurado, os envios são ignorados silenciosamente.
 """
 import logging
-import smtplib
 import threading
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 from app.core.config import settings
 
@@ -23,30 +20,22 @@ _SITE_URL = "https://vetlandia.com.br"
 
 # ── Core ─────────────────────────────────────────────────────────────────────
 
-def _build_msg(to: str, subject: str, html: str):
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = f"VetLândia <{settings.SMTP_USER}>"
-    msg["To"] = to
-    msg.attach(MIMEText(html, "html", "utf-8"))
-    return msg
-
-
 def send_email_sync(to: str, subject: str, html: str) -> None:
-    """Envio síncrono — levanta exceção em caso de falha. Usar apenas em testes/admin."""
-    msg = _build_msg(to, subject, html)
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as srv:
-        srv.ehlo()
-        srv.starttls()
-        srv.ehlo()
-        srv.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        srv.sendmail(settings.SMTP_USER, [to], msg.as_string())
+    """Envio síncrono via Resend — levanta exceção em caso de falha."""
+    import resend
+    resend.api_key = settings.RESEND_API_KEY
+    resend.Emails.send({
+        "from": settings.EMAIL_FROM,
+        "to": [to],
+        "subject": subject,
+        "html": html,
+    })
 
 
 def send_email(to: str, subject: str, html: str) -> None:
     """Fire-and-forget: envia em thread daemon. Nunca levanta exceção."""
-    if not (settings.SMTP_USER and settings.SMTP_PASSWORD):
-        logger.info("SMTP não configurado — e-mail ignorado: %s → %s", to, subject)
+    if not settings.RESEND_API_KEY:
+        logger.info("RESEND_API_KEY não configurado — e-mail ignorado: %s → %s", to, subject)
         return
     if not to or "@" not in to:
         logger.warning("E-mail inválido ignorado: %r", to)
@@ -56,7 +45,7 @@ def send_email(to: str, subject: str, html: str) -> None:
         try:
             send_email_sync(to, subject, html)
             logger.info("E-mail enviado → %s | %s", to, subject)
-        except Exception as exc:  # pragma: no cover
+        except Exception as exc:
             logger.error("Falha ao enviar e-mail → %s | %s | %s", to, subject, exc)
 
     threading.Thread(target=_worker, daemon=True).start()

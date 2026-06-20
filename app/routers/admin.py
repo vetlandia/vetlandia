@@ -681,17 +681,14 @@ def delete_case(case_id: str, db: Session = Depends(get_db), admin=Depends(requi
 
 @router.get("/test-email", response_class=HTMLResponse)
 def test_email_form(admin=Depends(require_admin)):
-    """Mostra config SMTP atual e formulário para disparo de teste."""
     from app.core.config import settings as _s
     cfg = [
-        ("SMTP_HOST", _s.SMTP_HOST),
-        ("SMTP_PORT", str(_s.SMTP_PORT)),
-        ("SMTP_USER", _s.SMTP_USER or "(vazio)"),
-        ("SMTP_PASSWORD", "configurada" if _s.SMTP_PASSWORD else "(vazio — e-mails ignorados)"),
+        ("RESEND_API_KEY", "configurada" if _s.RESEND_API_KEY else "(vazio — e-mails ignorados)"),
+        ("EMAIL_FROM", _s.EMAIL_FROM),
     ]
     cfg_html = "".join(f"<tr><td style='padding:6px 12px;font-weight:700'>{k}</td><td style='padding:6px 12px;font-family:monospace'>{v}</td></tr>" for k, v in cfg)
     return f"""<html><body style='font-family:sans-serif;padding:32px;max-width:600px'>
-    <h2>Teste SMTP — VetLândia</h2>
+    <h2>Teste de E-mail — VetLândia</h2>
     <table border='1' cellspacing='0' style='border-collapse:collapse;margin-bottom:24px;width:100%'>{cfg_html}</table>
     <form method='POST' action='/admin/test-email'>
         <label style='display:block;margin-bottom:6px'>Enviar para:</label>
@@ -705,46 +702,18 @@ def test_email_form(admin=Depends(require_admin)):
 
 @router.post("/test-email", response_class=HTMLResponse)
 def test_email_send(to: str = Form(...), admin=Depends(require_admin)):
-    """Dispara e-mail de teste síncrono com timeout curto e retorna erro exato."""
-    import smtplib
-    from app.core.config import settings as _s
-    from app.services.email import tpl_boas_vindas_tutor
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-
-    steps = []
+    from app.services.email import send_email_sync, tpl_boas_vindas_tutor
     error = None
     try:
-        steps.append("Conectando a {}:{}...".format(_s.SMTP_HOST, _s.SMTP_PORT))
-        srv = smtplib.SMTP(_s.SMTP_HOST, _s.SMTP_PORT, timeout=8)
-        steps.append("Conexão OK")
-        srv.ehlo()
-        steps.append("EHLO OK")
-        srv.starttls()
-        steps.append("STARTTLS OK")
-        srv.ehlo()
-        srv.login(_s.SMTP_USER, _s.SMTP_PASSWORD)
-        steps.append("Login OK")
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = "Teste SMTP — VetLândia"
-        msg["From"] = f"VetLândia <{_s.SMTP_USER}>"
-        msg["To"] = to
-        msg.attach(MIMEText(tpl_boas_vindas_tutor("Admin"), "html", "utf-8"))
-        srv.sendmail(_s.SMTP_USER, [to], msg.as_string())
-        srv.quit()
-        steps.append(f"E-mail enviado para {to} ✅")
+        send_email_sync(to, "Teste de e-mail — VetLândia", tpl_boas_vindas_tutor("Admin"))
     except Exception as exc:
         error = str(exc)
-
-    steps_html = "".join(f"<li>{s}</li>" for s in steps)
     result = (
-        f"<p style='color:red;font-weight:700'>❌ Falhou em: <code>{error}</code></p>"
+        f"<p style='color:red;font-weight:700'>❌ Erro: <code>{error}</code></p>"
         if error else
-        f"<p style='color:green;font-weight:700'>✅ Sucesso!</p>"
+        f"<p style='color:green;font-weight:700'>✅ E-mail enviado para {to}!</p>"
     )
     return f"""<html><body style='font-family:sans-serif;padding:32px;max-width:600px'>
-    <h2>Resultado do teste SMTP</h2>
-    <ol>{steps_html}</ol>
-    {result}
+    <h2>Resultado</h2>{result}
     <p><a href='/admin/test-email'>← Tentar novamente</a> &nbsp; <a href='/admin'>← Admin</a></p>
     </body></html>"""
