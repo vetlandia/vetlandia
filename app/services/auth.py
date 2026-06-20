@@ -14,6 +14,7 @@ from app.schemas.tutor import TutorCreate
 from app.schemas.user import Token, UserLogin
 from app.schemas.veterinarian import VeterinarianCreate
 from app.utils.slugify import slugify
+from app.services.email import send_email, tpl_boas_vindas_tutor, tpl_cadastro_recebido
 
 
 def authenticate_user(db: Session, credentials: UserLogin) -> Optional[User]:
@@ -99,6 +100,7 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
     db.add(tutor)
     db.commit()
     db.refresh(user)
+    send_email(user.email, "Bem-vindo(a) ao VetLândia! 🐾", tpl_boas_vindas_tutor(data.full_name))
     return create_token_for_user(user, pending=False)
 
 
@@ -161,6 +163,7 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
     db.add(veterinarian)
     db.commit()
     db.refresh(user)
+    send_email(user.email, "Cadastro recebido — VetLândia", tpl_cadastro_recebido(data.full_name, "veterinarian"))
     return create_token_for_user(user, pending=True)
 
 
@@ -217,4 +220,5 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
     db.add(clinic)
     db.commit()
     db.refresh(user)
+    send_email(user.email, "Cadastro recebido — VetLândia", tpl_cadastro_recebido(data.name, "clinic"))
     return create_token_for_user(user, pending=True)

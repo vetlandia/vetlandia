@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     APP_NAME: str = "VetLândia"
     APP_VERSION: str = "1.0.0"
 
+    # SMTP (Outlook)
+    SMTP_HOST: str = "smtp-mail.outlook.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+
     @property
     def db_url(self) -> str:
         """Convert DATABASE_URL to psycopg3 format if needed."""

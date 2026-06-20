@@ -8,6 +8,7 @@ from app.models.recommendation import Recommendation, RecommenderType
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 from app.schemas.recommendation import RecommendationCreate
+from app.services.email import send_email, tpl_nova_recomendacao
 
 router = APIRouter()
 
@@ -70,4 +71,20 @@ def submit_recommendation(
     )
     db.add(rec)
     db.commit()
+    # Notifica o alvo (vet ou clínica) que recebeu a recomendação
+    author_name = author.full_name if hasattr(author, "full_name") else author.name
+    if data.target_type == "veterinarian":
+        target_user = db.query(User).filter(User.id == target.user_id).first()
+        target_display = target.full_name
+        profile_url = f"https://vetlandia.com.br/veterinario/{target.slug}"
+    else:
+        target_user = db.query(User).filter(User.id == target.user_id).first()
+        target_display = target.name
+        profile_url = f"https://vetlandia.com.br/clinica/{target.slug}"
+    if target_user:
+        send_email(
+            target_user.email,
+            f"Você recebeu uma recomendação — VetLândia",
+            tpl_nova_recomendacao(target_display, author_name, data.content, profile_url),
+        )
     return {"ok": True}

@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.veterinarian import Veterinarian
 from app.schemas.review import ReviewCreate
 from app.services.review import create_review
+from app.services.email import send_email, tpl_nova_avaliacao
 
 router = APIRouter()
 
@@ -25,6 +26,31 @@ def submit_review(
     if current_user.user_type.value != "tutor":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Apenas tutores podem enviar avaliações")
     review = create_review(db, current_user.id, data)
+    # Notifica o vet ou clínica que recebeu a avaliação
+    if data.reviewee_type == RevieweeType.VETERINARIAN:
+        reviewee = db.query(Veterinarian).filter(Veterinarian.id == data.reviewee_id).first()
+        if reviewee:
+            reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first()
+            if reviewee_user:
+                profile_url = f"https://vetlandia.com.br/veterinario/{reviewee.slug}"
+                send_email(
+                    reviewee_user.email,
+                    f"Você recebeu uma nova avaliação — VetLândia",
+                    tpl_nova_avaliacao(reviewee.full_name, current_user.display_name or current_user.email,
+                                       review.rating, review.comment, profile_url),
+                )
+    else:
+        reviewee = db.query(Clinic).filter(Clinic.id == data.reviewee_id).first()
+        if reviewee:
+            reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first()
+            if reviewee_user:
+                profile_url = f"https://vetlandia.com.br/clinica/{reviewee.slug}"
+                send_email(
+                    reviewee_user.email,
+                    f"Você recebeu uma nova avaliação — VetLândia",
+                    tpl_nova_avaliacao(reviewee.name, current_user.display_name or current_user.email,
+                                       review.rating, review.comment, profile_url),
+                )
     return {"ok": True, "review_id": str(review.id)}
 
 
