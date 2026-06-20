@@ -1,7 +1,10 @@
 from typing import List
 
+import base64
+import re
+
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
 
@@ -188,6 +191,26 @@ def verify_vet(vet_id: str, verified: str = Form(...), db: Session = Depends(get
     vet.is_verified = (verified == "true")
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/vets/{vet_id}/carteira")
+def view_vet_carteira(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Serve a imagem da carteira do CRMV (data URL base64) para o admin abrir.
+    Necessário porque navegadores bloqueiam abrir data: URLs diretamente."""
+    vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
+    if not vet or not vet.crmv_card_url:
+        raise HTTPException(status_code=404, detail="Carteira não enviada")
+    url = vet.crmv_card_url
+    if url.startswith("data:"):
+        m = re.match(r"data:([^;]+);base64,(.*)", url, re.DOTALL)
+        if not m:
+            raise HTTPException(status_code=400, detail="Formato de carteira inválido")
+        try:
+            data = base64.b64decode(m.group(2))
+        except Exception:
+            raise HTTPException(status_code=400, detail="Carteira corrompida")
+        return Response(content=data, media_type=m.group(1))
+    return RedirectResponse(url)
 
 
 # ── Clínicas ──────────────────────────────────────────────────────────────────
