@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -45,9 +45,14 @@ class Clinic(Base):
     # Abertura para recrutamento (a própria clínica indica)
     open_hiring = Column(Boolean, default=False, nullable=False)       # contrata efetivo
     open_internship = Column(Boolean, default=False, nullable=False)   # aberta a estágio
-    # Módulo 7: faixas de preço (NUNCA valor exato): economica | intermediaria | premium
+    # Módulo 7: faixas de preço — colunas legadas (categorias), mantidas nullable
     consulta_faixa = Column(String(20), nullable=True)
     procedimento_faixa = Column(String(20), nullable=True)
+    # Faixas de preço em R$ (de/até) — substituem as categorias acima
+    consulta_preco_min = Column(Integer, nullable=True)
+    consulta_preco_max = Column(Integer, nullable=True)
+    procedimento_preco_min = Column(Integer, nullable=True)
+    procedimento_preco_max = Column(Integer, nullable=True)
     num_veterinarios = Column(String(10), nullable=True)  # qtd manual do responsável
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -352,21 +352,30 @@ body { background: #ffffff; }
         <p class="cp-no-content">Nenhuma descrição adicionada ainda.</p>
         {% endif %}
 
-        {# ── Módulo 7: faixas de preço (nunca valor exato) ── #}
-        {% set faixa_labels = {'economica': ('$', 'Econômica'), 'intermediaria': ('$$', 'Intermediária'), 'premium': ('$$$', 'Premium')} %}
-        {% if (clinic.consulta_faixa and clinic.consulta_faixa in faixa_labels) or (clinic.procedimento_faixa and clinic.procedimento_faixa in faixa_labels) %}
+        {# ── Faixas de preço em R$ (de/até) ── #}
+        {% set has_consulta = clinic.consulta_preco_min or clinic.consulta_preco_max %}
+        {% set has_proc = clinic.procedimento_preco_min or clinic.procedimento_preco_max %}
+        {% if has_consulta or has_proc %}
         <p class="cp-sub-label" style="margin-top:24px">Faixa de preço</p>
-        <div style="display:flex;flex-wrap:wrap;gap:28px;">
-            {% if clinic.consulta_faixa and clinic.consulta_faixa in faixa_labels %}
-            <div>
-                <div class="cp-info-card-lbl">Consultas</div>
-                <div style="font-size:1rem;font-weight:700;"><span style="color:#0d9488">{{ faixa_labels[clinic.consulta_faixa][0] }}</span> <span style="color:#374151">{{ faixa_labels[clinic.consulta_faixa][1] }}</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:16px;margin-bottom:8px">
+            {% if has_consulta %}
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;min-width:140px">
+                <div class="cp-info-card-lbl" style="margin-bottom:4px">Consulta</div>
+                <div style="font-size:1rem;font-weight:700;color:#0d9488">
+                    {% if clinic.consulta_preco_min and clinic.consulta_preco_max %}R$ {{ clinic.consulta_preco_min }} a R$ {{ clinic.consulta_preco_max }}
+                    {% elif clinic.consulta_preco_min %}A partir de R$ {{ clinic.consulta_preco_min }}
+                    {% else %}Até R$ {{ clinic.consulta_preco_max }}{% endif %}
+                </div>
             </div>
             {% endif %}
-            {% if clinic.procedimento_faixa and clinic.procedimento_faixa in faixa_labels %}
-            <div>
-                <div class="cp-info-card-lbl">Procedimentos</div>
-                <div style="font-size:1rem;font-weight:700;"><span style="color:#0d9488">{{ faixa_labels[clinic.procedimento_faixa][0] }}</span> <span style="color:#374151">{{ faixa_labels[clinic.procedimento_faixa][1] }}</span></div>
+            {% if has_proc %}
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 14px;min-width:140px">
+                <div class="cp-info-card-lbl" style="margin-bottom:4px">Procedimento</div>
+                <div style="font-size:1rem;font-weight:700;color:#0d9488">
+                    {% if clinic.procedimento_preco_min and clinic.procedimento_preco_max %}R$ {{ clinic.procedimento_preco_min }} a R$ {{ clinic.procedimento_preco_max }}
+                    {% elif clinic.procedimento_preco_min %}A partir de R$ {{ clinic.procedimento_preco_min }}
+                    {% else %}Até R$ {{ clinic.procedimento_preco_max }}{% endif %}
+                </div>
             </div>
             {% endif %}
         </div>

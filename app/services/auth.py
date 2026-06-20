@@ -70,7 +70,10 @@ def login(db: Session, credentials: UserLogin) -> Token:
 
 
 def register_tutor(db: Session, data: TutorCreate) -> Token:
-    if db.query(User).filter(User.email == data.email).first():
+    _existing = db.query(User).filter(User.email == data.email).first()
+    if _existing:
+        if not _existing.is_active:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail está associado a uma conta desativada. Entre em contato com o suporte.")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
     if data.cpf and db.query(Tutor).filter(Tutor.cpf == data.cpf).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CPF já está cadastrado.")
@@ -100,7 +103,10 @@ def register_tutor(db: Session, data: TutorCreate) -> Token:
 
 
 def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
-    if db.query(User).filter(User.email == data.email).first():
+    _existing = db.query(User).filter(User.email == data.email).first()
+    if _existing:
+        if not _existing.is_active:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail está associado a uma conta desativada. Entre em contato com o suporte.")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
     # Estudantes podem não ter CRMV; veterinários formados precisam informar.
     if not data.is_student and not data.crmv:
@@ -159,7 +165,10 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
 
 
 def register_clinic(db: Session, data: ClinicCreate) -> Token:
-    if db.query(User).filter(User.email == data.email_user).first():
+    _existing = db.query(User).filter(User.email == data.email_user).first()
+    if _existing:
+        if not _existing.is_active:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail está associado a uma conta desativada. Entre em contato com o suporte.")
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este e-mail já possui cadastro. Tente fazer login ou recuperar a senha.")
     if data.cnpj and db.query(Clinic).filter(Clinic.cnpj == data.cnpj).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CNPJ já está cadastrado na plataforma.")

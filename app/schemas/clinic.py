@@ -70,6 +70,10 @@ class ClinicUpdate(BaseModel):
     num_veterinarios: Optional[str] = None
     consulta_faixa: Optional[str] = Field(None, max_length=20)
     procedimento_faixa: Optional[str] = Field(None, max_length=20)
+    consulta_preco_min: Optional[int] = None
+    consulta_preco_max: Optional[int] = None
+    procedimento_preco_min: Optional[int] = None
+    procedimento_preco_max: Optional[int] = None
     open_hiring: Optional[bool] = None
     open_internship: Optional[bool] = None
 

@@ -596,15 +596,17 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     vet.avg_rating = round(rating_data[0], 1) if rating_data[0] else 0
     vet.review_count = rating_data[1]
 
-    # Buscar avaliações aprovadas com autor
+    # Buscar avaliações aprovadas com autor ativo
     from sqlalchemy.orm import joinedload as jl
     reviews = (
         db.query(Review)
         .options(jl(Review.author))
+        .join(User, Review.author_id == User.id)
         .filter(
             Review.reviewee_id == vet.id,
             Review.reviewee_type == RevieweeType.VETERINARIAN,
             Review.status == ReviewStatus.APPROVED,
+            User.is_active == True,
         )
         .order_by(Review.created_at.desc())
         .all()
@@ -666,16 +668,20 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     vet_recommendations = []
     for r in approved_recs:
         if r.author_type.value == "veterinarian":
-            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id).first()
+            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id, Veterinarian.is_approved == True).first()
+            if not a:
+                continue
             vet_recommendations.append({
-                "author_name": a.full_name if a else "Veterinário(a)",
+                "author_name": a.full_name,
                 "author_label": "Veterinário(a)",
                 "content": r.content,
             })
         else:
-            a = db.query(Clinic).filter(Clinic.id == r.author_id).first()
+            a = db.query(Clinic).filter(Clinic.id == r.author_id, Clinic.is_approved == True).first()
+            if not a:
+                continue
             vet_recommendations.append({
-                "author_name": a.name if a else "Clínica",
+                "author_name": a.name,
                 "author_label": "Clínica",
                 "content": r.content,
             })
@@ -797,15 +803,17 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
     clinic.avg_rating = round(rating_data[0], 1) if rating_data[0] else 0
     clinic.review_count = rating_data[1]
 
-    # Buscar avaliações aprovadas com autor
+    # Buscar avaliações aprovadas com autor ativo
     from sqlalchemy.orm import joinedload as jl
     reviews = (
         db.query(Review)
         .options(jl(Review.author))
+        .join(User, Review.author_id == User.id)
         .filter(
             Review.reviewee_id == clinic.id,
             Review.reviewee_type == RevieweeType.CLINIC,
             Review.status == ReviewStatus.APPROVED,
+            User.is_active == True,
         )
         .order_by(Review.created_at.desc())
         .all()
@@ -870,11 +878,15 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
         .all()
     ):
         if r.author_type.value == "veterinarian":
-            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id).first()
-            clinic_recommendations.append({"author_name": a.full_name if a else "Veterinário(a)", "author_label": "Veterinário(a)", "content": r.content})
+            a = db.query(Veterinarian).filter(Veterinarian.id == r.author_id, Veterinarian.is_approved == True).first()
+            if not a:
+                continue
+            clinic_recommendations.append({"author_name": a.full_name, "author_label": "Veterinário(a)", "content": r.content})
         else:
-            a = db.query(Clinic).filter(Clinic.id == r.author_id).first()
-            clinic_recommendations.append({"author_name": a.name if a else "Clínica", "author_label": "Clínica", "content": r.content})
+            a = db.query(Clinic).filter(Clinic.id == r.author_id, Clinic.is_approved == True).first()
+            if not a:
+                continue
+            clinic_recommendations.append({"author_name": a.name, "author_label": "Clínica", "content": r.content})
 
     can_recommend = False
     already_recommended = False

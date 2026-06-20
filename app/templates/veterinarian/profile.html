@@ -273,7 +273,7 @@ body { background: #ffffff; }
             </div>
             {% if veterinarian.specialty and not veterinarian.is_student %}<p class="vp-specialty">{{ veterinarian.specialty }}</p>{% endif %}
             {% if vet_specialties and not veterinarian.is_student %}
-            <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 10px;" class="vp-spec-chips">
+            <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start;margin:0 0 10px;" class="vp-spec-chips">
                 {% for sp in vet_specialties %}<span style="background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;border-radius:999px;padding:3px 11px;font-size:0.76rem;font-weight:600;">{{ sp }}</span>{% endfor %}
             </div>
             {% endif %}

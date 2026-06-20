@@ -610,25 +610,23 @@
                             <label class="form-label">Número de veterinários na equipe</label>
                             <input type="number" name="num_veterinarios" id="pc-num-vets" class="form-input" value="{{ profile.num_veterinarios if profile and profile.num_veterinarios else '' }}" placeholder="Ex: 5" min="1" max="9999" style="max-width:160px">
                         </div>
-                        {# ── Módulo 7: faixas de preço (nunca valor exato) ── #}
+                        {# ── Faixas de preço em R$ (de/até) ── #}
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Faixa de preço — Consultas</label>
-                                <select name="consulta_faixa" id="pc-consulta-faixa" class="form-select">
-                                    <option value="">Não informar</option>
-                                    <option value="economica" {% if profile and profile.consulta_faixa == 'economica' %}selected{% endif %}>$ Econômica</option>
-                                    <option value="intermediaria" {% if profile and profile.consulta_faixa == 'intermediaria' %}selected{% endif %}>$$ Intermediária</option>
-                                    <option value="premium" {% if profile and profile.consulta_faixa == 'premium' %}selected{% endif %}>$$$ Premium</option>
-                                </select>
+                                <label class="form-label">Consulta — faixa de preço (R$)</label>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                    <input type="number" name="consulta_preco_min" id="pc-consulta-min" class="form-input" value="{{ profile.consulta_preco_min if profile and profile.consulta_preco_min else '' }}" placeholder="De" min="0" max="99999" style="max-width:110px">
+                                    <span style="color:#6b7280;font-size:0.9rem">até</span>
+                                    <input type="number" name="consulta_preco_max" id="pc-consulta-max" class="form-input" value="{{ profile.consulta_preco_max if profile and profile.consulta_preco_max else '' }}" placeholder="Até" min="0" max="99999" style="max-width:110px">
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Faixa de preço — Procedimentos</label>
-                                <select name="procedimento_faixa" id="pc-procedimento-faixa" class="form-select">
-                                    <option value="">Não informar</option>
-                                    <option value="economica" {% if profile and profile.procedimento_faixa == 'economica' %}selected{% endif %}>$ Econômica</option>
-                                    <option value="intermediaria" {% if profile and profile.procedimento_faixa == 'intermediaria' %}selected{% endif %}>$$ Intermediária</option>
-                                    <option value="premium" {% if profile and profile.procedimento_faixa == 'premium' %}selected{% endif %}>$$$ Premium</option>
-                                </select>
+                                <label class="form-label">Procedimento — faixa de preço (R$)</label>
+                                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                                    <input type="number" name="procedimento_preco_min" id="pc-proc-min" class="form-input" value="{{ profile.procedimento_preco_min if profile and profile.procedimento_preco_min else '' }}" placeholder="De" min="0" max="99999" style="max-width:110px">
+                                    <span style="color:#6b7280;font-size:0.9rem">até</span>
+                                    <input type="number" name="procedimento_preco_max" id="pc-proc-max" class="form-input" value="{{ profile.procedimento_preco_max if profile and profile.procedimento_preco_max else '' }}" placeholder="Até" min="0" max="99999" style="max-width:110px">
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1002,8 +1000,10 @@ function collectContents() {
                 is_24h: !!(form.querySelector('[name="is_24h"]') && form.querySelector('[name="is_24h"]').checked),
                 aplica_vacinas: !!(document.getElementById('pc-clinic-vacinas') && document.getElementById('pc-clinic-vacinas').checked),
                 num_veterinarios: (document.getElementById('pc-num-vets') && document.getElementById('pc-num-vets').value) || null,
-                consulta_faixa: gId('pc-consulta-faixa'),
-                procedimento_faixa: gId('pc-procedimento-faixa'),
+                consulta_preco_min: gId('pc-consulta-min') ? (parseInt(gId('pc-consulta-min')) || null) : null,
+                consulta_preco_max: gId('pc-consulta-max') ? (parseInt(gId('pc-consulta-max')) || null) : null,
+                procedimento_preco_min: gId('pc-proc-min') ? (parseInt(gId('pc-proc-min')) || null) : null,
+                procedimento_preco_max: gId('pc-proc-max') ? (parseInt(gId('pc-proc-max')) || null) : null,
                 open_hiring: chk('pc-clinic-hiring'),
                 open_internship: chk('pc-clinic-internship'),
             };

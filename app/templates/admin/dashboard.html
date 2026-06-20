@@ -615,7 +615,7 @@
                         <td style="white-space:nowrap">
                             {% if user.is_active %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/block">
-                                <button class="btn-block" onclick="return confirm('Inativar {{ user.email }}?')">Inativar</button>
+                                <button class="btn-block" onclick="return confirm('Inativar {{ user.email }}? O perfil sai do ar mas os dados são mantidos.')">Inativar</button>
                             </form>
                             {% else %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/unblock">
@@ -623,7 +623,7 @@
                             </form>
                             {% endif %}
                             <form class="action-form" method="POST" action="/admin/users/{{ user.id }}/delete" style="margin-left:4px">
-                                <button class="btn-reject" onclick="return confirm('Excluir permanentemente {{ user.email }} e todos os dados vinculados?')">Excluir</button>
+                                <button class="btn-delete" onclick="return confirm('EXCLUIR TUDO de {{ user.email }} permanentemente? Esta ação apaga o usuário e todos os dados vinculados e NÃO pode ser desfeita.')">Excluir tudo</button>
                             </form>
                         </td>
                     </tr>
