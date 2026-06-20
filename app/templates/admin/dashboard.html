@@ -526,7 +526,7 @@
                         <td style="font-size:0.8rem;color:#666">{{ clinic.city }}/{{ clinic.state }}</td>
                         <td>
                             {% if clinic.is_founder %}
-                                <span style="color:#1D4ED8;font-weight:600">🔵 Fundador</span>
+                                <span style="color:#1D4ED8;font-weight:600">🔵 Parceiro</span>
                             {% else %}
                                 <span style="color:#059669;font-weight:600">🟢 Verificado</span>
                             {% endif %}
@@ -538,7 +538,7 @@
                                 <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/set-badge" style="display:flex;gap:6px;align-items:center">
                                     <select name="badge_type" style="font-size:0.8rem;padding:4px 6px;border:1px solid #ddd;border-radius:4px">
                                         <option value="verified" {% if not clinic.is_founder %}selected{% endif %}>Verificado (verde)</option>
-                                        <option value="founder" {% if clinic.is_founder %}selected{% endif %}>Fundador (azul)</option>
+                                        <option value="founder" {% if clinic.is_founder %}selected{% endif %}>Parceiro (azul)</option>
                                     </select>
                                     <button class="btn-approve" style="padding:4px 10px">Salvar</button>
                                 </form>

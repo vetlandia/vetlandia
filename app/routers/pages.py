@@ -952,6 +952,12 @@ def recrutamento(
         return templates.TemplateResponse(
             "pages/404.html", {"request": request, "current_user": current_user}, status_code=404
         )
+    if current_user.user_type.value == "clinic":
+        viewer_clinic = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
+        if not (viewer_clinic and clinic_has_product(viewer_clinic, "recrutamento")):
+            return templates.TemplateResponse(
+                "pages/404.html", {"request": request, "current_user": current_user}, status_code=404
+            )
 
     query = db.query(Veterinarian).filter(Veterinarian.is_approved == True)
     if tipo == "estudantes":
