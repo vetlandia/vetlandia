@@ -1,37 +1,110 @@
 {% extends "base.html" %}
 {% block title %}Recrutamento — VetLândia{% endblock %}
 {% block content %}
+<style>
+.rec-form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+.rec-field { display: flex; flex-direction: column; flex: 1; min-width: 160px; }
+.rec-label {
+  font-size: 0.72rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; margin-bottom: 4px; letter-spacing: .04em;
+}
+.rec-sel-wrap { position: relative; }
+.rec-sel-wrap select {
+  width: 100%;
+  padding: 10px 34px 10px 12px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  color: #374151;
+  background: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.rec-sel-wrap select:focus { border-color: #088395; }
+.rec-sel-wrap::after {
+  content: "▾";
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: #9CA3AF; font-size: 0.75rem;
+}
+.rec-input-wrap input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.rec-input-wrap input:focus { border-color: #088395; }
+.rec-btn {
+  padding: 10px 28px;
+  background: #088395;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.rec-btn:hover { background: #066f7e; }
+@media (max-width: 600px) {
+  .rec-form-row { flex-direction: column; }
+  .rec-btn { width: 100%; }
+}
+</style>
+
 <div style="max-width:1100px;margin:0 auto;padding:28px 20px 64px;">
     <h1 style="font-size:1.6rem;font-weight:800;color:#0f172a;margin:0 0 6px;">Recrutamento</h1>
     <p style="color:#64748b;font-size:0.9rem;margin:0 0 22px;">Encontre veterinários e estudantes disponíveis. Visível apenas para clínicas.</p>
 
-    <form method="GET" action="/recrutamento" style="margin-bottom:24px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-            <div>
-                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Tipo</label>
-                <select name="tipo" class="form-select" style="width:100%">
-                    <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
-                    <option value="veterinarios" {% if tipo == 'veterinarios' %}selected{% endif %}>Veterinários formados</option>
-                    <option value="estudantes" {% if tipo == 'estudantes' %}selected{% endif %}>Estudantes</option>
-                </select>
+    <form method="GET" action="/recrutamento">
+        <div class="rec-form-row">
+            <div class="rec-field">
+                <span class="rec-label">Tipo</span>
+                <div class="rec-sel-wrap">
+                    <select name="tipo">
+                        <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+                        <option value="veterinarios" {% if tipo == 'veterinarios' %}selected{% endif %}>Veterinários formados</option>
+                        <option value="estudantes" {% if tipo == 'estudantes' %}selected{% endif %}>Estudantes</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Disponibilidade</label>
-                <select name="disp" class="form-select" style="width:100%">
-                    <option value="" {% if not disp %}selected{% endif %}>Todos</option>
-                    <option value="estagio" {% if disp == 'estagio' %}selected{% endif %}>Estágio</option>
-                    <option value="plantao" {% if disp == 'plantao' %}selected{% endif %}>Plantões</option>
-                    <option value="volante" {% if disp == 'volante' %}selected{% endif %}>Atendimentos volantes</option>
-                    <option value="oportunidades" {% if disp == 'oportunidades' %}selected{% endif %}>Novas oportunidades</option>
-                    <option value="parcerias" {% if disp == 'parcerias' %}selected{% endif %}>Parcerias</option>
-                </select>
+            <div class="rec-field">
+                <span class="rec-label">Disponibilidade</span>
+                <div class="rec-sel-wrap">
+                    <select name="disp">
+                        <option value="" {% if not disp %}selected{% endif %}>Todas</option>
+                        <option value="estagio" {% if disp == 'estagio' %}selected{% endif %}>Estágio</option>
+                        <option value="plantao" {% if disp == 'plantao' %}selected{% endif %}>Plantões</option>
+                        <option value="volante" {% if disp == 'volante' %}selected{% endif %}>Atendimentos volantes</option>
+                        <option value="oportunidades" {% if disp == 'oportunidades' %}selected{% endif %}>Novas oportunidades</option>
+                        <option value="parcerias" {% if disp == 'parcerias' %}selected{% endif %}>Parcerias</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Nome</label>
-                <input type="text" name="q" value="{{ q }}" class="form-input" style="width:100%" placeholder="Buscar por nome...">
+            <div class="rec-field">
+                <span class="rec-label">Nome</span>
+                <div class="rec-input-wrap">
+                    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nome...">
+                </div>
             </div>
+            <button type="submit" class="rec-btn">Filtrar</button>
         </div>
-        <button type="submit" class="btn btn-primary" style="height:42px;padding:0 28px">Filtrar</button>
     </form>
 
     {% if resultados %}
