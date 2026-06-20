@@ -5,12 +5,13 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import get_current_user
+from app.models.affiliation import VetClinicLink
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.entitlement import clinic_has_product
@@ -68,6 +69,16 @@ def _specialty_from_query(term: str):
     return None
 
 
+def _tutor_visible(db: Session):
+    """Vets visíveis na busca de tutores: formados OU estudantes que estão
+    estagiando (têm vínculo atual com alguma clínica)."""
+    interning = db.query(VetClinicLink.veterinarian_id).filter(VetClinicLink.is_current == True)
+    return (Veterinarian.is_approved == True) & or_(
+        Veterinarian.is_student == False,
+        Veterinarian.id.in_(interning),
+    )
+
+
 @router.get("/", response_class=HTMLResponse)
 def home(request: Request, db: Session = Depends(get_db), current_user: Optional[User] = Depends(get_current_user)):
     # Buscar apenas veterinários aprovados com ranking
@@ -77,7 +88,7 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         )
-        .filter(Veterinarian.is_approved == True, Veterinarian.is_student == False)
+        .filter(_tutor_visible(db))
         .outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
@@ -136,7 +147,7 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
     from sqlalchemy import text as _text
     _counts = db.execute(_text(
         "SELECT "
-        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true AND is_student = false) AS vc,"
+        "(SELECT COUNT(*) FROM veterinarians WHERE is_approved = true AND (is_student = false OR id IN (SELECT veterinarian_id FROM vet_clinic_links WHERE is_current = true))) AS vc,"
         "(SELECT COUNT(*) FROM clinics WHERE is_approved = true) AS cc,"
         "(SELECT COUNT(*) FROM reviews) AS rc"
     )).one()
@@ -193,7 +204,7 @@ def buscar(
             func.avg(Review.rating).label("avg_rating"),
             func.count(Review.id).label("review_count"),
         ).filter(
-            Veterinarian.is_approved == True, Veterinarian.is_student == False
+            _tutor_visible(db)
         ).outerjoin(
             Review,
             (Review.reviewee_id == Veterinarian.id)
@@ -366,7 +377,7 @@ def buscar_veterinarios(
         func.avg(Review.rating).label("avg_rating"),
         func.count(Review.id).label("review_count"),
     ).filter(
-        Veterinarian.is_approved == True, Veterinarian.is_student == False
+        _tutor_visible(db)
     ).outerjoin(
         Review,
         (Review.reviewee_id == Veterinarian.id)
