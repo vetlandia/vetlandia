@@ -1,4 +1,5 @@
 from app.models.administrator import Administrator
+from app.models.affiliation import VetClinicLink
 from app.models.case import CaseComment, ClinicalCase
 from app.models.clinic import Clinic
 from app.models.comment import Comment
@@ -22,4 +23,5 @@ __all__ = [
     "ClinicalCase",
     "CaseComment",
     "VetEducation",
+    "VetClinicLink",
 ]

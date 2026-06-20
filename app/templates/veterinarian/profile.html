@@ -408,6 +408,19 @@ body { background: #ffffff; }
         </div>
         {% endif %}
 
+        {% if vet_current_clinics %}
+        <div class="vp-atua" style="margin-top:22px;max-width:720px;">
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Atua em</h3>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                {% for c in vet_current_clinics %}
+                <a href="/clinica/{{ c.slug }}" style="display:inline-flex;align-items:center;gap:7px;text-decoration:none;border:1px solid #e2e8f0;border-radius:10px;padding:8px 13px;color:#1f2937;font-size:0.85rem;font-weight:600;">
+                    🏥 {{ c.name }}{% if c.city %} <span style="color:#94a3b8;font-weight:400">· {{ c.city }}/{{ c.state }}</span>{% endif %}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         {% if veterinarian.educations %}
         <div class="vp-formacao" style="margin-top:22px;max-width:720px;">
             <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Formação acadêmica</h3>

@@ -320,7 +320,7 @@ body { background: #ffffff; }
     {# ── TABS ── #}
     <div class="cp-tabs-bar">
         <button class="cp-tab-btn active" data-tab="sobre">Sobre</button>
-        {% if clinic_specialties or clinic_species or clinic_convenios %}
+        {% if clinic_specialties or clinic_species or clinic_convenios or team_specialties %}
         <button class="cp-tab-btn" data-tab="atendimento">Especialidades</button>
         {% endif %}
         {% if veterinarians %}
@@ -400,11 +400,15 @@ body { background: #ffffff; }
     </div>
 
     {# ── PANE: ESPECIALIDADES ── #}
-    {% if clinic_specialties or clinic_species or clinic_convenios %}
+    {% if clinic_specialties or clinic_species or clinic_convenios or team_specialties %}
     <div class="cp-pane" id="pane-atendimento">
         {% if clinic_specialties %}
         <p class="cp-sub-label">Especialidades</p>
         <div class="cp-chips">{% for sp in clinic_specialties %}<span class="cp-chip cp-chip-blue">{{ sp }}</span>{% endfor %}</div>
+        {% endif %}
+        {% if team_specialties %}
+        <p class="cp-sub-label">Especialidades da equipe</p>
+        <div class="cp-chips">{% for sp in team_specialties %}<span class="cp-chip cp-chip-blue">{{ sp }}</span>{% endfor %}</div>
         {% endif %}
         {% if clinic_species %}
         <p class="cp-sub-label">Espécies</p>

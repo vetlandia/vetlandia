@@ -622,6 +622,13 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     except (ValueError, TypeError):
         vet_specialties = []
 
+    # Vínculos atuais (público): clínicas aprovadas onde o vet atua hoje
+    vet_current_clinics = [
+        link.clinic
+        for link in vet.clinic_links
+        if link.is_current and link.clinic and link.clinic.is_approved
+    ]
+
     return templates.TemplateResponse(
         "veterinarian/profile.html",
         {
@@ -636,6 +643,7 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "vet_species": vet_species,
             "vet_specialties": vet_specialties,
             "vet_educations": vet.educations,
+            "vet_current_clinics": vet_current_clinics,
         },
     )
 
@@ -688,10 +696,19 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             .first()
         )
 
-    # Buscar veterinários da clínica
-    veterinarians = (
-        db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).all()
-    )
+    # Corpo clínico (grafo): clínica legada (clinic_id) + vínculos atuais,
+    # apenas vets aprovados, sem duplicar.
+    veterinarians = []
+    _seen = set()
+    for v in db.query(Veterinarian).filter(Veterinarian.clinic_id == clinic.id).all():
+        if v.id not in _seen:
+            veterinarians.append(v)
+            _seen.add(v.id)
+    for link in clinic.vet_links:
+        v = link.veterinarian
+        if link.is_current and v and v.is_approved and v.id not in _seen:
+            veterinarians.append(v)
+            _seen.add(v.id)
 
     def _parse_json_list(val):
         if not val:
@@ -701,6 +718,17 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
         except Exception:
             return [v.strip() for v in val.split(",") if v.strip()]
 
+    # Especialidades da equipe (derivadas dos vets do corpo clínico)
+    team_specialties = set()
+    for v in veterinarians:
+        if v.specialty:
+            team_specialties.add(v.specialty)
+        try:
+            for sp in (json.loads(v.specialties) if v.specialties else []):
+                team_specialties.add(sp)
+        except (ValueError, TypeError):
+            pass
+
     return templates.TemplateResponse(
         "clinic/profile.html",
         {
@@ -709,6 +737,7 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "clinic": clinic,
             "reviews": reviews,
             "veterinarians": veterinarians,
+            "team_specialties": sorted(team_specialties),
             "clinic_specialties": _parse_json_list(clinic.specialties),
             "clinic_species": _parse_json_list(clinic.animal_species),
             "clinic_convenios": _parse_json_list(clinic.convenios),
@@ -751,6 +780,8 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
     profile = None
     vet_specialties = []
     vet_educations = []
+    vet_clinic_links = []
+    all_clinics = []
     if current_user.user_type.value == "tutor":
         from app.models.tutor import Tutor
         profile = db.query(Tutor).filter(Tutor.user_id == current_user.id).first()
@@ -762,6 +793,10 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
             except (ValueError, TypeError):
                 vet_specialties = []
             vet_educations = profile.educations
+            vet_clinic_links = profile.clinic_links
+            all_clinics = (
+                db.query(Clinic).filter(Clinic.is_approved == True).order_by(Clinic.name).all()
+            )
     elif current_user.user_type.value == "clinic":
         profile = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
     return templates.TemplateResponse(
@@ -772,6 +807,8 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
             "profile": profile,
             "vet_specialties": vet_specialties,
             "vet_educations": vet_educations,
+            "vet_clinic_links": vet_clinic_links,
+            "all_clinics": all_clinics,
         },
     )
 

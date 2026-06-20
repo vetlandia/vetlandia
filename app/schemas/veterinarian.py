@@ -98,6 +98,15 @@ class EducationResponse(EducationItem):
         from_attributes = True
 
 
+class ClinicLinkItem(BaseModel):
+    """Vínculo do veterinário com uma clínica (experiência/grafo)."""
+    clinic_id: UUID
+    role: Optional[str] = Field(None, max_length=120)
+    start_year: Optional[str] = Field(None, max_length=4)
+    end_year: Optional[str] = Field(None, max_length=4)
+    is_current: bool = True
+
+
 class VeterinarianResponse(VeterinarianBase):
     id: UUID
     user_id: UUID

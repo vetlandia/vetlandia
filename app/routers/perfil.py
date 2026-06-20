@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.deps import get_current_user
+from app.models.affiliation import VetClinicLink
 from app.models.clinic import Clinic
 from app.models.education import VetEducation
 from app.models.tutor import Tutor
@@ -12,7 +13,7 @@ from app.models.user import User
 from app.models.veterinarian import Veterinarian
 from app.schemas.clinic import ClinicUpdate
 from app.schemas.tutor import TutorUpdate
-from app.schemas.veterinarian import EducationItem, VeterinarianUpdate
+from app.schemas.veterinarian import ClinicLinkItem, EducationItem, VeterinarianUpdate
 
 router = APIRouter()
 
@@ -65,6 +66,27 @@ def replace_vet_educations(
         db.add(VetEducation(veterinarian_id=vet.id, **item.model_dump()))
     db.commit()
     return {"ok": True, "count": len(educations)}
+
+
+@router.put("/veterinarian/clinic-links")
+def replace_vet_clinic_links(
+    links: List[ClinicLinkItem],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Substitui os vínculos com clínicas do veterinário logado (grafo)."""
+    vet = _get_own_vet(db, current_user)
+    # Só aceita vínculos com clínicas existentes (mantém o grafo íntegro)
+    valid_ids = {c.id for c in db.query(Clinic.id).all()}
+    db.query(VetClinicLink).filter(VetClinicLink.veterinarian_id == vet.id).delete()
+    saved = 0
+    for item in links:
+        if item.clinic_id not in valid_ids:
+            continue
+        db.add(VetClinicLink(veterinarian_id=vet.id, **item.model_dump()))
+        saved += 1
+    db.commit()
+    return {"ok": True, "count": saved}
 
 
 @router.put("/clinic")

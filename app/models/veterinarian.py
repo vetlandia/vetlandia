@@ -56,3 +56,9 @@ class Veterinarian(Base):
         cascade="all, delete-orphan",
         order_by="VetEducation.created_at",
     )
+    clinic_links = relationship(
+        "VetClinicLink",
+        back_populates="veterinarian",
+        cascade="all, delete-orphan",
+        order_by="VetClinicLink.is_current.desc()",
+    )

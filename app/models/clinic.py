@@ -43,3 +43,8 @@ class Clinic(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     user = relationship("User", backref="clinic", uselist=False)
+    vet_links = relationship(
+        "VetClinicLink",
+        back_populates="clinic",
+        cascade="all, delete-orphan",
+    )
