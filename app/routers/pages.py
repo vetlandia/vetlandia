@@ -683,6 +683,15 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
                 is not None
             )
 
+    # Dono do perfil logado (pode excluir avaliações do próprio perfil)
+    is_owner = bool(
+        current_user
+        and current_user.user_type.value == "veterinarian"
+        and db.query(Veterinarian.id)
+        .filter(Veterinarian.user_id == current_user.id, Veterinarian.id == vet.id)
+        .first()
+    )
+
     # ── Módulo 6: camada de visibilidade de recrutamento ──
     # Só admin ou clínica com acesso liberado veem disponibilidades e histórico.
     can_see_recruitment = False
@@ -738,6 +747,7 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "vet_availability": vet_availability,
             "vet_history": vet_history,
             "admin_preview": is_admin and not vet.is_approved,
+            "is_owner": is_owner,
         },
     )
 

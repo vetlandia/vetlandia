@@ -662,6 +662,11 @@ body { background: #ffffff; }
                     <span class="vp-review-date">{{ review.created_at.strftime('%d/%m/%Y') }}</span>
                 </div>
                 <p class="vp-review-text">{{ review.comment }}</p>
+                {% if is_owner %}
+                <div style="text-align:right;margin-top:8px">
+                    <button type="button" class="vp-del-review" data-id="{{ review.id }}" style="background:none;border:1px solid #fecaca;color:#b91c1c;border-radius:8px;padding:5px 12px;font-size:0.78rem;font-weight:600;cursor:pointer">🗑 Excluir avaliação</button>
+                </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -719,6 +724,22 @@ body { background: #ffffff; }
             else { navigator.clipboard.writeText(profileUrl).then(function(){ shareBtn.title='Link copiado!'; setTimeout(function(){ shareBtn.title='Compartilhar perfil'; }, 2000); }); }
         });
     }
+
+    // excluir avaliação (dono do perfil)
+    document.querySelectorAll('.vp-del-review').forEach(function(btn){
+        btn.addEventListener('click', async function(){
+            if (!confirm('Excluir esta avaliação? Esta ação fica registrada no histórico do admin.')) return;
+            btn.disabled = true; btn.textContent = 'Excluindo...';
+            try {
+                var resp = await fetch('/api/reviews/' + btn.dataset.id, { method: 'DELETE' });
+                if (!resp.ok) { var d = await resp.json().catch(function(){return {};}); throw new Error(d.detail || 'Erro ao excluir'); }
+                var card = btn.closest('.vp-review-card');
+                if (card) card.remove();
+            } catch (err) {
+                alert(err.message || 'Erro de conexão'); btn.disabled = false; btn.textContent = '🗑 Excluir avaliação';
+            }
+        });
+    });
 })();
 
 function submitReview(revieweeType, revieweeId) {
