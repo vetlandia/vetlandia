@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Recrutamento — VetLândia{% endblock %}
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:28px 20px 64px;">
+    <h1 style="font-size:1.6rem;font-weight:800;color:#0f172a;margin:0 0 6px;">Recrutamento</h1>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 22px;">Encontre veterinários e estudantes disponíveis. Visível apenas para clínicas.</p>
+
+    <form method="GET" action="/recrutamento" style="display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-bottom:24px;">
+        <div>
+            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Tipo</label>
+            <select name="tipo" class="form-select" style="min-width:170px">
+                <option value="todos" {% if tipo == 'todos' %}selected{% endif %}>Todos</option>
+                <option value="veterinarios" {% if tipo == 'veterinarios' %}selected{% endif %}>Veterinários formados</option>
+                <option value="estudantes" {% if tipo == 'estudantes' %}selected{% endif %}>🎓 Estudantes</option>
+            </select>
+        </div>
+        <div>
+            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Disponibilidade</label>
+            <select name="disp" class="form-select" style="min-width:180px">
+                <option value="" {% if not disp %}selected{% endif %}>Qualquer</option>
+                <option value="estagio" {% if disp == 'estagio' %}selected{% endif %}>Estágio</option>
+                <option value="plantao" {% if disp == 'plantao' %}selected{% endif %}>Plantões</option>
+                <option value="volante" {% if disp == 'volante' %}selected{% endif %}>Atendimentos volantes</option>
+                <option value="oportunidades" {% if disp == 'oportunidades' %}selected{% endif %}>Novas oportunidades</option>
+                <option value="parcerias" {% if disp == 'parcerias' %}selected{% endif %}>Parcerias</option>
+            </select>
+        </div>
+        <div style="flex:1;min-width:180px">
+            <label style="display:block;font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">Nome</label>
+            <input type="text" name="q" value="{{ q }}" class="form-input" placeholder="Buscar por nome...">
+        </div>
+        <button type="submit" class="btn btn-primary" style="height:42px">Filtrar</button>
+    </form>
+
+    {% if resultados %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;">
+        {% for v in resultados %}
+        <a href="/veterinario/{{ v.slug }}" target="_blank" style="display:flex;gap:14px;border:1px solid #e2e8f0;border-radius:14px;padding:16px;text-decoration:none;align-items:center;">
+            <div style="width:54px;height:54px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,#088395,#00C4A7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:1.2rem;overflow:hidden;">
+                {% if v.photo_url %}<img src="{{ v.photo_url }}" style="width:100%;height:100%;object-fit:cover;">{% else %}{{ v.full_name[0] }}{% endif %}
+            </div>
+            <div style="min-width:0;">
+                <div style="font-weight:700;color:#0f172a;font-size:0.95rem;">{{ v.full_name }}</div>
+                <div style="font-size:0.8rem;color:#64748b;">
+                    {% if v.is_student %}<span style="color:#7c3aed;font-weight:600">🎓 Estudante{% if v.student_institution %} · {{ v.student_institution }}{% endif %}</span>
+                    {% elif v.specialty %}{{ v.specialty }}{% endif %}
+                </div>
+                {% if v.city %}<div style="font-size:0.78rem;color:#94a3b8;">{{ v.city }}{% if v.state %}/{{ v.state }}{% endif %}</div>{% endif %}
+                <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;">
+                    {% if v.disp_estagio %}<span style="font-size:0.68rem;font-weight:700;background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;border-radius:999px;padding:2px 9px;">Estágio</span>{% endif %}
+                    {% if v.disp_plantao %}<span style="font-size:0.68rem;font-weight:600;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:2px 9px;">Plantões</span>{% endif %}
+                    {% if v.disp_volante %}<span style="font-size:0.68rem;font-weight:600;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:2px 9px;">Volante</span>{% endif %}
+                    {% if v.disp_oportunidades %}<span style="font-size:0.68rem;font-weight:600;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:2px 9px;">Oportunidades</span>{% endif %}
+                    {% if v.disp_parcerias %}<span style="font-size:0.68rem;font-weight:600;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:2px 9px;">Parcerias</span>{% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:#94a3b8;padding:40px 0;text-align:center;">Nenhum resultado para os filtros selecionados.</p>
+    {% endif %}
+</div>
+{% endblock %}

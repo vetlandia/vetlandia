@@ -327,12 +327,19 @@
                                 <label class="form-label">CPF</label>
                                 <input type="text" name="cpf" class="form-input" value="{{ profile.cpf if profile and profile.cpf else '' }}" placeholder="000.000.000-00" maxlength="14">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">CRMV (não editável)</label>
-                                <input type="text" class="form-input" value="{{ profile.crmv if profile else '' }}" readonly>
+                            <div class="form-group" id="pc-crmv-group" {% if profile and profile.is_student %}style="display:none"{% endif %}>
+                                <label class="form-label">CRMV</label>
+                                <input type="text" name="crmv" id="pc-crmv" class="form-input" value="{{ profile.crmv if profile and profile.crmv else '' }}" placeholder="CRMV-SP 12345">
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="terms-check" style="margin:0">
+                                <input type="checkbox" id="pc-is-student" {% if profile and profile.is_student %}checked{% endif %}>
+                                <span>Sou <strong>estudante de veterinária</strong> (ainda não tenho CRMV)</span>
+                            </label>
+                            <p class="form-help">Ao desmarcar, informe seu CRMV — o perfil voltará para aprovação do admin.</p>
+                        </div>
+                        <div class="form-group" id="pc-grp-especialidade">
                             <label class="form-label">Especialidade</label>
                             <select name="specialty" class="form-select">
                                 <option value="">Selecione...</option>
@@ -690,6 +697,17 @@ setupPhotoUpload('pc-vet-cover-input',    'pc-vet-cover-preview',    'pc-vet-cov
 setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-cover-data');
 setupPhotoUpload('pc-vet-crmv-input',     'pc-vet-crmv-preview',     'pc-vet-crmv-data');
 
+// Estudante: mostrar/ocultar CRMV ao marcar/desmarcar
+(function () {
+    var cb = document.getElementById('pc-is-student');
+    var grp = document.getElementById('pc-crmv-group');
+    if (!cb || !grp) return;
+    cb.addEventListener('change', function () {
+        grp.style.display = cb.checked ? 'none' : '';
+        if (!cb.checked) { var i = document.getElementById('pc-crmv'); if (i) i.focus(); }
+    });
+})();
+
 // ── Módulo 1: especialidades múltiplas ──
 function collectSpecialties() {
     const box = document.getElementById('pc-vet-specs');
@@ -946,6 +964,8 @@ function collectContents() {
                 instagram: g('instagram'),
                 lattes: g('lattes'),
                 crmv_card_url: gId('pc-vet-crmv-data'),
+                is_student: chk('pc-is-student'),
+                crmv: gId('pc-crmv'),
                 disp_estagio: chk('pc-disp-estagio'),
                 student_institution: gId('pc-student-institution'),
                 disp_plantao: chk('pc-disp-plantao'),

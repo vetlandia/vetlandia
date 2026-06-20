@@ -86,6 +86,8 @@ class VeterinarianUpdate(BaseModel):
     disp_parcerias: Optional[bool] = None
     disp_estagio: Optional[bool] = None
     student_institution: Optional[str] = Field(None, max_length=255)
+    is_student: Optional[bool] = None
+    crmv: Optional[str] = Field(None, max_length=20)
 
 
 class EducationItem(BaseModel):

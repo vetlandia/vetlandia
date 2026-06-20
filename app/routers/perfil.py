@@ -15,6 +15,7 @@ from app.models.veterinarian import Veterinarian
 from app.schemas.clinic import ClinicUpdate
 from app.schemas.tutor import TutorUpdate
 from app.schemas.veterinarian import ClinicLinkItem, ContentItem, EducationItem, VeterinarianUpdate
+from app.utils.validators import validate_crmv
 
 router = APIRouter()
 
@@ -39,7 +40,26 @@ def update_vet_profile(data: VeterinarianUpdate, db: Session = Depends(get_db), 
     vet = db.query(Veterinarian).filter(Veterinarian.user_id == current_user.id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Perfil não encontrado")
-    for field, value in data.model_dump(exclude_unset=True).items():
+
+    update_data = data.model_dump(exclude_unset=True)
+
+    # Transição estudante -> veterinário formado: exige CRMV válido e volta p/ aprovação
+    becoming_vet = update_data.get("is_student") is False and vet.is_student
+    if becoming_vet:
+        crmv = (update_data.get("crmv") or vet.crmv or "").strip()
+        if not validate_crmv(crmv):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Para deixar de ser estudante, informe um CRMV válido (formato CRMV-UF NNNNN).")
+        clash = db.query(Veterinarian).filter(Veterinarian.crmv == crmv, Veterinarian.id != vet.id).first()
+        if clash:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Este CRMV já está cadastrado na plataforma.")
+        update_data["crmv"] = crmv
+        update_data["is_approved"] = False  # entra novamente para aprovação do admin
+        update_data["is_rejected"] = False
+    else:
+        # Não permitir alterar CRMV/aprovação por esta via fora da transição
+        update_data.pop("crmv", None)
+
+    for field, value in update_data.items():
         setattr(vet, field, value)
     db.commit()
     return {"ok": True}

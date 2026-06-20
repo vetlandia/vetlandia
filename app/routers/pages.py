@@ -856,6 +856,58 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
     )
 
 
+@router.get("/recrutamento", response_class=HTMLResponse)
+def recrutamento(
+    request: Request,
+    tipo: Optional[str] = None,
+    disp: Optional[str] = None,
+    q: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_current_user),
+):
+    """Busca de recrutamento (apenas clínicas e admin): veterinários e estudantes,
+    com filtro por tipo (incl. estudantes) e disponibilidade."""
+    if not current_user:
+        return RedirectResponse("/login")
+    if current_user.user_type.value not in ("clinic", "admin"):
+        return templates.TemplateResponse(
+            "pages/404.html", {"request": request, "current_user": current_user}, status_code=404
+        )
+
+    query = db.query(Veterinarian).filter(Veterinarian.is_approved == True)
+    if tipo == "estudantes":
+        query = query.filter(Veterinarian.is_student == True)
+    elif tipo == "veterinarios":
+        query = query.filter(Veterinarian.is_student == False)
+
+    disp_cols = {
+        "estagio": Veterinarian.disp_estagio,
+        "plantao": Veterinarian.disp_plantao,
+        "volante": Veterinarian.disp_volante,
+        "oportunidades": Veterinarian.disp_oportunidades,
+        "parcerias": Veterinarian.disp_parcerias,
+    }
+    if disp in disp_cols:
+        query = query.filter(disp_cols[disp] == True)
+
+    if q:
+        query = query.filter(Veterinarian.full_name.ilike(f"%{q}%"))
+
+    resultados = query.order_by(Veterinarian.is_student.desc(), Veterinarian.full_name).limit(100).all()
+
+    return templates.TemplateResponse(
+        "pages/recrutamento.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "resultados": resultados,
+            "tipo": tipo or "todos",
+            "disp": disp or "",
+            "q": q or "",
+        },
+    )
+
+
 @router.get("/sobre", response_class=HTMLResponse)
 def sobre(request: Request, current_user: Optional[User] = Depends(get_current_user)):
     return templates.TemplateResponse("pages/sobre.html", {"request": request, "current_user": current_user})

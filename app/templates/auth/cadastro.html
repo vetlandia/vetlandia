@@ -548,7 +548,7 @@
 
                 <div class="form-section">
                     <p class="section-title">Atuação profissional</p>
-                    <div class="form-group">
+                    <div class="form-group" id="vet-grp-specialty">
                         <label class="form-label form-label-required">Especialidade Principal</label>
                         <select name="specialty" class="form-select">
                             <option value="">Selecione...</option>
@@ -577,7 +577,7 @@
                             <option>Zootecnia</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="vet-grp-species">
                         <label class="form-label form-label-required">Espécies Atendidas</label>
                         <div class="chip-group" id="vet-species">
                             <input type="checkbox" class="chip-option" id="vs-cao" name="species_cao" value="Cão"><label class="chip-label" for="vs-cao">🐕 Cão</label>
@@ -663,7 +663,7 @@
                     </div>
                 </div>
 
-                <div class="form-section">
+                <div class="form-section" id="vet-grp-atendimento">
                     <label class="terms-check" style="margin-bottom:8px">
                         <input type="checkbox" name="is_24h" id="vet-is-24h" value="true">
                         <span>Ofereço atendimento <strong>24 horas</strong> (plantão / emergência)</span>
@@ -1247,9 +1247,11 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const studentCb = document.getElementById('vet-is-student');
         const instGroup = document.getElementById('vet-institution-group');
         const crmvLabel = document.getElementById('vet-crmv-label');
+        const hideForStudent = ['vet-grp-specialty', 'vet-grp-species', 'vet-grp-atendimento'];
         if (studentCb) studentCb.addEventListener('change', () => {
             const s = studentCb.checked;
             instGroup.style.display = s ? '' : 'none';
+            hideForStudent.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = s ? 'none' : ''; });
             if (crmvLabel) crmvLabel.textContent = s ? 'CRMV (não obrigatório para estudante)' : 'CRMV';
             if (s) { crmvEl.value = ''; showFieldError('err-vet-crmv', false); }
         });

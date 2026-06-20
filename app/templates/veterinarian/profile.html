@@ -271,8 +271,8 @@ body { background: #ffffff; }
                 </span>
                 {% endif %}
             </div>
-            {% if veterinarian.specialty %}<p class="vp-specialty">{{ veterinarian.specialty }}</p>{% endif %}
-            {% if vet_specialties %}
+            {% if veterinarian.specialty and not veterinarian.is_student %}<p class="vp-specialty">{{ veterinarian.specialty }}</p>{% endif %}
+            {% if vet_specialties and not veterinarian.is_student %}
             <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 10px;" class="vp-spec-chips">
                 {% for sp in vet_specialties %}<span style="background:#f0fdfa;color:#0d9488;border:1px solid #99f6e4;border-radius:999px;padding:3px 11px;font-size:0.76rem;font-weight:600;">{{ sp }}</span>{% endfor %}
             </div>
@@ -286,8 +286,8 @@ body { background: #ffffff; }
                 {% endif %}
                 {% if veterinarian.crmv %}<span class="vp-meta-item">{{ veterinarian.crmv }}</span>{% endif %}
                 {% if veterinarian.is_student %}<span class="vp-meta-item" style="color:#7c3aed;font-weight:700">🎓 Estudante de Veterinária{% if veterinarian.student_institution %} · {{ veterinarian.student_institution }}{% endif %}</span>{% endif %}
-                {% if veterinarian.is_24h %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
-                {% if veterinarian.aplica_vacinas %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
+                {% if veterinarian.is_24h and not veterinarian.is_student %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
+                {% if veterinarian.aplica_vacinas and not veterinarian.is_student %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
             </div>
             {% if veterinarian.avg_rating > 0 %}
             <div class="vp-rating-row">
@@ -352,7 +352,7 @@ body { background: #ffffff; }
     {# ── TABS ── #}
     <div class="vp-tabs-bar">
         <button class="vp-tab-btn active" data-tab="sobre">Sobre</button>
-        {% if vet_species %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
+        {% if vet_species and not veterinarian.is_student %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
         {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Conteúdo Profissional ({{ vet_contents|length }})</button>{% endif %}
         {% if vet_recommendations or can_recommend %}<button class="vp-tab-btn" data-tab="recomendacoes">Recomendações{% if vet_recommendations %} ({{ vet_recommendations|length }}){% endif %}</button>{% endif %}
         {% if can_see_recruitment %}<button class="vp-tab-btn" data-tab="recrutamento" style="color:#7c3aed">🔒 Recrutamento</button>{% endif %}
@@ -372,7 +372,7 @@ body { background: #ffffff; }
 
         {% if veterinarian.specialty or veterinarian.crmv or veterinarian.city or veterinarian.is_24h %}
         <div class="vp-info-cards">
-            {% if veterinarian.specialty %}
+            {% if veterinarian.specialty and not veterinarian.is_student %}
             <div class="vp-info-card">
                 <div class="vp-info-card-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
@@ -380,6 +380,15 @@ body { background: #ffffff; }
                 <div>
                     <div class="vp-info-card-lbl">Especialidade</div>
                     <div class="vp-info-card-val">{{ veterinarian.specialty }}</div>
+                </div>
+            </div>
+            {% endif %}
+            {% if veterinarian.is_student and veterinarian.student_institution %}
+            <div class="vp-info-card">
+                <div class="vp-info-card-icon" style="background:#f5f3ff;color:#7c3aed">🎓</div>
+                <div>
+                    <div class="vp-info-card-lbl">Instituição</div>
+                    <div class="vp-info-card-val">{{ veterinarian.student_institution }}</div>
                 </div>
             </div>
             {% endif %}
@@ -405,7 +414,7 @@ body { background: #ffffff; }
                 </div>
             </div>
             {% endif %}
-            {% if veterinarian.is_24h %}
+            {% if veterinarian.is_24h and not veterinarian.is_student %}
             <div class="vp-info-card">
                 <div class="vp-info-card-icon" style="background:#FEF3C7;color:#B45309">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -416,7 +425,7 @@ body { background: #ffffff; }
                 </div>
             </div>
             {% endif %}
-            {% if veterinarian.aplica_vacinas %}
+            {% if veterinarian.aplica_vacinas and not veterinarian.is_student %}
             <div class="vp-info-card">
                 <div class="vp-info-card-icon" style="background:#D1FAE5;color:#059669">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -469,7 +478,7 @@ body { background: #ffffff; }
     </div>
 
     {# ── PANE: ESPÉCIES ── #}
-    {% if vet_species %}
+    {% if vet_species and not veterinarian.is_student %}
     <div class="vp-pane" id="pane-especies">
         <div class="vp-chips">
             {% for sp in vet_species %}<span class="vp-chip">{{ sp }}</span>{% endfor %}
