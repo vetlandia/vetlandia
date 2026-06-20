@@ -5,7 +5,6 @@ import re
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.assets import ASSET_VERSION
@@ -29,8 +28,9 @@ from app.models.tutor import Tutor
 from app.models.user import User, UserType
 from app.models.veterinarian import Veterinarian
 
+from app.core.templating import templates
+
 router = APIRouter(prefix="/admin", tags=["admin"])
-templates = Jinja2Templates(directory="app/templates")
 templates.env.globals["asset_v"] = ASSET_VERSION
 
 

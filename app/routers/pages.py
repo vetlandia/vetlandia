@@ -4,7 +4,6 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -20,8 +19,9 @@ from app.models.review import Review, RevieweeType, ReviewStatus
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
+from app.core.templating import templates
+
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
 templates.env.globals["asset_v"] = ASSET_VERSION
 
 # ── Busca inteligente ──────────────────────────────────────────────────────
