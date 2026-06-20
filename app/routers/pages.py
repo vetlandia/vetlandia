@@ -869,7 +869,7 @@ def recrutamento(
     com filtro por tipo (incl. estudantes) e disponibilidade."""
     if not current_user:
         return RedirectResponse("/login")
-    if current_user.user_type.value not in ("clinic", "admin"):
+    if current_user.user_type.value not in ("clinic", "veterinarian", "admin"):
         return templates.TemplateResponse(
             "pages/404.html", {"request": request, "current_user": current_user}, status_code=404
         )

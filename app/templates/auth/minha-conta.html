@@ -442,7 +442,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="form-label">LinkedIn</label>
-                                <input type="text" name="linkedin" class="form-input" value="{{ profile.linkedin if profile and profile.linkedin else '' }}" placeholder="linkedin.com/in/...">
+                                <input type="url" name="linkedin" class="form-input" value="{{ profile.linkedin if profile and profile.linkedin else 'https://www.linkedin.com/' }}" placeholder="https://www.linkedin.com/in/seu-perfil">
                             </div>
                         </div>
                         <div class="form-row">
@@ -510,10 +510,10 @@
 
                         {# ── Módulo 4: Conteúdo Profissional (links externos) ── #}
                         <div class="form-group">
-                            <label class="form-label">Conteúdo profissional <span style="font-weight:400;color:#94a3b8;font-size:0.8rem">(links: artigos, casos publicados, congressos, redes...)</span></label>
+                            <label class="form-label">Publicações <span style="font-weight:400;color:#94a3b8;font-size:0.8rem">(links: artigos, casos publicados, revistas, congressos...)</span></label>
                             <div id="pc-content-list"></div>
                             <button type="button" class="btn btn-secondary btn-sm" id="pc-content-add">+ Adicionar conteúdo</button>
-                            <p class="form-help">Apenas links externos (sem upload). Aparece na aba "Conteúdo Profissional" do seu perfil público.</p>
+                            <p class="form-help">Apenas links externos (sem upload). Aparece na aba "Publicações" do seu perfil público.</p>
                         </div>
 
                         {% elif current_user.user_type.value == 'clinic' %}
@@ -829,7 +829,7 @@ function addContentRow(d) {
     const list = document.getElementById('pc-content-list');
     if (!list) return;
     d = d || {};
-    const tipos = ['Artigo','Caso clínico','Revista científica','Congresso','Publicação','Instagram','LinkedIn','YouTube','Site'];
+    const tipos = ['Artigo','Caso clínico','Revista científica','Congresso','Publicação','Site'];
     const row = document.createElement('div');
     row.className = 'edu-row';
     row.innerHTML = `

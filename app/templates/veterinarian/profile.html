@@ -325,7 +325,7 @@ body { background: #ffffff; }
     <div class="vp-stats">
         <div class="vp-stat">
             <span class="vp-stat-val">{{ vet_contents|length }}</span>
-            <span class="vp-stat-lbl">Conteúdos</span>
+            <span class="vp-stat-lbl">Publicações</span>
         </div>
         <div class="vp-stat">
             <span class="vp-stat-val">{{ veterinarian.review_count }}</span>
@@ -353,7 +353,7 @@ body { background: #ffffff; }
     <div class="vp-tabs-bar">
         <button class="vp-tab-btn active" data-tab="sobre">Sobre</button>
         {% if vet_species and not veterinarian.is_student %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
-        {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Conteúdo Profissional ({{ vet_contents|length }})</button>{% endif %}
+        {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Publicações ({{ vet_contents|length }})</button>{% endif %}
         {% if vet_recommendations or can_recommend %}<button class="vp-tab-btn" data-tab="recomendacoes">Recomendações{% if vet_recommendations %} ({{ vet_recommendations|length }}){% endif %}</button>{% endif %}
         {% if can_see_recruitment %}<button class="vp-tab-btn" data-tab="recrutamento" style="color:#7c3aed">🔒 Recrutamento</button>{% endif %}
         {# Módulo 4: aba de Casos Clínicos oculta (código preservado)
@@ -469,7 +469,7 @@ body { background: #ffffff; }
 
         {% if veterinarian.website or veterinarian.linkedin or veterinarian.instagram or veterinarian.lattes %}
         <div class="vp-links" style="margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;">
-            {% if veterinarian.website %}<a href="{{ veterinarian.website }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🌐 Site</a>{% endif %}
+            {% if veterinarian.website %}<a href="{{ veterinarian.website if '://' in veterinarian.website else 'https://' + veterinarian.website }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🌐 Site</a>{% endif %}
             {% if veterinarian.linkedin %}<a href="{{ veterinarian.linkedin if '://' in veterinarian.linkedin else 'https://' + veterinarian.linkedin }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">in LinkedIn</a>{% endif %}
             {% if veterinarian.instagram %}<a href="https://instagram.com/{{ veterinarian.instagram|replace('@','')|replace('https://instagram.com/','') }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">📷 Instagram</a>{% endif %}
             {% if veterinarian.lattes %}<a href="{{ veterinarian.lattes if '://' in veterinarian.lattes else 'https://' + veterinarian.lattes }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🎓 Lattes</a>{% endif %}
