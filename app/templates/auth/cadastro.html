@@ -535,10 +535,11 @@
                         </div>
                     </div>
                     <div class="form-group" style="margin-top:6px">
-                        <label class="terms-check" style="margin:0">
-                            <input type="checkbox" id="vet-is-student">
-                            <span>Sou <strong>estudante de veterinária</strong> (ainda não tenho CRMV)</span>
-                        </label>
+                        <label class="form-label">Você é</label>
+                        <div style="display:flex;gap:14px;flex-wrap:wrap;">
+                            <label class="terms-check" style="margin:0"><input type="radio" name="vet_tipo" id="vet-radio-formado" checked><span>Veterinário(a) <strong>formado(a)</strong></span></label>
+                            <label class="terms-check" style="margin:0"><input type="radio" name="vet_tipo" id="vet-is-student"><span><strong>Estudante</strong> de veterinária</span></label>
+                        </div>
                     </div>
                     <div class="form-group" id="vet-institution-group" style="display:none">
                         <label class="form-label">Instituição de ensino</label>
@@ -1269,15 +1270,16 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const instGroup = document.getElementById('vet-institution-group');
         const crmvLabel = document.getElementById('vet-crmv-label');
         const hideForStudent = ['vet-grp-specialty', 'vet-grp-species', 'vet-grp-atendimento'];
-        if (studentCb) studentCb.addEventListener('change', () => {
-            const s = studentCb.checked;
-            instGroup.style.display = s ? '' : 'none';
+        function applyTipo() {
+            const s = studentCb && studentCb.checked;
+            if (instGroup) instGroup.style.display = s ? '' : 'none';
             hideForStudent.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = s ? 'none' : ''; });
             var dp = document.getElementById('vet-disp-pro'); if (dp) dp.style.display = s ? 'none' : '';
             var ds = document.getElementById('vet-disp-student'); if (ds) ds.style.display = s ? '' : 'none';
             if (crmvLabel) crmvLabel.textContent = s ? 'CRMV (não obrigatório para estudante)' : 'CRMV';
             if (s) { crmvEl.value = ''; showFieldError('err-vet-crmv', false); }
-        });
+        }
+        document.querySelectorAll('input[name="vet_tipo"]').forEach(r => r.addEventListener('change', applyTipo));
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();

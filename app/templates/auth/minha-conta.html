@@ -242,7 +242,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                         Meus dados
                     </a>
-                    {% if current_user.user_type.value == 'veterinarian' and profile and profile.slug %}
+                    {% if current_user.user_type.value == 'veterinarian' and profile and profile.slug and not profile.is_student %}
                     <a href="/veterinario/{{ profile.slug }}">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" stroke="currentColor" stroke-width="2"/></svg>
                         Ver meu perfil público
@@ -322,6 +322,14 @@
                             <label class="form-label">Nome Completo</label>
                             <input type="text" name="full_name" class="form-input" value="{{ profile.full_name if profile else '' }}">
                         </div>
+                        <div class="form-group">
+                            <label class="form-label">Você é</label>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                                <label class="chip-check"><input type="radio" name="tipo_prof" id="pc-radio-formado" value="formado" {% if not (profile and profile.is_student) %}checked{% endif %}><span>Veterinário(a) formado(a)</span></label>
+                                <label class="chip-check"><input type="radio" name="tipo_prof" id="pc-is-student" value="estudante" {% if profile and profile.is_student %}checked{% endif %}><span>Estudante de veterinária</span></label>
+                            </div>
+                            <p class="form-help">Estudante não precisa de CRMV. Ao mudar para formado, informe o CRMV — o perfil volta para aprovação do admin.</p>
+                        </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label class="form-label">CPF</label>
@@ -332,12 +340,19 @@
                                 <input type="text" name="crmv" id="pc-crmv" class="form-input" value="{{ profile.crmv if profile and profile.crmv else '' }}" placeholder="CRMV-SP 12345">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="terms-check" style="margin:0">
-                                <input type="checkbox" id="pc-is-student" {% if profile and profile.is_student %}checked{% endif %}>
-                                <span>Sou <strong>estudante de veterinária</strong> (ainda não tenho CRMV)</span>
-                            </label>
-                            <p class="form-help">Ao desmarcar, informe seu CRMV — o perfil voltará para aprovação do admin.</p>
+                        <div class="form-group" id="pc-crmv-carteira" {% if profile and profile.is_student %}style="display:none"{% endif %}>
+                            <label class="form-label">Carteira profissional (CRMV) — para verificação</label>
+                            <div class="photo-upload-widget">
+                                <div class="photo-preview cover-preview" id="pc-vet-crmv-preview">
+                                    {% if profile and profile.crmv_card_url %}<img src="{{ profile.crmv_card_url }}" alt="Carteira">{% else %}<span class="photo-preview-placeholder">🪪</span>{% endif %}
+                                </div>
+                                <div class="photo-upload-actions">
+                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-vet-crmv-input">🪪 Enviar carteira</label>
+                                    <input type="file" id="pc-vet-crmv-input" accept="image/*" class="photo-file-input">
+                                    <input type="hidden" name="crmv_card_url" id="pc-vet-crmv-data" value="{{ profile.crmv_card_url if profile and profile.crmv_card_url else '' }}">
+                                    <p class="form-help">Usada apenas para validar o selo "Perfil Verificado". Não aparece no perfil público.</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group" id="pc-grp-especialidade" {% if profile and profile.is_student %}style="display:none"{% endif %}>
                             <label class="form-label">Especialidade</label>
@@ -412,7 +427,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="pc-grp-atendimento-vet" {% if profile and profile.is_student %}style="display:none"{% endif %}>
                             <label class="terms-check" style="margin-bottom:8px">
                                 <input type="checkbox" name="is_24h" {% if profile and profile.is_24h %}checked{% endif %}>
                                 <span>Ofereço atendimento <strong>24 horas</strong></span>
@@ -424,7 +439,7 @@
                         </div>
 
                         {# ── Módulo 1: Especialidades múltiplas ── #}
-                        <div class="form-group" {% if profile and profile.is_student %}style="display:none"{% endif %}>
+                        <div class="form-group" id="pc-grp-specialties-multi" {% if profile and profile.is_student %}style="display:none"{% endif %}>
                             <label class="form-label">Especialidades — marque todas em que atua</label>
                             <div class="chips-multi" id="pc-vet-specs">
                                 {% for sp in ['Acupuntura Veterinária','Anestesiologia','Cardiologia','Clínica Geral','Dermatologia','Diagnóstico por Imagem','Endocrinologia','Fisioterapia e Reabilitação','Gastroenterologia','Hematologia','Infectologia','Medicina de Animais Selvagens','Nefrologia e Urologia','Neurologia','Nutrição Animal','Odontologia Veterinária','Oftalmologia','Oncologia','Ortopedia e Cirurgia','Parasitologia','Reprodução Animal','Toxicologia','Zootecnia'] %}
@@ -456,21 +471,6 @@
                             </div>
                         </div>
 
-                        {# ── Carteira CRMV (validação) ── #}
-                        <div class="form-group">
-                            <label class="form-label">Carteira profissional (CRMV) — para verificação</label>
-                            <div class="photo-upload-widget">
-                                <div class="photo-preview cover-preview" id="pc-vet-crmv-preview">
-                                    {% if profile and profile.crmv_card_url %}<img src="{{ profile.crmv_card_url }}" alt="Carteira">{% else %}<span class="photo-preview-placeholder">🪪</span>{% endif %}
-                                </div>
-                                <div class="photo-upload-actions">
-                                    <label class="btn btn-secondary btn-sm photo-upload-btn" for="pc-vet-crmv-input">🪪 Enviar carteira</label>
-                                    <input type="file" id="pc-vet-crmv-input" accept="image/*" class="photo-file-input">
-                                    <input type="hidden" name="crmv_card_url" id="pc-vet-crmv-data" value="{{ profile.crmv_card_url if profile and profile.crmv_card_url else '' }}">
-                                    <p class="form-help">Usada apenas para validar o selo "Perfil Verificado". Não aparece no perfil público.</p>
-                                </div>
-                            </div>
-                        </div>
 
                         {# ── Formação acadêmica (múltipla) ── #}
                         <div class="form-group">
@@ -705,15 +705,18 @@ setupPhotoUpload('pc-vet-cover-input',    'pc-vet-cover-preview',    'pc-vet-cov
 setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-cover-data');
 setupPhotoUpload('pc-vet-crmv-input',     'pc-vet-crmv-preview',     'pc-vet-crmv-data');
 
-// Estudante: mostrar/ocultar CRMV ao marcar/desmarcar
+// Estudante x Formado: mostra/oculta CRMV, carteira, especialidades, 24h/vacinas
 (function () {
-    var cb = document.getElementById('pc-is-student');
-    var grp = document.getElementById('pc-crmv-group');
-    if (!cb || !grp) return;
-    cb.addEventListener('change', function () {
-        grp.style.display = cb.checked ? 'none' : '';
-        if (!cb.checked) { var i = document.getElementById('pc-crmv'); if (i) i.focus(); }
-    });
+    var radios = document.querySelectorAll('input[name="tipo_prof"]');
+    var est = document.getElementById('pc-is-student');
+    if (!radios.length || !est) return;
+    var soFormado = ['pc-crmv-group', 'pc-crmv-carteira', 'pc-grp-especialidade', 'pc-grp-specialties-multi', 'pc-grp-atendimento-vet'];
+    function apply() {
+        var s = est.checked; // estudante?
+        soFormado.forEach(function (id) { var el = document.getElementById(id); if (el) el.style.display = s ? 'none' : ''; });
+        if (!s) { var i = document.getElementById('pc-crmv'); if (i) i.focus(); }
+    }
+    radios.forEach(function (r) { r.addEventListener('change', apply); });
 })();
 
 // ── Módulo 1: especialidades múltiplas ──
