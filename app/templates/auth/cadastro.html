@@ -1364,13 +1364,14 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             e.preventDefault();
             const isStudent = studentCb && studentCb.checked;
             let ok = true;
+            let species = [];
             if (!isValidName(nameEl.value)) { markField(nameEl, false); showFieldError('err-vet-full_name', true); ok = false; }
             if (!isValidCPF(cpfEl.value)) { markField(cpfEl, false); showFieldError('err-vet-cpf', true); ok = false; }
             if (!isStudent && !isValidCRMV(crmvEl.value)) { markField(crmvEl, false); showFieldError('err-vet-crmv', true); ok = false; }
             if (!isStudent) {
                 const specialtyEl = form.querySelector('[name="specialty"]');
                 if (!specialtyEl.value) { showFieldError('err-vet-specialty', true); ok = false; }
-                const species = collectChips('vet-species');
+                species = collectChips('vet-species');
                 if (!species.length) { showFieldError('err-vet-species', true); ok = false; }
                 if (!bioEl.value.trim() || bioEl.value.trim().length < 10) { markField(bioEl, false); showFieldError('err-vet-bio', true); ok = false; }
                 const photoData = document.getElementById('vet-photo-data');
