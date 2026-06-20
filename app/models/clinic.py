@@ -42,6 +42,9 @@ class Clinic(Base):
     # Módulo 6: acesso a recrutamento (ver disponibilidades/histórico dos vets).
     # Módulo 8 generaliza isto numa estrutura de entitlements.
     has_recruitment_access = Column(Boolean, default=False, nullable=False)
+    # Abertura para recrutamento (a própria clínica indica)
+    open_hiring = Column(Boolean, default=False, nullable=False)       # contrata efetivo
+    open_internship = Column(Boolean, default=False, nullable=False)   # aberta a estágio
     # Módulo 7: faixas de preço (NUNCA valor exato): economica | intermediaria | premium
     consulta_faixa = Column(String(20), nullable=True)
     procedimento_faixa = Column(String(20), nullable=True)

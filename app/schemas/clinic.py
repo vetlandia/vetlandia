@@ -29,6 +29,8 @@ class ClinicBase(BaseModel):
     is_24h: bool = False
     aplica_vacinas: bool = False
     num_veterinarios: Optional[str] = None
+    open_hiring: bool = False
+    open_internship: bool = False
 
     @field_validator("state")
     @classmethod
@@ -68,6 +70,8 @@ class ClinicUpdate(BaseModel):
     num_veterinarios: Optional[str] = None
     consulta_faixa: Optional[str] = Field(None, max_length=20)
     procedimento_faixa: Optional[str] = Field(None, max_length=20)
+    open_hiring: Optional[bool] = None
+    open_internship: Optional[bool] = None
 
 
 class ClinicResponse(ClinicBase):

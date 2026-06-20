@@ -636,9 +636,17 @@
                                 <input type="checkbox" name="is_24h" {% if profile and profile.is_24h %}checked{% endif %}>
                                 <span>Clínica com atendimento <strong>24 horas</strong></span>
                             </label>
-                            <label class="terms-check" style="margin-bottom:0">
+                            <label class="terms-check" style="margin-bottom:8px">
                                 <input type="checkbox" name="aplica_vacinas" id="pc-clinic-vacinas" {% if profile and profile.aplica_vacinas %}checked{% endif %}>
                                 <span>Clínica aplica <strong>vacinas</strong></span>
+                            </label>
+                            <label class="terms-check" style="margin-bottom:8px">
+                                <input type="checkbox" id="pc-clinic-hiring" {% if profile and profile.open_hiring %}checked{% endif %}>
+                                <span>Aberta para <strong>contratação de efetivo</strong></span>
+                            </label>
+                            <label class="terms-check" style="margin-bottom:0">
+                                <input type="checkbox" id="pc-clinic-internship" {% if profile and profile.open_internship %}checked{% endif %}>
+                                <span>Aberta para <strong>estágio</strong></span>
                             </label>
                         </div>
                         {% endif %}
@@ -991,6 +999,8 @@ function collectContents() {
                 num_veterinarios: (document.getElementById('pc-num-vets') && document.getElementById('pc-num-vets').value) || null,
                 consulta_faixa: gId('pc-consulta-faixa'),
                 procedimento_faixa: gId('pc-procedimento-faixa'),
+                open_hiring: chk('pc-clinic-hiring'),
+                open_internship: chk('pc-clinic-internship'),
             };
             if (_st) payload.state = _st;
             if (_ct) payload.city = _ct;

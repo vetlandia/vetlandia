@@ -475,7 +475,9 @@ def buscar_clinicas(
     estado: str = None,
     somente_24h: str = None,
     aplica_vacinas: str = None,
+    recruta: str = None,
 ):
+    viewer_is_recruiter = bool(current_user and current_user.user_type.value in ("veterinarian", "clinic", "admin"))
     q = db.query(
         Clinic,
         func.avg(Review.rating).label("avg_rating"),
@@ -526,6 +528,10 @@ def buscar_clinicas(
         q = q.filter(Clinic.is_24h == True)
     if aplica_vacinas in ("1", "on"):
         q = q.filter(Clinic.aplica_vacinas == True)
+    if viewer_is_recruiter and recruta == "efetivo":
+        q = q.filter(Clinic.open_hiring == True)
+    elif viewer_is_recruiter and recruta == "estagio":
+        q = q.filter(Clinic.open_internship == True)
 
     results = (
         q.group_by(Clinic.id)
@@ -557,6 +563,8 @@ def buscar_clinicas(
             "somente_24h": somente_24h,
             "aplica_vacinas": aplica_vacinas,
             "cidades_disponiveis": cidades_disponiveis,
+            "viewer_is_recruiter": viewer_is_recruiter,
+            "recruta": recruta or "",
         },
     )
 
@@ -568,6 +576,10 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     # Admin pode pré-visualizar perfis ainda não aprovados (Módulo 9)
     is_admin = bool(current_user and current_user.user_type.value == "admin")
     if not vet or (not vet.is_approved and not is_admin):
+        return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
+
+    # Perfis de estudantes só são acessíveis a clínicas (recrutamento) e admin
+    if vet.is_student and not (current_user and current_user.user_type.value in ("clinic", "admin")):
         return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
     # Calcular rating (apenas aprovadas)
@@ -906,6 +918,7 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
             "clinic_recommendations": clinic_recommendations,
             "can_recommend": can_recommend,
             "already_recommended": already_recommended,
+            "viewer_is_recruiter": bool(current_user and current_user.user_type.value in ("veterinarian", "clinic", "admin")),
         },
     )
 

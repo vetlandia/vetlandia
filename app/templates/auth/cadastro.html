@@ -674,6 +674,19 @@
                     </label>
                 </div>
 
+                <div class="form-section" id="vet-grp-recrutamento">
+                    <p class="section-title">Disponibilidade para recrutamento (opcional)</p>
+                    <div id="vet-disp-pro">
+                        <label class="terms-check" style="margin-bottom:8px"><input type="checkbox" id="vet-disp-plantao"><span>Disponível para <strong>plantões</strong></span></label>
+                        <label class="terms-check" style="margin-bottom:8px"><input type="checkbox" id="vet-disp-volante"><span>Disponível para <strong>atendimentos volantes</strong></span></label>
+                        <label class="terms-check" style="margin-bottom:8px"><input type="checkbox" id="vet-disp-oportunidades"><span>Aberto a <strong>novas oportunidades</strong></span></label>
+                        <label class="terms-check" style="margin-bottom:0"><input type="checkbox" id="vet-disp-parcerias"><span>Aberto a <strong>parcerias</strong></span></label>
+                    </div>
+                    <div id="vet-disp-student" style="display:none">
+                        <label class="terms-check" style="margin-bottom:0"><input type="checkbox" id="vet-disp-estagio"><span>Disponível para <strong>estágio</strong></span></label>
+                    </div>
+                </div>
+
                 <div class="form-section">
                     <p class="section-title">Acesso</p>
                     <div class="form-group">
@@ -877,9 +890,17 @@
                         <input type="checkbox" name="is_24h" id="clinic-is-24h" value="true">
                         <span>Clínica com atendimento <strong>24 horas</strong> (plantão / emergência)</span>
                     </label>
-                    <label class="terms-check" style="margin-bottom:0">
+                    <label class="terms-check" style="margin-bottom:8px">
                         <input type="checkbox" name="aplica_vacinas" id="clinic-aplica-vacinas" value="true">
                         <span>Clínica aplica <strong>vacinas</strong></span>
+                    </label>
+                    <label class="terms-check" style="margin-bottom:8px">
+                        <input type="checkbox" id="clinic-open-hiring" value="true">
+                        <span>Aberta para <strong>contratação de efetivo</strong></span>
+                    </label>
+                    <label class="terms-check" style="margin-bottom:0">
+                        <input type="checkbox" id="clinic-open-internship" value="true">
+                        <span>Aberta para <strong>estágio</strong></span>
                     </label>
                 </div>
 
@@ -1252,6 +1273,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
             const s = studentCb.checked;
             instGroup.style.display = s ? '' : 'none';
             hideForStudent.forEach(id => { const el = document.getElementById(id); if (el) el.style.display = s ? 'none' : ''; });
+            var dp = document.getElementById('vet-disp-pro'); if (dp) dp.style.display = s ? 'none' : '';
+            var ds = document.getElementById('vet-disp-student'); if (ds) ds.style.display = s ? '' : 'none';
             if (crmvLabel) crmvLabel.textContent = s ? 'CRMV (não obrigatório para estudante)' : 'CRMV';
             if (s) { crmvEl.value = ''; showFieldError('err-vet-crmv', false); }
         });
@@ -1298,6 +1321,11 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('vet-is-24h').checked,
                 aplica_vacinas: document.getElementById('vet-aplica-vacinas').checked,
+                disp_plantao: document.getElementById('vet-disp-plantao').checked,
+                disp_volante: document.getElementById('vet-disp-volante').checked,
+                disp_oportunidades: document.getElementById('vet-disp-oportunidades').checked,
+                disp_parcerias: document.getElementById('vet-disp-parcerias').checked,
+                disp_estagio: document.getElementById('vet-disp-estagio').checked,
             };
 
             try {
@@ -1371,6 +1399,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
                 is_24h: document.getElementById('clinic-is-24h').checked,
                 aplica_vacinas: document.getElementById('clinic-aplica-vacinas').checked,
+                open_hiring: document.getElementById('clinic-open-hiring').checked,
+                open_internship: document.getElementById('clinic-open-internship').checked,
                 num_veterinarios: document.getElementById('clinic-num-vets').value || null,
             };
 

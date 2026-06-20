@@ -32,6 +32,12 @@ class VeterinarianBase(BaseModel):
     instagram: Optional[str] = Field(None, max_length=255)
     lattes: Optional[str] = Field(None, max_length=255)
     crmv_card_url: Optional[str] = None  # data URL ou https URL (carteira)
+    # disponibilidade de recrutamento (preenchida no cadastro)
+    disp_plantao: bool = False
+    disp_volante: bool = False
+    disp_oportunidades: bool = False
+    disp_parcerias: bool = False
+    disp_estagio: bool = False
 
     @field_validator("crmv")
     @classmethod

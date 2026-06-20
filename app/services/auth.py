@@ -144,6 +144,11 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         aplica_vacinas=data.aplica_vacinas,
         is_student=data.is_student,
         student_institution=data.student_institution,
+        disp_plantao=data.disp_plantao,
+        disp_volante=data.disp_volante,
+        disp_oportunidades=data.disp_oportunidades,
+        disp_parcerias=data.disp_parcerias,
+        disp_estagio=data.disp_estagio,
         slug=slug,
         clinic_id=data.clinic_id,
     )
@@ -196,6 +201,8 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
         cover_photo_url=data.cover_photo_url,
         is_24h=data.is_24h,
         aplica_vacinas=data.aplica_vacinas,
+        open_hiring=data.open_hiring,
+        open_internship=data.open_internship,
         slug=slug,
     )
     db.add(clinic)

@@ -35,6 +35,19 @@
                 {% else %}
                 <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1&{% endif %}aplica_vacinas=1" class="chip">💉 Aplica vacinas</a>
                 {% endif %}
+                {% if viewer_is_recruiter %}
+                {% set base = '?' ~ ('query=' ~ query ~ '&' if query else '') ~ ('cidade=' ~ cidade ~ '&' if cidade else '') %}
+                {% if recruta == 'efetivo' %}
+                <a href="{{ base }}" class="chip active">💼 Contratando efetivo ✕</a>
+                {% else %}
+                <a href="{{ base }}recruta=efetivo" class="chip">💼 Contratando efetivo</a>
+                {% endif %}
+                {% if recruta == 'estagio' %}
+                <a href="{{ base }}" class="chip active">🎓 Aberta para estágio ✕</a>
+                {% else %}
+                <a href="{{ base }}recruta=estagio" class="chip">🎓 Aberta para estágio</a>
+                {% endif %}
+                {% endif %}
             </div>
         </div>
 
