@@ -38,6 +38,9 @@ class Clinic(Base):
     cover_photo_url = Column(Text, nullable=True)
     aplica_vacinas = Column(Boolean, default=False, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)  # selo "Perfil Verificado"
+    # Módulo 6: acesso a recrutamento (ver disponibilidades/histórico dos vets).
+    # Módulo 8 generaliza isto numa estrutura de entitlements.
+    has_recruitment_access = Column(Boolean, default=False, nullable=False)
     num_veterinarios = Column(String(10), nullable=True)  # qtd manual do responsável
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

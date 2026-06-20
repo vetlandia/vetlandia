@@ -338,6 +338,7 @@ body { background: #ffffff; }
         {% if vet_species %}<button class="vp-tab-btn" data-tab="especies">Espécies Atendidas</button>{% endif %}
         {% if vet_contents %}<button class="vp-tab-btn" data-tab="conteudo">Conteúdo Profissional ({{ vet_contents|length }})</button>{% endif %}
         {% if vet_recommendations or can_recommend %}<button class="vp-tab-btn" data-tab="recomendacoes">Recomendações{% if vet_recommendations %} ({{ vet_recommendations|length }}){% endif %}</button>{% endif %}
+        {% if can_see_recruitment %}<button class="vp-tab-btn" data-tab="recrutamento" style="color:#7c3aed">🔒 Recrutamento</button>{% endif %}
         {# Módulo 4: aba de Casos Clínicos oculta (código preservado)
         <button class="vp-tab-btn" data-tab="casos">Casos Clínicos{% if vet_cases %} ({{ vet_cases|length }}){% endif %}</button>
         #}
@@ -550,6 +551,45 @@ body { background: #ffffff; }
             </script>
             {% endif %}
         {% endif %}
+    </div>
+    {% endif %}
+
+    {# ── PANE: RECRUTAMENTO (Módulo 6 — só clínica liberada/admin) ── #}
+    {% if can_see_recruitment %}
+    <div class="vp-pane" id="pane-recrutamento">
+        <div style="max-width:720px;">
+            <p style="font-size:0.8rem;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:10px 14px;margin:0 0 20px;">🔒 Informações de recrutamento — visíveis apenas para clínicas com acesso e administradores. Não aparecem no perfil público.</p>
+
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Disponibilidade</h3>
+            {% set av = vet_availability %}
+            {% if av and (av.plantao or av.volante or av.oportunidades or av.parcerias) %}
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">
+                {% if av.plantao %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Plantões</span>{% endif %}
+                {% if av.volante %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Atendimentos volantes</span>{% endif %}
+                {% if av.oportunidades %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Novas oportunidades</span>{% endif %}
+                {% if av.parcerias %}<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;border-radius:999px;padding:5px 13px;font-size:0.8rem;font-weight:600;">Parcerias</span>{% endif %}
+            </div>
+            {% else %}
+            <p class="vp-no-content" style="margin-bottom:24px;">Não indicou disponibilidade para recrutamento.</p>
+            {% endif %}
+
+            <h3 style="font-size:0.95rem;font-weight:700;color:#0f172a;margin:0 0 12px;">Histórico profissional</h3>
+            {% if vet_history %}
+            <div style="display:flex;flex-direction:column;gap:0;">
+                {% for h in vet_history %}
+                <div style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #f1f5f9;">
+                    <span style="flex-shrink:0;font-size:0.72rem;font-weight:700;border-radius:6px;padding:3px 8px;height:fit-content;{% if h.is_current %}color:#059669;background:#ecfdf5;border:1px solid #a7f3d0{% else %}color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0{% endif %}">{% if h.is_current %}Atual{% else %}Encerrado{% endif %}</span>
+                    <div>
+                        <div style="font-size:0.88rem;font-weight:600;color:#1f2937;"><a href="/clinica/{{ h.clinic_slug }}" style="color:inherit;">{{ h.clinic_name }}</a></div>
+                        <div style="font-size:0.8rem;color:#64748b;">{% if h.role %}{{ h.role }}{% endif %}{% if h.start_year or h.end_year %} · {{ h.start_year or '?' }}–{{ h.end_year or 'atual' }}{% endif %}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="vp-no-content">Nenhum vínculo registrado.</p>
+            {% endif %}
+        </div>
     </div>
     {% endif %}
 

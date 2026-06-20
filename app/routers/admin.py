@@ -198,6 +198,17 @@ def verify_clinic(clinic_id: str, verified: str = Form(...), db: Session = Depen
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
+@router.post("/clinics/{clinic_id}/recruitment-access")
+def set_clinic_recruitment_access(clinic_id: str, access: str = Form(...), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    """Libera/remove o acesso de recrutamento da clínica (Módulo 6)."""
+    clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
+    if not clinic:
+        raise HTTPException(status_code=404, detail="Clínica não encontrada")
+    clinic.has_recruitment_access = (access == "true")
+    db.commit()
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
 @router.post("/clinics/{clinic_id}/delete")
 def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()

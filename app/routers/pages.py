@@ -680,6 +680,37 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
                 is not None
             )
 
+    # ── Módulo 6: camada de visibilidade de recrutamento ──
+    # Só admin ou clínica com acesso liberado veem disponibilidades e histórico.
+    can_see_recruitment = False
+    if current_user:
+        if current_user.user_type.value == "admin":
+            can_see_recruitment = True
+        elif current_user.user_type.value == "clinic":
+            viewer_clinic = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
+            can_see_recruitment = bool(viewer_clinic and viewer_clinic.has_recruitment_access)
+
+    vet_availability = None
+    vet_history = []
+    if can_see_recruitment:
+        vet_availability = {
+            "plantao": vet.disp_plantao,
+            "volante": vet.disp_volante,
+            "oportunidades": vet.disp_oportunidades,
+            "parcerias": vet.disp_parcerias,
+        }
+        # Histórico completo (atuais + encerrados) com dados da clínica
+        for link in vet.clinic_links:
+            if link.clinic:
+                vet_history.append({
+                    "clinic_name": link.clinic.name,
+                    "clinic_slug": link.clinic.slug,
+                    "role": link.role,
+                    "start_year": link.start_year,
+                    "end_year": link.end_year,
+                    "is_current": link.is_current,
+                })
+
     return templates.TemplateResponse(
         "veterinarian/profile.html",
         {
@@ -699,6 +730,9 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
             "vet_recommendations": vet_recommendations,
             "can_recommend": can_recommend,
             "already_recommended": already_recommended,
+            "can_see_recruitment": can_see_recruitment,
+            "vet_availability": vet_availability,
+            "vet_history": vet_history,
         },
     )
 
