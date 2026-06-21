@@ -1,0 +1,489 @@
+================================================================================
+VETLÂNDIA — ESPECIFICAÇÃO TÉCNICA
+Documento de referência para evolução técnica (uso em chat do Claude)
+Atualizado em: 2026-06-21
+Domínio de produção: https://vetlandia.com.br
+Repositório: github.com/vetlandia/vetlandia
+================================================================================
+
+--------------------------------------------------------------------------------
+1. STACK PRINCIPAL
+--------------------------------------------------------------------------------
+- Linguagem:            Python 3.12.7 (runtime.txt)
+- Framework web:        FastAPI 0.110.0
+- Servidor ASGI:        Uvicorn 0.27.1 (extra "standard")
+- Renderização:         Server-Side Rendering com Jinja2 3.1.3 (templates HTML)
+- ORM:                  SQLAlchemy 2.0.27
+- Migrations:           Alembic 1.13.1 (28 migrations em alembic/versions/)
+                        HEAD ATUAL: a1b2c3d4e5f6 (password_reset_tokens)
+- Validação/Schemas:    Pydantic 2.10.5 + pydantic-settings 2.7.1
+                        email-validator 2.2.0
+- Upload/forms:         python-multipart 0.0.9
+- Config/env:           python-dotenv 1.0.1
+- E-mail:               resend (HTTP API via pacote python resend)
+- Arquitetura geral:    Monólito FastAPI servindo HTML (SSR) + API JSON interna.
+                        Frontend SEM framework: HTML/Jinja2 + CSS modular +
+                        JavaScript vanilla (sem etapa de build no front).
+
+--------------------------------------------------------------------------------
+2. BANCO DE DADOS
+--------------------------------------------------------------------------------
+- Produção:   PostgreSQL 18 (provisionado no Railway; DATABASE_URL injetado)
+- Local/dev:  SQLite (arquivo vetlandia.db na raiz) — raramente usado
+- Drivers:    psycopg (v3) [binary] 3.3.4  -> driver principal
+              psycopg2-binary 2.9.9        -> compatibilidade
+- Normalização de URL: config converte "postgresql://" para
+              "postgresql+psycopg://" automaticamente (app/core/config.py).
+- Migrations: aplicadas no deploy via "alembic upgrade head"
+              (executado no startCommand do Railway, antes do Uvicorn).
+- Backup:     automático pré-migration por deploy no Volume /backups (últimas 3).
+              Conta Railway: vetlandiabrasil@outlook.com
+
+MODELOS ORM (app/models/):
+  user              Conta base / autenticação; user_type enum: tutor, veterinarian,
+                    clinic, admin; is_active; display_name property
+  administrator     Perfil de administrador do sistema
+  tutor             Perfil de tutor (dono de pet); pets: JSON string
+  veterinarian      Perfil de veterinário; crmv, specialty, is_student, is_approved,
+                    is_rejected, is_verified, slug, crmv_card_url, disp_*, aplica_vacinas
+  clinic            Perfil de clínica; cnpj, slug, is_approved, is_rejected,
+                    consulta_preco_min/max, procedimento_preco_min/max,
+                    open_hiring, open_internship, has_recruitment_access
+  review            Avaliações da comunidade; status: pending/approved/rejected
+  comment           Comentários de avaliações
+  case (ClinicalCase) Casos clínicos; status: pending/published/rejected
+  affiliation (VetClinicLink) Vínculo vet ↔ clínica (grafo profissional)
+  education         Formação acadêmica do veterinário
+  content           Conteúdo profissional (links externos: artigos, vídeos)
+  recommendation    Recomendações entre vets e clínicas; status: pending/approved/rejected
+  entitlement (ClinicEntitlement) Produtos/funcionalidades liberadas por clínica
+  audit (AuditLog)  Log de ações administrativas (quem, o quê, quando)
+  analytics.py      ProfileView, SearchLog, PageView — analytics interno
+  password_reset.py PasswordResetToken — tokens de redefinição de senha (expira em 1h)
+
+SEQUÊNCIA DE MIGRATIONS (ordem cronológica):
+  5486fcdc  initial_complete_schema
+  7ae9d815  create_main_admin
+  a8e658a1  clean_all_fake_data
+  c1d2e3f4  extended_profiles
+  d2e3f4a5  photo_url_to_text
+  e3f4a5b6  add_is_24h
+  f4a5b6c7  tutor_photo_url
+  g5b6c7d8  add_case_status
+  h6c7d8e9  add_comment_status
+  i7d8e9f0  add_founder_and_cover_photo
+  j8e9f0a1  add_vacinas_and_num_vets
+  k9f0a1b2  modulo1_perfil_veterinario
+  l0a1b2c3  backfill_is_verified
+  m1b2c3d4  modulo2_disponibilidades
+  n2c3d4e5  modulo3_vinculos_grafo (VetClinicLink)
+  o3d4e5f6  modulo4_conteudo_profissional
+  p4e5f6a7  modulo5_recomendacoes
+  q5f6a7b8  modulo6_recruitment_access
+  r6a7b8c9  modulo7_faixas_preco
+  s7b8c9d0  modulo8_entitlements
+  t8c9d0e1  modulo9_is_rejected
+  u9d0e1f2  audit_logs
+  v0e1f2a3  estudantes (is_student, student_institution)
+  w1f2a3b4  recomendacoes_alvo_generico
+  x2a3b4c5  clinica_contratacao (open_hiring, open_internship)
+  y3b4c5d6  preco_deat (consulta/procedimento_preco_min/max)
+  z4c5d6e7  analytics (profile_views, search_logs, page_views)
+  a1b2c3d4  password_reset_tokens  ← HEAD ATUAL
+
+--------------------------------------------------------------------------------
+3. AUTENTICAÇÃO E SEGURANÇA
+--------------------------------------------------------------------------------
+- Tokens:        JWT via python-jose 3.3.0
+- Algoritmo:     HS256 (config: ALGORITHM)
+- Expiração:     ACCESS_TOKEN_EXPIRE_MINUTES = 1440 (24 horas)
+- Hash de senha: passlib[bcrypt] 1.7.4 + bcrypt (<5.0)  -> CryptContext bcrypt
+- Transporte:    Cookie "access_token" httpOnly, samesite=lax
+                 (logout em GET /logout apaga o cookie e redireciona para /)
+- Assinatura:    SECRET_KEY (variável de ambiente)
+- Implementação: app/core/security.py
+                 (verify_password, get_password_hash,
+                  create_access_token, decode_access_token)
+
+FLUXO RESET DE SENHA ("Esqueci minha senha"):
+  GET  /esqueci-senha           -> formulário (template auth/esqueci-senha.html)
+  POST /api/auth/forgot-password -> gera secrets.token_urlsafe(32), armazena
+                                   SHA-256 hash em password_reset_tokens, envia
+                                   e-mail com link. Sempre retorna 200 (anti-enum.)
+  GET  /redefinir-senha?token=  -> formulário de nova senha (auth/redefinir-senha.html)
+  POST /api/auth/reset-password -> valida token (expira 1h), atualiza password_hash,
+                                   marca token used=True
+
+--------------------------------------------------------------------------------
+4. ESTRUTURA DA APLICAÇÃO (app/)
+--------------------------------------------------------------------------------
+app/main.py           Instancia FastAPI, middlewares, mounts, routers, /health
+app/core/
+  config.py           Settings (pydantic-settings, lê .env); todas as env vars
+  database.py         Engine/session SQLAlchemy; SessionLocal, get_db
+  security.py         JWT + hashing
+  dependencies.py     get_current_user, require_admin, get_current_user_optional
+  assets.py           ASSET_VERSION — cache-busting (timestamp por processo)
+  templating.py       Instância Jinja2 compartilhada; injeta asset_v e
+                      ga_measurement_id como globals
+app/models/           Modelos ORM (ver seção 2)
+app/schemas/          Schemas Pydantic:
+                        veterinarian.py  VeterinarianBase/Create/Update
+                        clinic.py        ClinicBase/Create/Update — com
+                                         @model_validator que rejeita min > max
+                                         nas faixas de preço
+                        tutor.py, user.py, review.py, case.py, recommendation.py
+app/routers/
+  pages.py            Páginas HTML públicas (GET /; /login; /cadastro;
+                      /buscar; /buscar/veterinarios; /buscar/clinicas;
+                      /veterinario/{slug}; /clinica/{slug};
+                      /recrutamento; /sobre; /contato; /termos; /privacidade;
+                      /esqueci-senha; /redefinir-senha;
+                      /minha-conta; /aguardando-aprovacao)
+  auth.py             /api/auth/login, /register/tutor, /register/veterinarian,
+                      /register/clinic, /forgot-password, /reset-password
+  admin.py            Painel admin — ver seção 5
+  perfil.py           /api/perfil/tutor (PUT), /veterinarian (PUT),
+                      /veterinarian/educations (PUT), /veterinarian/clinic-links (PUT),
+                      /veterinarian/contents (PUT), /clinic (PUT)
+  reviews.py          /api/reviews/ (POST, DELETE)
+  cases.py            /api/casos-clinicos/ (CRUD)
+  recommendations.py  /api/recomendacoes/ (POST, PUT status)
+app/services/
+  auth.py             register_tutor/veterinarian/clinic, login, create_token_for_user
+  email.py            send_email (fire-and-forget daemon thread); send_email_sync;
+                      templates: tpl_boas_vindas_tutor, tpl_cadastro_recebido,
+                      tpl_aprovacao, tpl_reprovacao, tpl_nova_avaliacao,
+                      tpl_avaliacao_publicada, tpl_avaliacao_publicada_reviewee,
+                      tpl_avaliacao_rejeitada, tpl_avaliacao_rejeitada_reviewee,
+                      tpl_confirmacao_avaliacao, tpl_nova_recomendacao,
+                      tpl_recomendacao_publicada, tpl_recomendacao_publicada_target,
+                      tpl_recomendacao_rejeitada, tpl_recomendacao_rejeitada_target,
+                      tpl_confirmacao_recomendacao, tpl_reset_senha
+                      BCC automático para vetlandiabrasil@outlook.com em todos os envios
+  analytics.py        record_profile_view, record_search, record_page_view
+                      (fire-and-forget); profile_stats, platform_stats, top_profiles,
+                      search_trends, daily_new_users, daily_page_views, daily_searches
+                      — todas as funções admin aceitam date_from/date_to opcionais
+app/utils/
+  slugify.py          Gera slugs únicos (usado em vet e clinic)
+  validators.py       validate_brazilian_state, validate_crmv
+app/templates/        Jinja2 — ver seção 6
+app/static/
+  css/  base.css, components.css, logo.css, pages.css, redesign.css
+  js/   main.js, br-cities.js
+  images/
+
+ROTAS REGISTRADAS (prefixos em main.py):
+  pages.router            "/"
+  admin_router            "/admin"
+  auth.router             "/api/auth"
+  perfil_router           "/api/perfil"
+  reviews_router          "/api/reviews"
+  cases_router            "/api/casos-clinicos"
+  recommendations_router  "/api/recomendacoes"
+  GET  /health            healthcheck JSON {status, app, version}
+  GET  /logout            apaga cookie e redireciona para /
+
+--------------------------------------------------------------------------------
+5. PAINEL ADMINISTRATIVO (/admin)
+--------------------------------------------------------------------------------
+Acesso: require_admin — user_type == ADMIN.
+Prefixo: montado em "/admin" no main.py.
+
+PÁGINAS:
+  GET  /admin                   Dashboard principal (pendências, avaliações,
+                                recomendações, entitlements, histórico)
+  GET  /admin/analytics         Analytics com filtro de data (?date_from=&date_to=)
+  GET  /admin/veterinarios      Lista todos os vets; ações inline
+  GET  /admin/clinicas          Lista todas as clínicas; ações inline
+  GET  /admin/tutores           Lista todos os tutores; ações inline
+
+AÇÕES — VETERINÁRIOS:
+  POST /admin/vets/{id}/approve   Aprovar (redireciona para redirect_to)
+  POST /admin/vets/{id}/reject    Reprovar reversível (is_rejected=True) + e-mail
+  POST /admin/vets/{id}/restore   Reverter reprovação (is_rejected=False)
+  POST /admin/vets/{id}/delete    Excluir vet + conta de usuário (cascade completo)
+  POST /admin/vets/{id}/set-badge Atribuir badge
+  POST /admin/vets/{id}/verify    Marcar CRMV verificado
+  GET  /admin/vets/{id}/carteira  Visualizar carteirinha (redirect para crmv_card_url)
+  GET  /admin/vets/{id}/validar-crmv Tela de validação do CRMV
+
+AÇÕES — CLÍNICAS:
+  POST /admin/clinics/{id}/approve           Aprovar + e-mail
+  POST /admin/clinics/{id}/reject            Reprovar reversível + e-mail
+  POST /admin/clinics/{id}/restore           Reverter reprovação
+  POST /admin/clinics/{id}/delete            Excluir clínica + conta de usuário
+  POST /admin/clinics/{id}/set-badge         Atribuir badge
+  POST /admin/clinics/{id}/verify            Marcar verificado
+  POST /admin/clinics/{id}/recruitment-access Habilitar acesso à página de recrutamento
+  POST /admin/clinics/{id}/entitlement       Toggle de produto/feature (entitlements)
+
+AÇÕES — AVALIAÇÕES:
+  POST /admin/reviews/{id}/approve  Publicar + e-mails (autor e avaliado)
+  POST /admin/reviews/{id}/reject   Rejeitar + e-mails (autor e avaliado)
+  POST /admin/reviews/{id}/delete   Excluir permanentemente
+
+AÇÕES — RECOMENDAÇÕES:
+  POST /admin/recommendations/{id}/approve  Publicar + e-mails
+  POST /admin/recommendations/{id}/reject   Rejeitar + e-mails
+  POST /admin/recommendations/{id}/delete   Excluir
+
+AÇÕES — USUÁRIOS (genéricas, usadas pelas sub-páginas):
+  POST /admin/users/{id}/block    Inativar conta (is_active=False) + desaprova perfil
+  POST /admin/users/{id}/unblock  Reativar conta (is_active=True) + reativa perfil
+  POST /admin/users/{id}/delete   Excluir conta + todos os dados vinculados (cascade)
+  POST /admin/users/bulk-action   Ação em massa (approve/inativar/excluir)
+
+PADRÃO redirect_to:
+  Todas as rotas de ação aceitam redirect_to: str = Form("/admin").
+  As sub-páginas passam redirect_to=/admin/veterinarios (ou /clinicas ou /tutores)
+  para que o admin permaneça na sub-página após a ação.
+
+EXCLUSÃO COMPLETA (_delete_user_and_profiles):
+  Apaga em cascata: casos clínicos + comentários dos casos, avaliações recebidas
+  + comentários dessas avaliações, avaliações escritas pelo usuário, perfil
+  (vet/clinic/tutor), conta de usuário. Evita violações de FK.
+
+--------------------------------------------------------------------------------
+6. TEMPLATES JINJA2 (app/templates/)
+--------------------------------------------------------------------------------
+base.html                   Layout base: navbar, footer, GA4 snippet condicional,
+                            {% block ga_events %} antes do </body>
+home.html / home-redesign.html  Home pública
+busca.html                  Busca geral
+auth/
+  login.html                Login + link "Esqueci minha senha"
+  cadastro.html             Cadastro por abas (Tutor / Veterinário / Clínica)
+                            Inclui faixas de preço opcionais para clínica
+  minha-conta.html          Perfil do usuário logado; edição + analytics do perfil
+                            (Chart.js 14 dias para vet/clinica)
+  aguardando.html           Tela pós-cadastro vet/clínica aguardando aprovação
+  esqueci-senha.html        Formulário de solicitação de reset de senha
+  redefinir-senha.html      Formulário de nova senha (recebe ?token=)
+admin/
+  dashboard.html            Painel principal (pendências, reviews, recs, entitlements,
+                            histórico de moderação). Seção "Usuários" REMOVIDA.
+  analytics.html            Analytics com filtro De/Até, KPIs, Chart.js, top perfis,
+                            tendências de busca
+  veterinarios.html         Lista todos os vets + botões Aprovar/Reprovar/Restaurar/
+                            Inativar/Reativar/Excluir + dialog de reprovação
+  clinicas.html             Idem para clínicas
+  tutores.html              Lista tutores + Inativar/Reativar/Excluir
+  validar_crmv.html         Tela de validação manual do CRMV
+veterinarian/
+  profile.html              Perfil público do veterinário
+  search.html               Resultados de busca de vets
+clinic/
+  profile.html              Perfil público da clínica
+  search.html               Resultados de busca de clínicas
+case/
+  create.html / detail.html / list.html  Casos clínicos
+pages/
+  sobre.html, contato.html, termos.html, privacidade.html
+  recrutamento.html         Página de recrutamento (visível só para clínicas)
+  404.html
+
+--------------------------------------------------------------------------------
+7. ANALYTICS
+--------------------------------------------------------------------------------
+ANALYTICS EXTERNO — Google Analytics 4:
+  Measurement ID: G-40HHYGVERH (variável GA_MEASUREMENT_ID no Railway)
+  Snippet gtag.js injetado em base.html condicionalmente.
+  Eventos customizados: login, sign_up (por tipo) em login.html e cadastro.html.
+  Block {% block ga_events %} disponível para eventos por página.
+
+ANALYTICS INTERNO (app/services/analytics.py + app/models/analytics.py):
+  Tabelas:
+    profile_views   entity_type, entity_id, viewer_ip_hash (SHA-256, LGPD),
+                    viewer_user_id, viewed_at
+    search_logs     query, specialty, city, entity_type, result_count,
+                    user_id, searched_at
+    page_views      path, ip_hash (SHA-256), user_id, occurred_at
+
+  Gravação fire-and-forget (threads daemon, zero latência nas rotas):
+    record_profile_view()  -> chamado em perfil_veterinario e perfil_clinica
+    record_search()        -> chamado em buscar (se houver query/specialty/city)
+    record_page_view()     -> chamado em home, buscar, perfil_vet, perfil_clinica
+
+  Queries admin (aceitam date_from/date_to opcionais):
+    platform_stats()      KPIs de visitas (total, únicos, logados)
+    top_profiles()        Ranking de perfis mais visualizados
+    search_trends()       Top especialidades, cidades, termos buscados
+    daily_page_views()    Série diária de page views no intervalo
+    daily_searches()      Série diária de buscas no intervalo
+    daily_new_users()     Série diária de novos cadastros no intervalo
+
+  Queries perfil individual:
+    profile_stats()       total, hoje, 7d, 30d, crescimento % vs mês anterior,
+                          série diária de 14 dias (exibida em minha-conta.html)
+
+  Página admin:
+    GET /admin/analytics?date_from=YYYY-MM-DD&date_to=YYYY-MM-DD
+    Barra De/Até com botão Filtrar e link Limpar; badge no cabeçalho indica período.
+    Sem filtro = últimos 30 dias nos gráficos + cards de hoje/7d/30d.
+    Com filtro = todos os dados restritos ao período selecionado.
+
+--------------------------------------------------------------------------------
+8. SERVIÇO DE E-MAIL (app/services/email.py)
+--------------------------------------------------------------------------------
+- Provedor:    Resend (HTTP API via pacote python resend)
+- Variáveis:   RESEND_API_KEY, EMAIL_FROM (default: VetLândia <nao-responda@...>)
+- BCC:         vetlandiabrasil@outlook.com em TODOS os envios (log interno)
+- Envio:       fire-and-forget em thread daemon (send_email); síncrono via
+               send_email_sync (usado para testes e verificação direta)
+- Falhas:      logadas (logger.error), nunca propagadas para o usuário
+- Layout:      _wrap(body) — HTML responsivo com header teal + footer; helpers
+               _btn(), _h1(), _p(), _quote() para montar cada template
+
+TEMPLATES DISPONÍVEIS:
+  tpl_boas_vindas_tutor           Boas-vindas após cadastro de tutor
+  tpl_cadastro_recebido           Confirmação de cadastro (vet/clínica) aguardando revisão
+  tpl_aprovacao                   Perfil aprovado pelo admin
+  tpl_reprovacao                  Perfil reprovado (com motivo opcional)
+  tpl_nova_avaliacao              Notifica avaliado que recebeu nova avaliação (pending)
+  tpl_avaliacao_publicada         Notifica autor que sua avaliação foi publicada
+  tpl_avaliacao_publicada_reviewee Notifica avaliado que avaliação está no ar
+  tpl_avaliacao_rejeitada         Notifica autor que sua avaliação foi rejeitada
+  tpl_avaliacao_rejeitada_reviewee Notifica avaliado que avaliação pendente foi rejeitada
+  tpl_confirmacao_avaliacao       Confirmação imediata ao autor após envio
+  tpl_nova_recomendacao           Notifica admin/alvo de nova recomendação pendente
+  tpl_recomendacao_publicada      Notifica autor que recomendação foi publicada
+  tpl_recomendacao_publicada_target Notifica alvo que recebeu uma recomendação pública
+  tpl_recomendacao_rejeitada      Notifica autor que recomendação foi rejeitada
+  tpl_recomendacao_rejeitada_target Notifica alvo que recomendação pendente foi rejeitada
+  tpl_confirmacao_recomendacao    Confirmação imediata ao autor após envio
+  tpl_reset_senha                 Link de redefinição de senha (válido por 1h)
+
+--------------------------------------------------------------------------------
+9. VARIÁVEIS DE AMBIENTE (.env / Railway)
+--------------------------------------------------------------------------------
+  DATABASE_URL                Postgres (injetado pelo Railway em produção)
+  SECRET_KEY                  Assinatura JWT (gerar: secrets.token_urlsafe(32))
+  ALGORITHM                   default: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES default: 1440 (24h)
+  ENVIRONMENT                 development | production
+  APP_NAME                    default: "VetLândia"
+  APP_VERSION                 default: "1.0.0"
+  RESEND_API_KEY              API key do Resend (sem isso e-mails são ignorados)
+  EMAIL_FROM                  Remetente padrão (nome + endereço)
+  GA_MEASUREMENT_ID           ID do Google Analytics 4 (ex: G-40HHYGVERH)
+
+--------------------------------------------------------------------------------
+10. SERVIÇOS EXTERNOS
+--------------------------------------------------------------------------------
+[Hospedagem / Deploy]
+  Railway          Builder NIXPACKS; startCommand: "alembic upgrade head &&
+                   uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+                   Conta: vetlandiabrasil@outlook.com
+                   Autodeploy em push para origin/main.
+                   Postgres v18 gerenciado (pg_dump precisa cliente 18 via PGDG).
+                   Volume /backups com os 3 últimos backups pré-migration.
+
+[DNS / CDN]
+  Cloudflare       Proxy/CDN para vetlandia.com.br (edge GRU/São Paulo).
+                   Cacheia assets estáticos CSS/JS ~4h; HTML como DYNAMIC.
+                   Cache-busting: ?v={asset_v} (gerado por processo, novo a cada deploy).
+                   IMPORTANTE: mudança de CSS sem push não aparece —
+                   só após git push (Railway autodeploy) ou purge manual.
+
+[Código-fonte]
+  GitHub           vetlandia/vetlandia — push em main dispara o Railway.
+
+[E-mail]
+  Resend           HTTP API. BCC automático para vetlandiabrasil@outlook.com.
+                   Domínio remetente: vetlandia.com.br.
+
+[Analytics]
+  Google Analytics 4  Measurement ID G-40HHYGVERH (configurado via env no Railway).
+                      Snippet gtag.js em base.html (condicional em ga_measurement_id).
+
+[Fontes web]
+  Google Fonts         Inter + Space Grotesk (via @import nos CSS).
+
+[WhatsApp]
+  Links wa.me          Botões de contato nos perfis de vet e clínica.
+
+--------------------------------------------------------------------------------
+11. MIDDLEWARES E TRATAMENTOS
+--------------------------------------------------------------------------------
+  GZipMiddleware        Compressão de respostas > 1000 bytes.
+  WWWRedirectMiddleware Redireciona www.vetlandia.com.br → vetlandia.com.br (301).
+  validation_handler    RequestValidationError → mensagens PT-BR amigáveis (422).
+
+--------------------------------------------------------------------------------
+12. FLUXO DE DEPLOY
+--------------------------------------------------------------------------------
+1. Editar código localmente.
+2. git push origin main.
+3. Railway detecta push → build NIXPACKS → roda "alembic upgrade head"
+   → sobe Uvicorn em $PORT.
+4. Cloudflare serve via CDN. HTML reflete imediatamente; CSS/JS dependem
+   do cache (~4h) — o versionamento ?v= garante que o browser busca o novo.
+
+ATENÇÃO: commit apenas LOCAL não atualiza o site. Só após git push em origin/main.
+
+--------------------------------------------------------------------------------
+13. REGRAS DE NEGÓCIO RELEVANTES
+--------------------------------------------------------------------------------
+FAIXAS DE PREÇO (clínicas):
+  consulta_preco_min/max, procedimento_preco_min/max — campos opcionais (Integer).
+  Validação: @model_validator em ClinicBase e ClinicUpdate rejeita min > max
+  com mensagem em PT-BR. Validação também no frontend (JS) antes do submit.
+  Disponível no cadastro inicial e na edição de perfil (minha-conta.html).
+
+EXCLUSÃO DE USUÁRIO:
+  _delete_user_and_profiles() remove em cascata: comentários de casos,
+  casos clínicos, avaliações recebidas e escritas (+ comentários),
+  perfil (vet/clinic/tutor) e conta de usuário. Evita violações de FK.
+  Usado em delete_vet, delete_clinic e delete_user.
+
+REPROVAÇÃO REVERSÍVEL (Módulo 9):
+  Vets e clínicas têm is_rejected (bool). Reprovar não apaga o cadastro —
+  apenas marca is_rejected=True e is_approved=False. Admin pode restaurar
+  (is_rejected=False), voltando para a fila de pendentes.
+
+ENTITLEMENTS (Módulo 8):
+  Produtos/funcionalidades liberadas por clínica via ClinicEntitlement.
+  Toggle via POST /admin/clinics/{id}/entitlement.
+  Produto atual: acesso à página de recrutamento.
+
+RECRUTAMENTO:
+  Página /recrutamento — visível apenas para clínicas com has_recruitment_access.
+  Lista vets com disponibilidades de recrutamento (disp_plantao, disp_volante,
+  disp_oportunidades, disp_parcerias, disp_estagio).
+  Filtros: tipo (todos/formados/estudantes), disponibilidade, nome.
+
+RESET DE SENHA:
+  Token raw: secrets.token_urlsafe(32) → enviado no link por e-mail.
+  Token armazenado: SHA-256 do raw (never store plaintext).
+  Expiração: 1 hora. Token único por usuário (novo request invalida anterior).
+  Anti-enumeração: POST /forgot-password sempre retorna 200.
+
+ANALYTICS — LGPD:
+  IPs armazenados apenas como SHA-256 (irreversível). Nunca o IP bruto.
+  viewer_user_id registrado apenas quando usuário está logado.
+
+CADASTRO DE VETERINÁRIO:
+  crmv_card_url: URL da carteirinha CRMV (data URL ou https) — salva no Clinic
+  durante o cadastro inicial e editável em minha-conta.
+  Estudantes (is_student=True): crmv não obrigatório; crmv_card_url N/A.
+
+SLUGS:
+  Gerados via slugify(nome + cidade). Garantia de unicidade por sufixo numérico
+  (-1, -2, ...) em loop até encontrar slug livre.
+
+--------------------------------------------------------------------------------
+14. PADRÕES DE CÓDIGO
+--------------------------------------------------------------------------------
+- Scripts inline nos templates devem ser AUTOSSUFICIENTES — main.js carrega no
+  final do body. Não depender de funções de main.js em scripts de página.
+- Casos clínicos ainda usam localStorage/isAuthenticated() — incompatível com
+  cookie httpOnly. Corrigir ao retomar esse módulo.
+- Fire-and-forget para e-mail e analytics: threading.Thread(daemon=True).start().
+  Falhas logadas, nunca propagadas.
+- Redirect_to pattern: rotas de ação admin aceitam redirect_to via Form para
+  sub-páginas permanecerem ativas após a ação.
+- Emails: todos via send_email() (async) exceto quando precisa garantir entrega
+  antes de retornar (usar send_email_sync).
+================================================================================
