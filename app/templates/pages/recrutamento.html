@@ -60,11 +60,13 @@
   transition: background 0.15s;
   white-space: nowrap;
   align-self: flex-end;
+  flex-shrink: 0;
 }
 .rec-btn:hover { background: #066f7e; }
-@media (max-width: 600px) {
-  .rec-form-row { flex-direction: column; }
-  .rec-btn { width: 100%; }
+@media (max-width: 768px) {
+  .rec-form-row { flex-direction: column; gap: 10px; }
+  .rec-field { width: 100%; min-width: 0; }
+  .rec-btn { width: 100%; align-self: stretch; }
 }
 </style>
 
