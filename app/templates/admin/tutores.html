@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutores — VetLândia Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}?v={{ asset_v }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}?v={{ asset_v }}">
+    <style>
+        body { background:#f0f4f8; font-family:'Segoe UI',Arial,sans-serif; }
+        .wrap { max-width:1100px; margin:0 auto; padding:32px 16px 80px; }
+        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+        .page-header h1 { font-size:1.4rem; margin:0; }
+        .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+        .filters input { padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; background:#fff; outline:none; min-width:260px; }
+        .filters input:focus { border-color:#0d9488; }
+        .section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+        table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+        th { text-align:left; padding:9px 12px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
+        td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:#fafafa; }
+        .pet-tag { display:inline-block; font-size:0.7rem; background:#f0fdfa; color:#0d9488; border-radius:99px; padding:1px 7px; margin:1px; }
+        .count-label { font-size:0.8rem; color:#6b7280; margin-bottom:16px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="page-header">
+        <div>
+            <a href="/admin" style="font-size:0.875rem;color:#6b7280;text-decoration:none;">← Painel Admin</a>
+            <h1 style="margin-top:6px;">🐾 Todos os Tutores</h1>
+        </div>
+    </div>
+
+    <div class="filters">
+        <input type="text" id="search-input" placeholder="🔍 Buscar por nome, CPF, cidade ou e-mail…" oninput="filterTable()">
+    </div>
+
+    <div class="section">
+        <p class="count-label" id="count-label">{{ all_tutors | length }} tutor(es)</p>
+        <div style="overflow-x:auto;">
+        <table id="tutors-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>CPF</th>
+                    <th>Telefone</th>
+                    <th>Cidade/UF</th>
+                    <th>Pets</th>
+                    <th>Cadastro</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for tutor in all_tutors %}
+            <tr data-search="{{ (tutor.full_name ~ ' ' ~ (tutor.cpf or '') ~ ' ' ~ (tutor.city or '') ~ ' ' ~ (tutor.user_email or '')).lower() }}">
+                <td><strong>{{ tutor.full_name }}</strong></td>
+                <td style="font-size:0.8rem;color:#6b7280;">{{ tutor.user_email or '—' }}</td>
+                <td style="font-size:0.8rem;">{{ tutor.cpf or '—' }}</td>
+                <td style="white-space:nowrap;font-size:0.8rem;">{{ tutor.phone or '—' }}</td>
+                <td style="white-space:nowrap;">{{ tutor.city or '—' }}{% if tutor.state %}/{{ tutor.state }}{% endif %}</td>
+                <td>
+                    {% if tutor.pets_list %}
+                        {% for pet in tutor.pets_list %}
+                        <span class="pet-tag">{{ pet.get('name', '?') }} ({{ pet.get('species', '?') }})</span>
+                        {% endfor %}
+                    {% else %}
+                        <span style="color:#9ca3af;font-size:0.8rem;">—</span>
+                    {% endif %}
+                </td>
+                <td style="white-space:nowrap;font-size:0.8rem;">{{ tutor.created_at.strftime('%d/%m/%Y') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:#9ca3af;font-style:italic;">Nenhum tutor cadastrado.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    var search = document.getElementById('search-input').value.toLowerCase();
+    var rows   = document.querySelectorAll('#tutors-table tbody tr[data-search]');
+    var visible = 0;
+    rows.forEach(function(row) {
+        var show = !search || row.dataset.search.includes(search);
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('count-label').textContent = visible + ' tutor(es)';
+}
+</script>
+</body>
+</html>

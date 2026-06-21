@@ -848,3 +848,29 @@ def all_veterinarios(request: Request, db: Session = Depends(get_db), admin=Depe
         v.email = user.email if user else "—"
     ctx = _admin_context(request, db, all_vets=vets)
     return templates.TemplateResponse("admin/veterinarios.html", ctx)
+
+
+@router.get("/clinicas", response_class=HTMLResponse)
+def all_clinicas(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    clinics = db.query(Clinic).order_by(Clinic.created_at.desc()).all()
+    for c in clinics:
+        user = db.query(User).filter(User.id == c.user_id).first()
+        c.user_email = user.email if user else "—"
+    ctx = _admin_context(request, db, all_clinics=clinics)
+    return templates.TemplateResponse("admin/clinicas.html", ctx)
+
+
+@router.get("/tutores", response_class=HTMLResponse)
+def all_tutores(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    import json
+    from app.models.tutor import Tutor
+    tutors = db.query(Tutor).order_by(Tutor.created_at.desc()).all()
+    for t in tutors:
+        user = db.query(User).filter(User.id == t.user_id).first()
+        t.user_email = user.email if user else "—"
+        try:
+            t.pets_list = json.loads(t.pets) if t.pets else []
+        except Exception:
+            t.pets_list = []
+    ctx = _admin_context(request, db, all_tutors=tutors)
+    return templates.TemplateResponse("admin/tutores.html", ctx)
