@@ -680,3 +680,14 @@ function submitReview(revieweeType, revieweeId) {
 }
 </script>
 {% endblock %}
+
+{% block ga_events %}
+{% if ga_measurement_id %}
+<script>
+gtag('event', 'clinic_profile_view', {
+    'clinic_name': '{{ clinic.name | replace("'", "\\'") }}',
+    'clinic_city': '{{ clinic.city or "" }}'
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -783,3 +783,15 @@ function submitReview(revieweeType, revieweeId) {
 }
 </script>
 {% endblock %}
+
+{% block ga_events %}
+{% if ga_measurement_id %}
+<script>
+gtag('event', 'veterinarian_profile_view', {
+    'vet_name': '{{ veterinarian.full_name | replace("'", "\\'") }}',
+    'vet_specialty': '{{ veterinarian.specialty or "" }}',
+    'vet_city': '{{ veterinarian.city or "" }}'
+});
+</script>
+{% endif %}
+{% endblock %}

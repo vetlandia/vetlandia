@@ -492,4 +492,17 @@
 </script>
 {% endblock %}
 
+{% block ga_events %}
+{% if ga_measurement_id and (query or especialidade or cidade) %}
+<script>
+gtag('event', 'search_performed', {
+    'search_term': '{{ query or "" }}',
+    'specialty': '{{ especialidade or "" }}',
+    'city': '{{ cidade or "" }}',
+    'search_type': '{{ tipo or "ambos" }}'
+});
+</script>
+{% endif %}
+{% endblock %}
+
 {% endblock %}

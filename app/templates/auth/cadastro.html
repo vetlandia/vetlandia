@@ -1333,6 +1333,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 const result = await resp.json().catch(() => ({}));
                 if (!resp.ok) throw new Error(parseError(result.detail));
                 showStatus('success', '🎉 Conta criada com sucesso! Entrando...');
+                if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { 'method': 'tutor' });
                 setTimeout(() => { window.location.href = '/'; }, 1500);
             } catch (err) {
                 showStatus('error', err.message || 'Erro de conexão. Tente novamente.');
@@ -1451,6 +1452,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 });
                 const result = await resp.json().catch(() => ({}));
                 if (!resp.ok) throw new Error(parseError(result.detail));
+                if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { 'method': 'veterinarian' });
                 window.location.href = '/aguardando-aprovacao';
             } catch (err) {
                 showStatus('error', err.message || 'Erro de conexão. Tente novamente.');
@@ -1555,6 +1557,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 });
                 const result = await resp.json().catch(() => ({}));
                 if (!resp.ok) throw new Error(parseError(result.detail));
+                if (typeof gtag !== 'undefined') gtag('event', 'sign_up', { 'method': 'clinic' });
                 window.location.href = '/aguardando-aprovacao';
             } catch (err) {
                 showStatus('error', err.message || 'Erro de conexão. Tente novamente.');

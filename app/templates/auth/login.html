@@ -147,6 +147,9 @@
                 throw new Error(data.detail || 'Email ou senha inválidos');
             }
 
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'login', { 'method': 'email' });
+            }
             if (data.pending) {
                 window.location.href = '/aguardando-aprovacao';
             } else if (data.user_type === 'admin') {

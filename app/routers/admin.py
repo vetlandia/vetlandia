@@ -35,6 +35,14 @@ from app.models.user import User, UserType
 from app.models.veterinarian import Veterinarian
 
 from app.core.templating import templates
+from app.services.analytics import (
+    daily_new_users,
+    daily_page_views,
+    daily_searches,
+    platform_stats,
+    search_trends,
+    top_profiles,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 templates.env.globals["asset_v"] = ASSET_VERSION
@@ -783,3 +791,49 @@ def test_email_send(to: str = Form(...), admin=Depends(require_admin)):
     <h2>Resultado</h2>{result}
     <p><a href='/admin/test-email'>← Tentar novamente</a> &nbsp; <a href='/admin'>← Admin</a></p>
     </body></html>"""
+
+
+@router.get("/analytics", response_class=HTMLResponse)
+def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    from app.models.user import UserType as UT
+
+    pstats = platform_stats(db)
+    trends = search_trends(db, limit=10)
+
+    user_counts = {
+        "tutors": db.query(User).filter(User.user_type == UT.TUTOR).count(),
+        "vets": db.query(User).filter(User.user_type == UT.VETERINARIAN).count(),
+        "clinics": db.query(User).filter(User.user_type == UT.CLINIC).count(),
+    }
+
+    # Top perfis: resolve nomes
+    top_vets_raw = top_profiles(db, "veterinarian", 10)
+    top_vets = []
+    for r in top_vets_raw:
+        vet = db.query(Veterinarian).filter(Veterinarian.id == r["entity_id"]).first()
+        if vet:
+            top_vets.append({"name": vet.full_name, "slug": vet.slug, "views": r["views"]})
+
+    top_clinics_raw = top_profiles(db, "clinic", 10)
+    top_clinics = []
+    for r in top_clinics_raw:
+        clinic = db.query(Clinic).filter(Clinic.id == r["entity_id"]).first()
+        if clinic:
+            top_clinics.append({"name": clinic.name, "slug": clinic.slug, "views": r["views"]})
+
+    chart_pv = daily_page_views(db, 30)
+    chart_searches = daily_searches(db, 30)
+    chart_users = daily_new_users(db, 30)
+
+    ctx = _admin_context(
+        request, db,
+        pstats=pstats,
+        user_counts=user_counts,
+        top_vets=top_vets,
+        top_clinics=top_clinics,
+        trends=trends,
+        chart_pv=chart_pv,
+        chart_searches=chart_searches,
+        chart_users=chart_users,
+    )
+    return templates.TemplateResponse("admin/analytics.html", ctx)

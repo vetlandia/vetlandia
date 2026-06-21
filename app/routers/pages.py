@@ -20,6 +20,12 @@ from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
 from app.core.templating import templates
+from app.services.analytics import (
+    profile_stats,
+    record_page_view,
+    record_profile_view,
+    record_search,
+)
 
 router = APIRouter()
 templates.env.globals["asset_v"] = ASSET_VERSION
@@ -148,6 +154,8 @@ def home(request: Request, db: Session = Depends(get_db), current_user: Optional
         "(SELECT COUNT(*) FROM reviews) AS rc"
     )).one()
     vet_count, clinic_count, review_count = _counts.vc, _counts.cc, _counts.rc
+
+    record_page_view("/", request, user_id=current_user.id if current_user else None)
 
     return templates.TemplateResponse(
         "home-redesign.html",
@@ -335,6 +343,16 @@ def buscar(
         .distinct().all()
     ]
     cidades_disponiveis = sorted(set(cidades_vets + cidades_clinicas))
+
+    total_results = len(veterinarians) + len(clinics)
+    if query or especialidade or cidade:
+        record_search(
+            query=query, specialty=especialidade, city=cidade,
+            entity_type=tipo, result_count=total_results,
+            request=request,
+            user_id=current_user.id if current_user else None,
+        )
+    record_page_view("/buscar", request, user_id=current_user.id if current_user else None)
 
     return templates.TemplateResponse(
         "busca.html",
@@ -582,6 +600,9 @@ def perfil_veterinario(request: Request, slug: str, db: Session = Depends(get_db
     if vet.is_student and not (current_user and current_user.user_type.value in ("clinic", "admin")):
         return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
 
+    record_profile_view("veterinarian", vet.id, request, user_id=current_user.id if current_user else None)
+    record_page_view(f"/veterinario/{slug}", request, user_id=current_user.id if current_user else None)
+
     # Calcular rating (apenas aprovadas)
     rating_data = (
         db.query(func.avg(Review.rating), func.count(Review.id))
@@ -788,6 +809,9 @@ def perfil_clinica(request: Request, slug: str, db: Session = Depends(get_db), c
     is_admin = bool(current_user and current_user.user_type.value == "admin")
     if not clinic or (not clinic.is_approved and not is_admin):
         return templates.TemplateResponse("pages/404.html", {"request": request, "current_user": current_user}, status_code=404)
+
+    record_profile_view("clinic", clinic.id, request, user_id=current_user.id if current_user else None)
+    record_page_view(f"/clinica/{slug}", request, user_id=current_user.id if current_user else None)
 
     # Calcular rating (apenas aprovadas)
     rating_data = (
@@ -1046,6 +1070,12 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
             )
     elif current_user.user_type.value == "clinic":
         profile = db.query(Clinic).filter(Clinic.user_id == current_user.id).first()
+
+    analytics = None
+    if profile and current_user.user_type.value in ("veterinarian", "clinic"):
+        entity_type = current_user.user_type.value
+        analytics = profile_stats(db, entity_type, profile.id)
+
     return templates.TemplateResponse(
         "auth/minha-conta.html",
         {
@@ -1057,6 +1087,7 @@ def minha_conta(request: Request, db: Session = Depends(get_db), current_user: O
             "vet_clinic_links": vet_clinic_links,
             "vet_contents": vet_contents,
             "all_clinics": all_clinics,
+            "analytics": analytics,
         },
     )
 

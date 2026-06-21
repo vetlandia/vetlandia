@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = "VetLândia <nao-responda@vetlandia.com.br>"
     EMAIL_BCC: str = "vetlandiabrasil@outlook.com"
 
+    # Analytics
+    GA_MEASUREMENT_ID: str = ""
+
     @property
     def db_url(self) -> str:
         """Convert DATABASE_URL to psycopg3 format if needed."""

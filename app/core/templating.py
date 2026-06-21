@@ -1,11 +1,13 @@
 """Instância compartilhada de Jinja2Templates com globals de negócio."""
 from fastapi.templating import Jinja2Templates
 
+from app.core.config import settings
 from app.core.database import SessionLocal
 from app.models.clinic import Clinic
 from app.models.entitlement import clinic_has_product
 
 templates = Jinja2Templates(directory="app/templates")
+templates.env.globals["ga_measurement_id"] = settings.GA_MEASUREMENT_ID
 
 
 def _user_has_recrutamento(current_user) -> bool:
