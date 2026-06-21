@@ -167,6 +167,9 @@
                         <td>{{ vet.created_at.strftime('%d/%m/%Y') }}</td>
                         <td style="white-space:nowrap">
                             <a href="/veterinario/{{ vet.slug }}" target="_blank" class="btn-approve" style="background:#1e293b;text-decoration:none;display:inline-block">👁️ Ver perfil</a>
+                            {% if vet.crmv_card_url %}
+                            <a href="/admin/vets/{{ vet.id }}/carteira" target="_blank" class="btn-approve" style="background:#6366f1;text-decoration:none;display:inline-block;margin-left:6px" title="Ver carteirinha do CRMV">🪪 Carteirinha</a>
+                            {% endif %}
                             {% if vet.is_student or vet.is_verified %}
                             <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/approve" style="margin-left:6px">
                                 <button class="btn-approve" onclick="return confirm('Aprovar {{ vet.full_name }}?')">Aprovar</button>
