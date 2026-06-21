@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinários — VetLândia Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}?v={{ asset_v }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}?v={{ asset_v }}">
+    <style>
+        body { background:#f0f4f8; font-family:'Segoe UI',Arial,sans-serif; }
+        .wrap { max-width:1200px; margin:0 auto; padding:32px 16px 80px; }
+
+        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+        .page-header h1 { font-size:1.4rem; margin:0; }
+
+        .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+        .filters input, .filters select {
+            padding:8px 12px; border:1px solid #d1d5db; border-radius:8px;
+            font-size:0.875rem; background:#fff; outline:none;
+        }
+        .filters input { min-width:220px; }
+        .filters input:focus, .filters select:focus { border-color:#0d9488; }
+
+        .section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+
+        table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+        th { text-align:left; padding:9px 12px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
+        td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:#fafafa; }
+
+        .status-badge { display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; }
+        .status-aprovado  { background:#d1fae5; color:#065f46; }
+        .status-pendente  { background:#fef3c7; color:#92400e; }
+        .status-reprovado { background:#fee2e2; color:#991b1b; }
+        .status-estudante { background:#ede9fe; color:#5b21b6; }
+
+        .doc-badge { display:inline-block; font-size:0.72rem; font-weight:600; padding:2px 8px; border-radius:99px; }
+        .doc-ok  { background:#d1fae5; color:#065f46; }
+        .doc-no  { background:#fee2e2; color:#991b1b; }
+        .doc-val { background:#d1fae5; color:#065f46; }
+        .doc-pend{ background:#fef3c7; color:#92400e; }
+
+        .btn-doc { display:inline-block; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; }
+        .btn-view  { background:#6366f1; color:#fff; }
+        .btn-view:hover { background:#4f46e5; }
+        .btn-profile { background:#1e293b; color:#fff; }
+        .btn-profile:hover { background:#0f172a; }
+        .btn-val  { background:#f59e0b; color:#fff; }
+        .btn-val:hover { background:#d97706; }
+        .btn-no { background:#e5e7eb; color:#9ca3af; cursor:default; }
+
+        .count-label { font-size:0.8rem; color:#6b7280; margin-bottom:16px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="page-header">
+        <div>
+            <a href="/admin" style="font-size:0.875rem;color:#6b7280;text-decoration:none;">← Painel Admin</a>
+            <h1 style="margin-top:6px;">⚕️ Todos os Veterinários</h1>
+        </div>
+    </div>
+
+    <div class="filters">
+        <input type="text" id="search-input" placeholder="🔍 Buscar por nome, CRMV ou e-mail…" oninput="filterTable()">
+        <select id="status-filter" onchange="filterTable()">
+            <option value="">Todos os status</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="pendente">Pendente</option>
+            <option value="reprovado">Reprovado</option>
+            <option value="estudante">Estudante</option>
+        </select>
+        <select id="doc-filter" onchange="filterTable()">
+            <option value="">Todos os documentos</option>
+            <option value="com">Com carteirinha</option>
+            <option value="sem">Sem carteirinha</option>
+        </select>
+    </div>
+
+    <div class="section">
+        <p class="count-label" id="count-label">{{ all_vets | length }} veterinário(s)</p>
+        <div style="overflow-x:auto;">
+        <table id="vets-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>CRMV</th>
+                    <th>Especialidade</th>
+                    <th>Cidade/UF</th>
+                    <th>Cadastro</th>
+                    <th>Status</th>
+                    <th>Documento</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for vet in all_vets %}
+            {% set status = 'estudante' if vet.is_student else ('aprovado' if vet.is_approved else ('reprovado' if vet.is_rejected else 'pendente')) %}
+            <tr data-status="{{ status }}" data-doc="{{ 'com' if vet.crmv_card_url else 'sem' }}"
+                data-search="{{ (vet.full_name ~ ' ' ~ (vet.crmv or '') ~ ' ' ~ (vet.email or '')).lower() }}">
+                <td><strong>{{ vet.full_name }}</strong></td>
+                <td style="font-size:0.8rem;color:#6b7280;">{{ vet.email or '—' }}</td>
+                <td>{{ vet.crmv or '—' }}</td>
+                <td>{{ vet.specialty or '—' }}</td>
+                <td style="white-space:nowrap;">{{ vet.city or '—' }}{% if vet.state %}/{{ vet.state }}{% endif %}</td>
+                <td style="white-space:nowrap;font-size:0.8rem;">{{ vet.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <span class="status-badge status-{{ status }}">
+                        {% if status == 'aprovado' %}✓ Aprovado
+                        {% elif status == 'pendente' %}⏳ Pendente
+                        {% elif status == 'reprovado' %}✗ Reprovado
+                        {% else %}🎓 Estudante{% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if vet.is_student %}
+                        <span style="font-size:0.72rem;color:#9ca3af;">N/A</span>
+                    {% elif vet.crmv_card_url %}
+                        <span class="doc-badge doc-ok">🪪 Enviada</span><br>
+                        <span class="doc-badge doc-{{ 'val' if vet.is_verified else 'pend' }}" style="margin-top:3px;">
+                            {{ '✓ Validado' if vet.is_verified else '⏳ Não validado' }}
+                        </span>
+                    {% else %}
+                        <span class="doc-badge doc-no">⚠ Não enviada</span>
+                    {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                    <a href="/veterinario/{{ vet.slug }}" target="_blank" class="btn-doc btn-profile" style="margin-right:4px;">👁 Perfil</a>
+                    {% if vet.crmv_card_url %}
+                        <a href="/admin/vets/{{ vet.id }}/carteira" target="_blank" class="btn-doc btn-view" style="margin-right:4px;">🪪 Carteirinha</a>
+                        {% if not vet.is_verified %}
+                        <a href="/admin/vets/{{ vet.id }}/validar-crmv" target="_blank" class="btn-doc btn-val">🔎 Validar</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="btn-doc btn-no">Sem doc.</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" style="text-align:center;padding:32px;color:#9ca3af;font-style:italic;">Nenhum veterinário cadastrado.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    var search = document.getElementById('search-input').value.toLowerCase();
+    var status = document.getElementById('status-filter').value;
+    var doc    = document.getElementById('doc-filter').value;
+    var rows   = document.querySelectorAll('#vets-table tbody tr[data-status]');
+    var visible = 0;
+    rows.forEach(function(row) {
+        var matchSearch = !search || row.dataset.search.includes(search);
+        var matchStatus = !status || row.dataset.status === status;
+        var matchDoc    = !doc    || row.dataset.doc === doc;
+        var show = matchSearch && matchStatus && matchDoc;
+        row.style.display = show ? '' : 'none';
+        if (show) visible++;
+    });
+    document.getElementById('count-label').textContent = visible + ' veterinário(s)';
+}
+</script>
+</body>
+</html>

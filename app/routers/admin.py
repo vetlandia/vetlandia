@@ -837,3 +837,14 @@ def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depend
         chart_users=chart_users,
     )
     return templates.TemplateResponse("admin/analytics.html", ctx)
+
+
+@router.get("/veterinarios", response_class=HTMLResponse)
+def all_veterinarios(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+    vets = db.query(Veterinarian).order_by(Veterinarian.created_at.desc()).all()
+    # Injeta e-mail de cada vet via join com User
+    for v in vets:
+        user = db.query(User).filter(User.id == v.user_id).first()
+        v.email = user.email if user else "—"
+    ctx = _admin_context(request, db, all_vets=vets)
+    return templates.TemplateResponse("admin/veterinarios.html", ctx)
