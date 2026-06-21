@@ -792,11 +792,21 @@ def test_email_send(to: str = Form(...), admin=Depends(require_admin)):
 
 
 @router.get("/analytics", response_class=HTMLResponse)
-def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def analytics_page(
+    request: Request,
+    date_from: str = "",
+    date_to: str = "",
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
     from app.models.user import UserType as UT
+    from app.services.analytics import _parse_date
 
-    pstats = platform_stats(db)
-    trends = search_trends(db, limit=10)
+    df = _parse_date(date_from)
+    dt = _parse_date(date_to)
+
+    pstats = platform_stats(db, df, dt)
+    trends = search_trends(db, limit=10, date_from=df, date_to=dt)
 
     user_counts = {
         "tutors": db.query(User).filter(User.user_type == UT.TUTOR).count(),
@@ -804,24 +814,23 @@ def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depend
         "clinics": db.query(User).filter(User.user_type == UT.CLINIC).count(),
     }
 
-    # Top perfis: resolve nomes
-    top_vets_raw = top_profiles(db, "veterinarian", 10)
+    top_vets_raw = top_profiles(db, "veterinarian", 10, df, dt)
     top_vets = []
     for r in top_vets_raw:
         vet = db.query(Veterinarian).filter(Veterinarian.id == r["entity_id"]).first()
         if vet:
             top_vets.append({"name": vet.full_name, "slug": vet.slug, "views": r["views"]})
 
-    top_clinics_raw = top_profiles(db, "clinic", 10)
+    top_clinics_raw = top_profiles(db, "clinic", 10, df, dt)
     top_clinics = []
     for r in top_clinics_raw:
         clinic = db.query(Clinic).filter(Clinic.id == r["entity_id"]).first()
         if clinic:
             top_clinics.append({"name": clinic.name, "slug": clinic.slug, "views": r["views"]})
 
-    chart_pv = daily_page_views(db, 30)
-    chart_searches = daily_searches(db, 30)
-    chart_users = daily_new_users(db, 30)
+    chart_pv = daily_page_views(db, df, dt)
+    chart_searches = daily_searches(db, df, dt)
+    chart_users = daily_new_users(db, df, dt)
 
     ctx = _admin_context(
         request, db,
@@ -833,6 +842,8 @@ def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depend
         chart_pv=chart_pv,
         chart_searches=chart_searches,
         chart_users=chart_users,
+        date_from=date_from,
+        date_to=date_to,
     )
     return templates.TemplateResponse("admin/analytics.html", ctx)
 

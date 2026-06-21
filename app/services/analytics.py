@@ -173,13 +173,44 @@ def profile_stats(db: Session, entity_type: str, entity_id) -> dict:
 
 # ── Queries — admin ─────────────────────────────────────────────────────────────
 
-def platform_stats(db: Session) -> dict:
+def _parse_date(s: Optional[str]) -> Optional[datetime]:
+    if not s:
+        return None
+    try:
+        return datetime.strptime(s, "%Y-%m-%d")
+    except ValueError:
+        return None
+
+
+def platform_stats(db: Session, date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> dict:
     now = datetime.utcnow()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=30)
 
-    total_pv = db.query(func.count(PageView.id)).scalar() or 0
+    # When a date range is active, use it; otherwise use defaults
+    df = date_from or datetime(2000, 1, 1)
+    dt = (date_to + timedelta(days=1)) if date_to else now + timedelta(days=1)
+
+    def _pv_count(*extra):
+        q = db.query(func.count(PageView.id)).filter(
+            PageView.occurred_at >= df, PageView.occurred_at < dt, *extra
+        )
+        return q.scalar() or 0
+
+    total_pv = _pv_count()
+    unique_visitors = (
+        db.query(func.count(func.distinct(PageView.ip_hash)))
+        .filter(PageView.occurred_at >= df, PageView.occurred_at < dt, PageView.ip_hash.isnot(None))
+        .scalar() or 0
+    )
+    logged_in = (
+        db.query(func.count(func.distinct(PageView.user_id)))
+        .filter(PageView.occurred_at >= df, PageView.occurred_at < dt, PageView.user_id.isnot(None))
+        .scalar() or 0
+    )
+
+    # These always show live counts regardless of date filter
     unique_today = (
         db.query(func.count(func.distinct(PageView.ip_hash)))
         .filter(PageView.occurred_at >= today, PageView.ip_hash.isnot(None))
@@ -203,6 +234,8 @@ def platform_stats(db: Session) -> dict:
 
     return {
         "total_page_views": total_pv,
+        "unique_visitors": unique_visitors,
+        "logged_in": logged_in,
         "unique_today": unique_today,
         "unique_week": unique_week,
         "unique_month": unique_month,
@@ -210,10 +243,14 @@ def platform_stats(db: Session) -> dict:
     }
 
 
-def top_profiles(db: Session, entity_type: str, limit: int = 10) -> list:
+def top_profiles(db: Session, entity_type: str, limit: int = 10,
+                 date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> list:
+    df = date_from or datetime(2000, 1, 1)
+    dt = (date_to + timedelta(days=1)) if date_to else datetime.utcnow() + timedelta(days=1)
     rows = (
         db.query(ProfileView.entity_id, func.count(ProfileView.id).label("views"))
-        .filter(ProfileView.entity_type == entity_type)
+        .filter(ProfileView.entity_type == entity_type,
+                ProfileView.viewed_at >= df, ProfileView.viewed_at < dt)
         .group_by(ProfileView.entity_id)
         .order_by(func.count(ProfileView.id).desc())
         .limit(limit)
@@ -222,11 +259,16 @@ def top_profiles(db: Session, entity_type: str, limit: int = 10) -> list:
     return [{"entity_id": str(r.entity_id), "views": r.views} for r in rows]
 
 
-def search_trends(db: Session, limit: int = 10) -> dict:
+def search_trends(db: Session, limit: int = 10,
+                  date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> dict:
+    df = date_from or datetime(2000, 1, 1)
+    dt = (date_to + timedelta(days=1)) if date_to else datetime.utcnow() + timedelta(days=1)
+
     def _top(col):
         rows = (
             db.query(col, func.count(SearchLog.id).label("cnt"))
-            .filter(col.isnot(None), col != "")
+            .filter(col.isnot(None), col != "",
+                    SearchLog.searched_at >= df, SearchLog.searched_at < dt)
             .group_by(col)
             .order_by(func.count(SearchLog.id).desc())
             .limit(limit)
@@ -241,50 +283,59 @@ def search_trends(db: Session, limit: int = 10) -> dict:
     }
 
 
-def daily_new_users(db: Session, days: int = 30) -> list:
+def daily_new_users(db: Session, date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> list:
     from app.models.user import User
     now = datetime.utcnow()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    df = (date_from or today - timedelta(days=29)).replace(hour=0, minute=0, second=0, microsecond=0)
+    dt = (date_to or today).replace(hour=0, minute=0, second=0, microsecond=0)
     result = []
-    for i in range(days - 1, -1, -1):
-        day_start = today - timedelta(days=i)
-        day_end = day_start + timedelta(days=1)
+    day = df
+    while day <= dt:
+        day_end = day + timedelta(days=1)
         cnt = (
             db.query(func.count(User.id))
-            .filter(User.created_at >= day_start, User.created_at < day_end)
+            .filter(User.created_at >= day, User.created_at < day_end)
             .scalar() or 0
         )
-        result.append({"date": day_start.strftime("%d/%m"), "count": cnt})
+        result.append({"date": day.strftime("%d/%m"), "count": cnt})
+        day = day_end
     return result
 
 
-def daily_page_views(db: Session, days: int = 30) -> list:
+def daily_page_views(db: Session, date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> list:
     now = datetime.utcnow()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    df = (date_from or today - timedelta(days=29)).replace(hour=0, minute=0, second=0, microsecond=0)
+    dt = (date_to or today).replace(hour=0, minute=0, second=0, microsecond=0)
     result = []
-    for i in range(days - 1, -1, -1):
-        day_start = today - timedelta(days=i)
-        day_end = day_start + timedelta(days=1)
+    day = df
+    while day <= dt:
+        day_end = day + timedelta(days=1)
         cnt = (
             db.query(func.count(PageView.id))
-            .filter(PageView.occurred_at >= day_start, PageView.occurred_at < day_end)
+            .filter(PageView.occurred_at >= day, PageView.occurred_at < day_end)
             .scalar() or 0
         )
-        result.append({"date": day_start.strftime("%d/%m"), "count": cnt})
+        result.append({"date": day.strftime("%d/%m"), "count": cnt})
+        day = day_end
     return result
 
 
-def daily_searches(db: Session, days: int = 30) -> list:
+def daily_searches(db: Session, date_from: Optional[datetime] = None, date_to: Optional[datetime] = None) -> list:
     now = datetime.utcnow()
     today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    df = (date_from or today - timedelta(days=29)).replace(hour=0, minute=0, second=0, microsecond=0)
+    dt = (date_to or today).replace(hour=0, minute=0, second=0, microsecond=0)
     result = []
-    for i in range(days - 1, -1, -1):
-        day_start = today - timedelta(days=i)
-        day_end = day_start + timedelta(days=1)
+    day = df
+    while day <= dt:
+        day_end = day + timedelta(days=1)
         cnt = (
             db.query(func.count(SearchLog.id))
-            .filter(SearchLog.searched_at >= day_start, SearchLog.searched_at < day_end)
+            .filter(SearchLog.searched_at >= day, SearchLog.searched_at < day_end)
             .scalar() or 0
         )
-        result.append({"date": day_start.strftime("%d/%m"), "count": cnt})
+        result.append({"date": day.strftime("%d/%m"), "count": cnt})
+        day = day_end
     return result

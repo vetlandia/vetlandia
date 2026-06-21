@@ -10,16 +10,38 @@
     <style>
         body { background: #f0f4f8; font-family: 'Segoe UI', Arial, sans-serif; }
         .wrap { max-width: 1140px; margin: 0 auto; padding: 32px 16px 80px; }
-        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
         .page-header h1 { font-size:1.4rem; margin:0; }
+
+        /* Filtro de datas */
+        .date-filter {
+            background:#fff; border-radius:12px; padding:16px 20px;
+            margin-bottom:24px; box-shadow:0 1px 4px rgba(0,0,0,.06);
+            display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap;
+        }
+        .date-filter label { font-size:0.75rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; display:block; margin-bottom:4px; }
+        .date-filter input[type=date] {
+            padding:8px 12px; border:1.5px solid #e5e7eb; border-radius:8px;
+            font-size:0.875rem; color:#374151; outline:none; background:#fff;
+        }
+        .date-filter input[type=date]:focus { border-color:#0d9488; }
+        .btn-filter { padding:8px 20px; background:#0d9488; color:#fff; border:none; border-radius:8px; font-size:0.875rem; font-weight:700; cursor:pointer; white-space:nowrap; }
+        .btn-filter:hover { background:#0b8276; }
+        .btn-clear { padding:8px 16px; background:#f3f4f6; color:#374151; border:none; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; text-decoration:none; white-space:nowrap; }
+        .btn-clear:hover { background:#e5e7eb; }
+        {% if date_from or date_to %}
+        .filter-active-badge { display:inline-flex; align-items:center; gap:6px; background:#d1fae5; color:#065f46; font-size:0.78rem; font-weight:700; padding:4px 12px; border-radius:99px; }
+        {% endif %}
 
         .section { background:#fff; border-radius:12px; padding:24px; margin-bottom:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
         .section h2 { font-size:1rem; font-weight:700; margin:0 0 20px; padding-bottom:12px; border-bottom:1px solid #eee; display:flex; align-items:center; gap:8px; }
 
-        .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-bottom:0; }
+        .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; }
         .kpi { background:#f0fdfa; border-radius:10px; padding:16px 18px; }
         .kpi-num { font-size:1.8rem; font-weight:800; color:#0d9488; line-height:1; }
         .kpi-label { font-size:0.75rem; color:#6b7280; margin-top:4px; }
+        .kpi-sub { background:#f8fafc; }
+        .kpi-sub .kpi-num { color:#374151; font-size:1.5rem; }
 
         .chart-wrap { position:relative; height:240px; }
         .chart-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -29,12 +51,13 @@
         .rank-list li:last-child { border-bottom:none; }
         .rank-pos { font-weight:700; color:#0d9488; min-width:24px; }
         .rank-views { background:#f0fdfa; color:#0d9488; font-weight:700; font-size:0.78rem; padding:2px 10px; border-radius:99px; }
-
         .rank-cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
 
         @media(max-width:700px){
             .chart-row { grid-template-columns:1fr; }
             .rank-cols { grid-template-columns:1fr; }
+            .date-filter { flex-direction:column; align-items:stretch; }
+            .btn-filter, .btn-clear { width:100%; text-align:center; }
         }
     </style>
 </head>
@@ -45,38 +68,71 @@
             <a href="/admin" style="font-size:0.875rem;color:#6b7280;text-decoration:none;">← Painel Admin</a>
             <h1 style="margin-top:6px;">📊 Analytics VetLândia</h1>
         </div>
+        {% if date_from or date_to %}
+        <span class="filter-active-badge">
+            🗓 {{ date_from or '…' }} → {{ date_to or 'hoje' }}
+        </span>
+        {% endif %}
     </div>
+
+    <!-- Filtro de datas -->
+    <form class="date-filter" method="get" action="/admin/analytics">
+        <div>
+            <label for="df-from">De</label>
+            <input type="date" id="df-from" name="date_from" value="{{ date_from }}" max="{{ date_to or '' }}">
+        </div>
+        <div>
+            <label for="df-to">Até</label>
+            <input type="date" id="df-to" name="date_to" value="{{ date_to }}" min="{{ date_from or '' }}">
+        </div>
+        <button type="submit" class="btn-filter">Filtrar</button>
+        {% if date_from or date_to %}
+        <a href="/admin/analytics" class="btn-clear">✕ Limpar</a>
+        {% endif %}
+    </form>
 
     <!-- Plataforma -->
     <div class="section">
-        <h2>🌐 Plataforma — Visitas</h2>
+        <h2>🌐 Plataforma — Visitas{% if date_from or date_to %} <span style="font-size:0.75rem;font-weight:400;color:#9ca3af;">no período selecionado</span>{% else %} <span style="font-size:0.75rem;font-weight:400;color:#9ca3af;">acumulado</span>{% endif %}</h2>
         <div class="kpi-grid">
             <div class="kpi">
                 <div class="kpi-num">{{ pstats.total_page_views }}</div>
-                <div class="kpi-label">Total de page views</div>
+                <div class="kpi-label">Page views{% if date_from or date_to %} no período{% endif %}</div>
             </div>
             <div class="kpi">
+                <div class="kpi-num">{{ pstats.unique_visitors }}</div>
+                <div class="kpi-label">Visitantes únicos{% if date_from or date_to %} no período{% endif %}</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-num">{{ pstats.logged_in }}</div>
+                <div class="kpi-label">Usuários logados{% if date_from or date_to %} no período{% endif %}</div>
+            </div>
+        </div>
+        {% if not date_from and not date_to %}
+        <div class="kpi-grid" style="margin-top:12px;">
+            <div class="kpi kpi-sub">
                 <div class="kpi-num">{{ pstats.unique_today }}</div>
                 <div class="kpi-label">Visitantes únicos hoje</div>
             </div>
-            <div class="kpi">
+            <div class="kpi kpi-sub">
                 <div class="kpi-num">{{ pstats.unique_week }}</div>
                 <div class="kpi-label">Visitantes únicos (7d)</div>
             </div>
-            <div class="kpi">
+            <div class="kpi kpi-sub">
                 <div class="kpi-num">{{ pstats.unique_month }}</div>
                 <div class="kpi-label">Visitantes únicos (30d)</div>
             </div>
-            <div class="kpi">
+            <div class="kpi kpi-sub">
                 <div class="kpi-num">{{ pstats.logged_in_today }}</div>
                 <div class="kpi-label">Usuários logados hoje</div>
             </div>
         </div>
+        {% endif %}
     </div>
 
-    <!-- Usuários -->
+    <!-- Usuários cadastrados (sempre live) -->
     <div class="section">
-        <h2>👥 Usuários Cadastrados</h2>
+        <h2>👥 Usuários Cadastrados <span style="font-size:0.75rem;font-weight:400;color:#9ca3af;">total atual</span></h2>
         <div class="kpi-grid">
             <div class="kpi">
                 <div class="kpi-num">{{ user_counts.tutors }}</div>
@@ -90,16 +146,16 @@
                 <div class="kpi-num">{{ user_counts.clinics }}</div>
                 <div class="kpi-label">Clínicas</div>
             </div>
-            <div class="kpi" style="background:#f8fafc;">
-                <div class="kpi-num" style="color:#374151;">{{ user_counts.tutors + user_counts.vets + user_counts.clinics }}</div>
+            <div class="kpi kpi-sub">
+                <div class="kpi-num">{{ user_counts.tutors + user_counts.vets + user_counts.clinics }}</div>
                 <div class="kpi-label">Total geral</div>
             </div>
         </div>
     </div>
 
-    <!-- Gráficos de tendência -->
+    <!-- Gráficos -->
     <div class="section">
-        <h2>📈 Tendências (últimos 30 dias)</h2>
+        <h2>📈 Tendências{% if date_from or date_to %} — período selecionado{% else %} — últimos 30 dias{% endif %}</h2>
         <div class="chart-row">
             <div>
                 <p style="font-size:0.8rem;font-weight:600;color:#374151;margin:0 0 10px;">Acessos (page views)</p>
@@ -160,10 +216,7 @@
                 {% if trends.specialties %}
                 <ul class="rank-list">
                     {% for t in trends.specialties %}
-                    <li>
-                        <span style="flex:1;">{{ t.value }}</span>
-                        <span class="rank-views">{{ t.count }}×</span>
-                    </li>
+                    <li><span style="flex:1;">{{ t.value }}</span><span class="rank-views">{{ t.count }}×</span></li>
                     {% endfor %}
                 </ul>
                 {% else %}<p style="color:#9ca3af;font-size:0.8rem;font-style:italic;">Sem dados</p>{% endif %}
@@ -173,10 +226,7 @@
                 {% if trends.cities %}
                 <ul class="rank-list">
                     {% for t in trends.cities %}
-                    <li>
-                        <span style="flex:1;">{{ t.value }}</span>
-                        <span class="rank-views">{{ t.count }}×</span>
-                    </li>
+                    <li><span style="flex:1;">{{ t.value }}</span><span class="rank-views">{{ t.count }}×</span></li>
                     {% endfor %}
                 </ul>
                 {% else %}<p style="color:#9ca3af;font-size:0.8rem;font-style:italic;">Sem dados</p>{% endif %}
@@ -186,10 +236,7 @@
                 {% if trends.queries %}
                 <ul class="rank-list">
                     {% for t in trends.queries %}
-                    <li>
-                        <span style="flex:1;font-style:italic;">"{{ t.value }}"</span>
-                        <span class="rank-views">{{ t.count }}×</span>
-                    </li>
+                    <li><span style="flex:1;font-style:italic;">"{{ t.value }}"</span><span class="rank-views">{{ t.count }}×</span></li>
                     {% endfor %}
                 </ul>
                 {% else %}<p style="color:#9ca3af;font-size:0.8rem;font-style:italic;">Sem dados</p>{% endif %}
@@ -214,14 +261,7 @@
             type: 'bar',
             data: {
                 labels: labels,
-                datasets: [{
-                    label: label,
-                    data: data,
-                    backgroundColor: color + '33',
-                    borderColor: color,
-                    borderWidth: 1.5,
-                    borderRadius: 3
-                }]
+                datasets: [{ label: label, data: data, backgroundColor: color + '33', borderColor: color, borderWidth: 1.5, borderRadius: 3 }]
             },
             options: {
                 responsive: true,
@@ -235,9 +275,15 @@
         });
     }
 
-    mkChart('chart-pv',      pvLabels,  pvData,  '#0d9488', 'Page views');
+    mkChart('chart-pv',       pvLabels,  pvData,  '#0d9488', 'Page views');
     mkChart('chart-searches', srLabels,  srData,  '#6366f1', 'Buscas');
-    mkChart('chart-users',   usrLabels, usrData, '#f59e0b', 'Novos usuários');
+    mkChart('chart-users',    usrLabels, usrData, '#f59e0b', 'Novos usuários');
+
+    // Impede "De" maior que "Até" e vice-versa
+    var dfFrom = document.getElementById('df-from');
+    var dfTo   = document.getElementById('df-to');
+    dfFrom.addEventListener('change', function(){ if (dfTo.value && dfFrom.value > dfTo.value) dfTo.value = dfFrom.value; dfTo.min = dfFrom.value; });
+    dfTo.addEventListener('change',   function(){ if (dfFrom.value && dfTo.value < dfFrom.value) dfFrom.value = dfTo.value; dfFrom.max = dfTo.value; });
 })();
 </script>
 </body>
