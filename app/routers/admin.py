@@ -201,9 +201,14 @@ def delete_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
-    db.query(Review).filter(Review.reviewee_id == vet.id).delete()
-    db.delete(vet)
-    log_action(db, admin, "delete", "veterinarian", vet_id, f"Excluiu veterinário(a) {vet.full_name} ({vet.crmv})")
+    label = f"{vet.full_name} ({vet.crmv})"
+    user = db.query(User).filter(User.id == vet.user_id).first()
+    if user:
+        log_action(db, admin, "delete", "veterinarian", vet_id, f"Excluiu veterinário(a) {label} e conta de usuário")
+        _delete_user_and_profiles(user, db)
+    else:
+        log_action(db, admin, "delete", "veterinarian", vet_id, f"Excluiu perfil veterinário(a) {label} (sem conta de usuário)")
+        db.delete(vet)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -345,9 +350,14 @@ def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(r
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
-    db.query(Review).filter(Review.reviewee_id == clinic.id).delete()
-    db.delete(clinic)
-    log_action(db, admin, "delete", "clinic", clinic_id, f"Excluiu clínica {clinic.name}")
+    label = clinic.name
+    user = db.query(User).filter(User.id == clinic.user_id).first()
+    if user:
+        log_action(db, admin, "delete", "clinic", clinic_id, f"Excluiu clínica {label} e conta de usuário")
+        _delete_user_and_profiles(user, db)
+    else:
+        log_action(db, admin, "delete", "clinic", clinic_id, f"Excluiu perfil clínica {label} (sem conta de usuário)")
+        db.delete(clinic)
     db.commit()
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
