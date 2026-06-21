@@ -619,6 +619,7 @@
                                     <span style="color:#6b7280;font-size:0.9rem">até</span>
                                     <input type="number" name="consulta_preco_max" id="pc-consulta-max" class="form-input" value="{{ profile.consulta_preco_max if profile and profile.consulta_preco_max else '' }}" placeholder="Até" min="0" max="99999" style="max-width:110px">
                                 </div>
+                                <span id="err-mc-consulta-preco" style="display:none;color:#dc2626;font-size:0.8rem;margin-top:4px;">⚠ O valor "De" não pode ser maior que o "Até"</span>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Procedimento — faixa de preço (R$)</label>
@@ -627,6 +628,7 @@
                                     <span style="color:#6b7280;font-size:0.9rem">até</span>
                                     <input type="number" name="procedimento_preco_max" id="pc-proc-max" class="form-input" value="{{ profile.procedimento_preco_max if profile and profile.procedimento_preco_max else '' }}" placeholder="Até" min="0" max="99999" style="max-width:110px">
                                 </div>
+                                <span id="err-mc-proc-preco" style="display:none;color:#dc2626;font-size:0.8rem;margin-top:4px;">⚠ O valor "De" não pode ser maior que o "Até"</span>
                             </div>
                         </div>
                         <div class="form-group">
@@ -1099,8 +1101,25 @@ function collectContents() {
         return {};
     }
 
+    function validatePriceRanges() {
+        if (userType !== 'clinic') return true;
+        const cMin = parseInt(document.getElementById('pc-consulta-min')?.value) || null;
+        const cMax = parseInt(document.getElementById('pc-consulta-max')?.value) || null;
+        const pMin = parseInt(document.getElementById('pc-proc-min')?.value) || null;
+        const pMax = parseInt(document.getElementById('pc-proc-max')?.value) || null;
+        let ok = true;
+        const errC = document.getElementById('err-mc-consulta-preco');
+        const errP = document.getElementById('err-mc-proc-preco');
+        if (errC) errC.style.display = (cMin !== null && cMax !== null && cMin > cMax) ? 'block' : 'none';
+        if (errP) errP.style.display = (pMin !== null && pMax !== null && pMin > pMax) ? 'block' : 'none';
+        if (cMin !== null && cMax !== null && cMin > cMax) ok = false;
+        if (pMin !== null && pMax !== null && pMin > pMax) ok = false;
+        return ok;
+    }
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!validatePriceRanges()) return;
         const btn = form.querySelector('button[type="submit"]');
         btn.disabled = true;
         btn.textContent = 'Salvando...';

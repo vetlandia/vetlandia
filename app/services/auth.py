@@ -216,6 +216,10 @@ def register_clinic(db: Session, data: ClinicCreate) -> Token:
         aplica_vacinas=data.aplica_vacinas,
         open_hiring=data.open_hiring,
         open_internship=data.open_internship,
+        consulta_preco_min=data.consulta_preco_min,
+        consulta_preco_max=data.consulta_preco_max,
+        procedimento_preco_min=data.procedimento_preco_min,
+        procedimento_preco_max=data.procedimento_preco_max,
         slug=slug,
     )
     db.add(clinic)

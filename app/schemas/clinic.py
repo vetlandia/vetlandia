@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from app.utils.validators import validate_brazilian_state
 
@@ -31,6 +31,20 @@ class ClinicBase(BaseModel):
     num_veterinarios: Optional[str] = None
     open_hiring: bool = False
     open_internship: bool = False
+    consulta_preco_min: Optional[int] = Field(None, ge=0, le=99999)
+    consulta_preco_max: Optional[int] = Field(None, ge=0, le=99999)
+    procedimento_preco_min: Optional[int] = Field(None, ge=0, le=99999)
+    procedimento_preco_max: Optional[int] = Field(None, ge=0, le=99999)
+
+    @model_validator(mode="after")
+    def validate_price_ranges(self):
+        if self.consulta_preco_min is not None and self.consulta_preco_max is not None:
+            if self.consulta_preco_min > self.consulta_preco_max:
+                raise ValueError("O valor inicial da faixa de consulta não pode ser maior que o valor final.")
+        if self.procedimento_preco_min is not None and self.procedimento_preco_max is not None:
+            if self.procedimento_preco_min > self.procedimento_preco_max:
+                raise ValueError("O valor inicial da faixa de procedimento não pode ser maior que o valor final.")
+        return self
 
     @field_validator("state")
     @classmethod
@@ -70,12 +84,22 @@ class ClinicUpdate(BaseModel):
     num_veterinarios: Optional[str] = None
     consulta_faixa: Optional[str] = Field(None, max_length=20)
     procedimento_faixa: Optional[str] = Field(None, max_length=20)
-    consulta_preco_min: Optional[int] = None
-    consulta_preco_max: Optional[int] = None
-    procedimento_preco_min: Optional[int] = None
-    procedimento_preco_max: Optional[int] = None
+    consulta_preco_min: Optional[int] = Field(None, ge=0, le=99999)
+    consulta_preco_max: Optional[int] = Field(None, ge=0, le=99999)
+    procedimento_preco_min: Optional[int] = Field(None, ge=0, le=99999)
+    procedimento_preco_max: Optional[int] = Field(None, ge=0, le=99999)
     open_hiring: Optional[bool] = None
     open_internship: Optional[bool] = None
+
+    @model_validator(mode="after")
+    def validate_price_ranges(self):
+        if self.consulta_preco_min is not None and self.consulta_preco_max is not None:
+            if self.consulta_preco_min > self.consulta_preco_max:
+                raise ValueError("O valor inicial da faixa de consulta não pode ser maior que o valor final.")
+        if self.procedimento_preco_min is not None and self.procedimento_preco_max is not None:
+            if self.procedimento_preco_min > self.procedimento_preco_max:
+                raise ValueError("O valor inicial da faixa de procedimento não pode ser maior que o valor final.")
+        return self
 
 
 class ClinicResponse(ClinicBase):

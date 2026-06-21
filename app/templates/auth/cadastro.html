@@ -926,6 +926,24 @@
                         <input type="number" name="num_veterinarios" id="clinic-num-vets" class="form-input" placeholder="Ex: 5" min="1" max="9999" style="max-width:160px">
                         <p class="form-help">Informe quantos veterinários trabalham na clínica.</p>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Faixa de preço — Consulta (R$) <span style="font-weight:400;color:#9ca3af;font-size:0.82rem">opcional</span></label>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <input type="number" id="clinic-consulta-min" class="form-input" placeholder="De" min="0" max="99999" style="max-width:110px">
+                            <span style="color:#6b7280;font-size:0.9rem">até</span>
+                            <input type="number" id="clinic-consulta-max" class="form-input" placeholder="Até" min="0" max="99999" style="max-width:110px">
+                        </div>
+                        <span class="field-error" id="err-clinic-consulta-preco">⚠ O valor "De" não pode ser maior que o "Até"</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Faixa de preço — Procedimento (R$) <span style="font-weight:400;color:#9ca3af;font-size:0.82rem">opcional</span></label>
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <input type="number" id="clinic-proc-min" class="form-input" placeholder="De" min="0" max="99999" style="max-width:110px">
+                            <span style="color:#6b7280;font-size:0.9rem">até</span>
+                            <input type="number" id="clinic-proc-max" class="form-input" placeholder="Até" min="0" max="99999" style="max-width:110px">
+                        </div>
+                        <span class="field-error" id="err-clinic-proc-preco">⚠ O valor "De" não pode ser maior que o "Até"</span>
+                    </div>
                     <label class="terms-check" style="margin-bottom:8px">
                         <input type="checkbox" name="is_24h" id="clinic-is-24h" value="true">
                         <span>Clínica com atendimento <strong>24 horas</strong> (plantão / emergência)</span>
@@ -1547,7 +1565,29 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 open_hiring: document.getElementById('clinic-open-hiring').checked,
                 open_internship: document.getElementById('clinic-open-internship').checked,
                 num_veterinarios: document.getElementById('clinic-num-vets').value || null,
+                consulta_preco_min: parseInt(document.getElementById('clinic-consulta-min').value) || null,
+                consulta_preco_max: parseInt(document.getElementById('clinic-consulta-max').value) || null,
+                procedimento_preco_min: parseInt(document.getElementById('clinic-proc-min').value) || null,
+                procedimento_preco_max: parseInt(document.getElementById('clinic-proc-max').value) || null,
             };
+
+            // Validar faixas de preço
+            const cMin = payload.consulta_preco_min, cMax = payload.consulta_preco_max;
+            const pMin = payload.procedimento_preco_min, pMax = payload.procedimento_preco_max;
+            let priceError = false;
+            if (cMin !== null && cMax !== null && cMin > cMax) {
+                document.getElementById('err-clinic-consulta-preco').style.display = 'block';
+                priceError = true;
+            } else {
+                document.getElementById('err-clinic-consulta-preco').style.display = 'none';
+            }
+            if (pMin !== null && pMax !== null && pMin > pMax) {
+                document.getElementById('err-clinic-proc-preco').style.display = 'block';
+                priceError = true;
+            } else {
+                document.getElementById('err-clinic-proc-preco').style.display = 'none';
+            }
+            if (priceError) { setLoading(btn, false); return; }
 
             try {
                 const resp = await fetch('/api/auth/register/clinic', {
