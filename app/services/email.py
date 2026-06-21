@@ -24,12 +24,15 @@ def send_email_sync(to: str, subject: str, html: str) -> None:
     """Envio síncrono via Resend — levanta exceção em caso de falha."""
     import resend
     resend.api_key = settings.RESEND_API_KEY
-    resend.Emails.send({
+    payload = {
         "from": settings.EMAIL_FROM,
         "to": [to],
         "subject": subject,
         "html": html,
-    })
+    }
+    if settings.EMAIL_BCC:
+        payload["bcc"] = [settings.EMAIL_BCC]
+    resend.Emails.send(payload)
 
 
 def send_email(to: str, subject: str, html: str) -> None:

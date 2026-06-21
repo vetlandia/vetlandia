@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # E-mail (Resend)
     RESEND_API_KEY: str = ""
     EMAIL_FROM: str = "VetLândia <nao-responda@vetlandia.com.br>"
+    EMAIL_BCC: str = "vetlandiabrasil@outlook.com"
 
     @property
     def db_url(self) -> str:
