@@ -8,49 +8,57 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}?v={{ asset_v }}">
     <style>
         body { background:#f0f4f8; font-family:'Segoe UI',Arial,sans-serif; }
-        .wrap { max-width:1200px; margin:0 auto; padding:32px 16px 80px; }
-
+        .wrap { max-width:1300px; margin:0 auto; padding:32px 16px 80px; }
         .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
         .page-header h1 { font-size:1.4rem; margin:0; }
-
         .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
-        .filters input, .filters select {
-            padding:8px 12px; border:1px solid #d1d5db; border-radius:8px;
-            font-size:0.875rem; background:#fff; outline:none;
-        }
+        .filters input, .filters select { padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; background:#fff; outline:none; }
         .filters input { min-width:220px; }
         .filters input:focus, .filters select:focus { border-color:#0d9488; }
-
         .section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
-
-        table { width:100%; border-collapse:collapse; font-size:0.875rem; }
-        th { text-align:left; padding:9px 12px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
-        td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        table { width:100%; border-collapse:collapse; font-size:0.825rem; }
+        th { text-align:left; padding:9px 10px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
+        td { padding:9px 10px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
         tr:last-child td { border-bottom:none; }
         tr:hover td { background:#fafafa; }
-
         .status-badge { display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; }
         .status-aprovado  { background:#d1fae5; color:#065f46; }
         .status-pendente  { background:#fef3c7; color:#92400e; }
         .status-reprovado { background:#fee2e2; color:#991b1b; }
         .status-estudante { background:#ede9fe; color:#5b21b6; }
-
+        .status-inativo   { background:#f3f4f6; color:#6b7280; }
         .doc-badge { display:inline-block; font-size:0.72rem; font-weight:600; padding:2px 8px; border-radius:99px; }
         .doc-ok  { background:#d1fae5; color:#065f46; }
         .doc-no  { background:#fee2e2; color:#991b1b; }
         .doc-val { background:#d1fae5; color:#065f46; }
         .doc-pend{ background:#fef3c7; color:#92400e; }
-
-        .btn-doc { display:inline-block; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; }
-        .btn-view  { background:#6366f1; color:#fff; }
-        .btn-view:hover { background:#4f46e5; }
-        .btn-profile { background:#1e293b; color:#fff; }
-        .btn-profile:hover { background:#0f172a; }
-        .btn-val  { background:#f59e0b; color:#fff; }
-        .btn-val:hover { background:#d97706; }
-        .btn-no { background:#e5e7eb; color:#9ca3af; cursor:default; }
-
+        .btn { display:inline-block; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; white-space:nowrap; margin:2px 1px; }
+        .btn-dark    { background:#1e293b; color:#fff; }
+        .btn-dark:hover { background:#0f172a; }
+        .btn-indigo  { background:#6366f1; color:#fff; }
+        .btn-indigo:hover { background:#4f46e5; }
+        .btn-amber   { background:#f59e0b; color:#fff; }
+        .btn-amber:hover { background:#d97706; }
+        .btn-green   { background:#059669; color:#fff; }
+        .btn-green:hover { background:#047857; }
+        .btn-red     { background:#dc2626; color:#fff; }
+        .btn-red:hover { background:#b91c1c; }
+        .btn-gray    { background:#e5e7eb; color:#374151; }
+        .btn-gray:hover { background:#d1d5db; }
+        .btn-orange  { background:#ea580c; color:#fff; }
+        .btn-orange:hover { background:#c2410c; }
+        .action-form { display:inline; }
         .count-label { font-size:0.8rem; color:#6b7280; margin-bottom:16px; }
+        dialog { border:none; border-radius:12px; padding:28px; box-shadow:0 8px 32px rgba(0,0,0,.18); max-width:420px; width:90%; }
+        dialog::backdrop { background:rgba(0,0,0,.45); }
+        dialog h3 { margin:0 0 16px; font-size:1rem; }
+        .reason-presets { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+        .reason-presets label { display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:0.875rem; }
+        textarea { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:8px; padding:8px; font-size:0.875rem; resize:vertical; }
+        .dialog-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+        .dialog-actions button { padding:8px 18px; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; border:none; }
+        .btn-cancel-dlg { background:#f3f4f6; color:#374151; }
+        .btn-reject-dlg { background:#dc2626; color:#fff; }
     </style>
 </head>
 <body>
@@ -63,13 +71,14 @@
     </div>
 
     <div class="filters">
-        <input type="text" id="search-input" placeholder="🔍 Buscar por nome, CRMV ou e-mail…" oninput="filterTable()">
+        <input type="text" id="search-input" placeholder="🔍 Buscar por nome, CRMV, cidade ou e-mail…" oninput="filterTable()">
         <select id="status-filter" onchange="filterTable()">
             <option value="">Todos os status</option>
             <option value="aprovado">Aprovado</option>
             <option value="pendente">Pendente</option>
             <option value="reprovado">Reprovado</option>
             <option value="estudante">Estudante</option>
+            <option value="inativo">Inativo</option>
         </select>
         <select id="doc-filter" onchange="filterTable()">
             <option value="">Todos os documentos</option>
@@ -97,21 +106,22 @@
             </thead>
             <tbody>
             {% for vet in all_vets %}
-            {% set status = 'estudante' if vet.is_student else ('aprovado' if vet.is_approved else ('reprovado' if vet.is_rejected else 'pendente')) %}
-            <tr data-status="{{ status }}" data-doc="{{ 'com' if vet.crmv_card_url else 'sem' }}"
-                data-search="{{ (vet.full_name ~ ' ' ~ (vet.crmv or '') ~ ' ' ~ (vet.email or '')).lower() }}">
+            {% set vstatus = 'inativo' if not vet.user_is_active else ('estudante' if vet.is_student else ('aprovado' if vet.is_approved else ('reprovado' if vet.is_rejected else 'pendente'))) %}
+            <tr data-status="{{ vstatus }}" data-doc="{{ 'com' if vet.crmv_card_url else 'sem' }}"
+                data-search="{{ (vet.full_name ~ ' ' ~ (vet.crmv or '') ~ ' ' ~ (vet.city or '') ~ ' ' ~ (vet.email or '')).lower() }}">
                 <td><strong>{{ vet.full_name }}</strong></td>
-                <td style="font-size:0.8rem;color:#6b7280;">{{ vet.email or '—' }}</td>
+                <td style="color:#6b7280;font-size:0.78rem;">{{ vet.email or '—' }}</td>
                 <td>{{ vet.crmv or '—' }}</td>
                 <td>{{ vet.specialty or '—' }}</td>
                 <td style="white-space:nowrap;">{{ vet.city or '—' }}{% if vet.state %}/{{ vet.state }}{% endif %}</td>
-                <td style="white-space:nowrap;font-size:0.8rem;">{{ vet.created_at.strftime('%d/%m/%Y') }}</td>
+                <td style="white-space:nowrap;font-size:0.78rem;">{{ vet.created_at.strftime('%d/%m/%Y') }}</td>
                 <td>
-                    <span class="status-badge status-{{ status }}">
-                        {% if status == 'aprovado' %}✓ Aprovado
-                        {% elif status == 'pendente' %}⏳ Pendente
-                        {% elif status == 'reprovado' %}✗ Reprovado
-                        {% else %}🎓 Estudante{% endif %}
+                    <span class="status-badge status-{{ vstatus }}">
+                        {% if vstatus == 'aprovado' %}✓ Aprovado
+                        {% elif vstatus == 'pendente' %}⏳ Pendente
+                        {% elif vstatus == 'reprovado' %}✗ Reprovado
+                        {% elif vstatus == 'estudante' %}🎓 Estudante
+                        {% else %}⛔ Inativo{% endif %}
                     </span>
                 </td>
                 <td>
@@ -127,15 +137,44 @@
                     {% endif %}
                 </td>
                 <td style="white-space:nowrap;">
-                    <a href="/veterinario/{{ vet.slug }}" target="_blank" class="btn-doc btn-profile" style="margin-right:4px;">👁 Perfil</a>
+                    <a href="/veterinario/{{ vet.slug }}" target="_blank" class="btn btn-dark">👁 Perfil</a>
                     {% if vet.crmv_card_url %}
-                        <a href="/admin/vets/{{ vet.id }}/carteira" target="_blank" class="btn-doc btn-view" style="margin-right:4px;">🪪 Carteirinha</a>
-                        {% if not vet.is_verified %}
-                        <a href="/admin/vets/{{ vet.id }}/validar-crmv" target="_blank" class="btn-doc btn-val">🔎 Validar</a>
-                        {% endif %}
-                    {% else %}
-                        <span class="btn-doc btn-no">Sem doc.</span>
+                    <a href="/admin/vets/{{ vet.id }}/carteira" target="_blank" class="btn btn-indigo">🪪 Carteira</a>
+                    {% if not vet.is_verified %}
+                    <a href="/admin/vets/{{ vet.id }}/validar-crmv" target="_blank" class="btn btn-amber">🔎 Validar</a>
                     {% endif %}
+                    {% endif %}
+                    <br>
+                    {% if vstatus == 'pendente' or vstatus == 'reprovado' %}
+                    <form class="action-form" method="post" action="/admin/vets/{{ vet.id }}/approve">
+                        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+                        <button class="btn btn-green">✓ Aprovar</button>
+                    </form>
+                    {% endif %}
+                    {% if vstatus == 'pendente' or vstatus == 'aprovado' or vstatus == 'estudante' %}
+                    <button class="btn btn-orange" onclick="openRejectDialog('{{ vet.id }}', '{{ vet.full_name | replace("'","\\'" ) }}')">✗ Reprovar</button>
+                    {% endif %}
+                    {% if vstatus == 'reprovado' %}
+                    <form class="action-form" method="post" action="/admin/vets/{{ vet.id }}/restore">
+                        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+                        <button class="btn btn-gray">↩ Restaurar</button>
+                    </form>
+                    {% endif %}
+                    {% if vet.user_is_active %}
+                    <form class="action-form" method="post" action="/admin/users/{{ vet.user_id }}/block">
+                        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+                        <button class="btn btn-gray" onclick="return confirm('Inativar {{ vet.full_name }}?')">⛔ Inativar</button>
+                    </form>
+                    {% else %}
+                    <form class="action-form" method="post" action="/admin/users/{{ vet.user_id }}/unblock">
+                        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+                        <button class="btn btn-green" onclick="return confirm('Reativar {{ vet.full_name }}?')">✓ Reativar</button>
+                    </form>
+                    {% endif %}
+                    <form class="action-form" method="post" action="/admin/users/{{ vet.user_id }}/delete">
+                        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+                        <button class="btn btn-red" onclick="return confirm('Excluir {{ vet.full_name }} permanentemente? Esta ação não pode ser desfeita.')">🗑 Excluir</button>
+                    </form>
                 </td>
             </tr>
             {% else %}
@@ -147,7 +186,46 @@
     </div>
 </div>
 
+<!-- Dialog de reprovação -->
+<dialog id="reject-dialog">
+    <h3>Reprovar veterinário</h3>
+    <p id="reject-dialog-name" style="font-weight:600;margin:0 0 14px;color:#374151;"></p>
+    <form id="reject-form" method="post">
+        <input type="hidden" name="redirect_to" value="/admin/veterinarios">
+        <div class="reason-presets">
+            <label><input type="radio" name="reason" value="Documentação incompleta ou ilegível"> Documentação incompleta ou ilegível</label>
+            <label><input type="radio" name="reason" value="CRMV não encontrado ou inativo"> CRMV não encontrado ou inativo</label>
+            <label><input type="radio" name="reason" value="Informações divergentes com os documentos"> Informações divergentes com os documentos</label>
+            <label><input type="radio" name="reason" value="Outro (ver campo abaixo)"> Outro (ver campo abaixo)</label>
+        </div>
+        <textarea name="reason_free" rows="3" placeholder="Motivo adicional ou detalhes (opcional)…"></textarea>
+        <div class="dialog-actions">
+            <button type="button" class="btn-cancel-dlg" onclick="document.getElementById('reject-dialog').close()">Cancelar</button>
+            <button type="submit" class="btn-reject-dlg">Reprovar</button>
+        </div>
+    </form>
+</dialog>
+
 <script>
+function openRejectDialog(vetId, vetName) {
+    document.getElementById('reject-dialog-name').textContent = vetName;
+    document.getElementById('reject-form').action = '/admin/vets/' + vetId + '/reject';
+    document.querySelectorAll('#reject-form input[type=radio]').forEach(r => r.checked = false);
+    document.querySelector('#reject-form textarea').value = '';
+    document.getElementById('reject-dialog').showModal();
+}
+
+document.getElementById('reject-form').addEventListener('submit', function(e) {
+    var radio = document.querySelector('#reject-form input[type=radio]:checked');
+    var free  = document.querySelector('#reject-form textarea').value.trim();
+    if (!radio && !free) {
+        e.preventDefault();
+        alert('Selecione ou informe o motivo da reprovação.');
+    } else if (radio && radio.value !== 'Outro (ver campo abaixo)') {
+        document.querySelector('#reject-form textarea').name = '_reason_free_ignore';
+    }
+});
+
 function filterTable() {
     var search = document.getElementById('search-input').value.toLowerCase();
     var status = document.getElementById('status-filter').value;
@@ -155,10 +233,9 @@ function filterTable() {
     var rows   = document.querySelectorAll('#vets-table tbody tr[data-status]');
     var visible = 0;
     rows.forEach(function(row) {
-        var matchSearch = !search || row.dataset.search.includes(search);
-        var matchStatus = !status || row.dataset.status === status;
-        var matchDoc    = !doc    || row.dataset.doc === doc;
-        var show = matchSearch && matchStatus && matchDoc;
+        var show = (!search || row.dataset.search.includes(search)) &&
+                   (!status || row.dataset.status === status) &&
+                   (!doc    || row.dataset.doc === doc);
         row.style.display = show ? '' : 'none';
         if (show) visible++;
     });

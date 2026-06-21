@@ -91,8 +91,6 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
         .order_by(CaseComment.created_at.desc())
         .all()
     )
-    users = db.query(User).filter(User.user_type != UserType.ADMIN).order_by(User.created_at.desc()).all()
-
     pending_recs = _resolve_recommendations(
         db,
         db.query(Recommendation)
@@ -123,7 +121,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             clinic_products=clinic_products,
             clinic_products_catalog=CLINIC_PRODUCTS,
             audit_logs=audit_logs,
-            users=users, admin=admin,
+            admin=admin,
         ),
     )
 
@@ -160,7 +158,7 @@ def _resolve_recommendations(db: Session, recs):
 # ── Veterinários ──────────────────────────────────────────────────────────────
 
 @router.post("/vets/{vet_id}/approve")
-def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def approve_vet(vet_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
@@ -174,11 +172,11 @@ def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(requir
     if user:
         profile_url = f"https://vetlandia.com.br/veterinario/{vet.slug}"
         send_email(user.email, "Perfil aprovado no VetLândia! 🎉", tpl_aprovacao(vet.full_name, "veterinarian", profile_url))
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/vets/{vet_id}/reject")
-def reject_vet(vet_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
+def reject_vet(vet_id: str, reason: str = Form(""), redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reprova de forma REVERSÍVEL (Módulo 9): marca is_rejected, não apaga."""
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
@@ -190,22 +188,22 @@ def reject_vet(vet_id: str, reason: str = Form(""), db: Session = Depends(get_db
     user = db.query(User).filter(User.id == vet.user_id).first()
     if user:
         send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(vet.full_name, "veterinarian", reason))
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/vets/{vet_id}/restore")
-def restore_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def restore_vet(vet_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reverte a reprovação: volta o veterinário para a fila de pendentes."""
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_rejected = False
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/vets/{vet_id}/delete")
-def delete_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def delete_vet(vet_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
@@ -218,7 +216,7 @@ def delete_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require
         log_action(db, admin, "delete", "veterinarian", vet_id, f"Excluiu perfil veterinário(a) {label} (sem conta de usuário)")
         db.delete(vet)
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/vets/{vet_id}/set-badge")
@@ -277,7 +275,7 @@ def validar_crmv_page(vet_id: str, request: Request, db: Session = Depends(get_d
 # ── Clínicas ──────────────────────────────────────────────────────────────────
 
 @router.post("/clinics/{clinic_id}/approve")
-def approve_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def approve_clinic(clinic_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
@@ -289,7 +287,7 @@ def approve_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(
     if user:
         profile_url = f"https://vetlandia.com.br/clinica/{clinic.slug}"
         send_email(user.email, "Perfil aprovado no VetLândia! 🎉", tpl_aprovacao(clinic.name, "clinic", profile_url))
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/clinics/{clinic_id}/set-badge")
@@ -354,7 +352,7 @@ def toggle_clinic_entitlement(
 
 
 @router.post("/clinics/{clinic_id}/delete")
-def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def delete_clinic(clinic_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
@@ -367,11 +365,11 @@ def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(r
         log_action(db, admin, "delete", "clinic", clinic_id, f"Excluiu perfil clínica {label} (sem conta de usuário)")
         db.delete(clinic)
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/clinics/{clinic_id}/reject")
-def reject_clinic(clinic_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
+def reject_clinic(clinic_id: str, reason: str = Form(""), redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reprova de forma REVERSÍVEL (Módulo 9): marca is_rejected, não apaga."""
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
@@ -383,18 +381,18 @@ def reject_clinic(clinic_id: str, reason: str = Form(""), db: Session = Depends(
     user = db.query(User).filter(User.id == clinic.user_id).first()
     if user:
         send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(clinic.name, "clinic", reason))
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/clinics/{clinic_id}/restore")
-def restore_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def restore_clinic(clinic_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reverte a reprovação: volta a clínica para a fila de pendentes."""
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_rejected = False
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 # ── Reviews ───────────────────────────────────────────────────────────────────
@@ -555,7 +553,7 @@ def delete_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depe
 # ── Usuários ──────────────────────────────────────────────────────────────────
 
 @router.post("/users/{user_id}/block")
-def block_user(user_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def block_user(user_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
@@ -569,11 +567,11 @@ def block_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requir
     if clinic:
         clinic.is_approved = False
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/users/{user_id}/unblock")
-def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def unblock_user(user_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
@@ -585,7 +583,7 @@ def unblock_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requ
     if clinic:
         clinic.is_approved = True
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 def _delete_reviews(reviewee_or_author_ids, column, db: Session):
@@ -644,7 +642,7 @@ def _delete_user_and_profiles(user: User, db: Session):
 
 
 @router.post("/users/{user_id}/delete")
-def delete_user(user_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def delete_user(user_id: str, redirect_to: str = Form("/admin"), db: Session = Depends(get_db), admin=Depends(require_admin)):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
@@ -653,7 +651,7 @@ def delete_user(user_id: str, db: Session = Depends(get_db), admin=Depends(requi
     log_action(db, admin, "delete", "user", user_id, f"Excluiu usuário {user.display_name} ({user.email})")
     _delete_user_and_profiles(user, db)
     db.commit()
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(redirect_to, status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/users/bulk-action")
@@ -842,10 +840,10 @@ def analytics_page(request: Request, db: Session = Depends(get_db), admin=Depend
 @router.get("/veterinarios", response_class=HTMLResponse)
 def all_veterinarios(request: Request, db: Session = Depends(get_db), admin=Depends(require_admin)):
     vets = db.query(Veterinarian).order_by(Veterinarian.created_at.desc()).all()
-    # Injeta e-mail de cada vet via join com User
     for v in vets:
         user = db.query(User).filter(User.id == v.user_id).first()
         v.email = user.email if user else "—"
+        v.user_is_active = user.is_active if user else False
     ctx = _admin_context(request, db, all_vets=vets)
     return templates.TemplateResponse("admin/veterinarios.html", ctx)
 
@@ -856,6 +854,7 @@ def all_clinicas(request: Request, db: Session = Depends(get_db), admin=Depends(
     for c in clinics:
         user = db.query(User).filter(User.id == c.user_id).first()
         c.user_email = user.email if user else "—"
+        c.user_is_active = user.is_active if user else False
     ctx = _admin_context(request, db, all_clinics=clinics)
     return templates.TemplateResponse("admin/clinicas.html", ctx)
 
@@ -868,6 +867,7 @@ def all_tutores(request: Request, db: Session = Depends(get_db), admin=Depends(r
     for t in tutors:
         user = db.query(User).filter(User.id == t.user_id).first()
         t.user_email = user.email if user else "—"
+        t.user_is_active = user.is_active if user else False
         try:
             t.pets_list = json.loads(t.pets) if t.pets else []
         except Exception:

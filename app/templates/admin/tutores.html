@@ -8,19 +8,31 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}?v={{ asset_v }}">
     <style>
         body { background:#f0f4f8; font-family:'Segoe UI',Arial,sans-serif; }
-        .wrap { max-width:1100px; margin:0 auto; padding:32px 16px 80px; }
+        .wrap { max-width:1200px; margin:0 auto; padding:32px 16px 80px; }
         .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
         .page-header h1 { font-size:1.4rem; margin:0; }
         .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
-        .filters input { padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; background:#fff; outline:none; min-width:260px; }
-        .filters input:focus { border-color:#0d9488; }
+        .filters input, .filters select { padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; background:#fff; outline:none; }
+        .filters input { min-width:260px; }
+        .filters input:focus, .filters select:focus { border-color:#0d9488; }
         .section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
-        table { width:100%; border-collapse:collapse; font-size:0.875rem; }
-        th { text-align:left; padding:9px 12px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
-        td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        table { width:100%; border-collapse:collapse; font-size:0.825rem; }
+        th { text-align:left; padding:9px 10px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
+        td { padding:9px 10px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
         tr:last-child td { border-bottom:none; }
         tr:hover td { background:#fafafa; }
+        .status-badge { display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; }
+        .status-ativo   { background:#d1fae5; color:#065f46; }
+        .status-inativo { background:#f3f4f6; color:#6b7280; }
         .pet-tag { display:inline-block; font-size:0.7rem; background:#f0fdfa; color:#0d9488; border-radius:99px; padding:1px 7px; margin:1px; }
+        .btn { display:inline-block; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; white-space:nowrap; margin:2px 1px; }
+        .btn-green { background:#059669; color:#fff; }
+        .btn-green:hover { background:#047857; }
+        .btn-red   { background:#dc2626; color:#fff; }
+        .btn-red:hover { background:#b91c1c; }
+        .btn-gray  { background:#e5e7eb; color:#374151; }
+        .btn-gray:hover { background:#d1d5db; }
+        .action-form { display:inline; }
         .count-label { font-size:0.8rem; color:#6b7280; margin-bottom:16px; }
     </style>
 </head>
@@ -35,6 +47,11 @@
 
     <div class="filters">
         <input type="text" id="search-input" placeholder="🔍 Buscar por nome, CPF, cidade ou e-mail…" oninput="filterTable()">
+        <select id="status-filter" onchange="filterTable()">
+            <option value="">Todos os status</option>
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+        </select>
     </div>
 
     <div class="section">
@@ -50,15 +67,19 @@
                     <th>Cidade/UF</th>
                     <th>Pets</th>
                     <th>Cadastro</th>
+                    <th>Status</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
             {% for tutor in all_tutors %}
-            <tr data-search="{{ (tutor.full_name ~ ' ' ~ (tutor.cpf or '') ~ ' ' ~ (tutor.city or '') ~ ' ' ~ (tutor.user_email or '')).lower() }}">
+            {% set tstatus = 'ativo' if tutor.user_is_active else 'inativo' %}
+            <tr data-status="{{ tstatus }}"
+                data-search="{{ (tutor.full_name ~ ' ' ~ (tutor.cpf or '') ~ ' ' ~ (tutor.city or '') ~ ' ' ~ (tutor.user_email or '')).lower() }}">
                 <td><strong>{{ tutor.full_name }}</strong></td>
-                <td style="font-size:0.8rem;color:#6b7280;">{{ tutor.user_email or '—' }}</td>
-                <td style="font-size:0.8rem;">{{ tutor.cpf or '—' }}</td>
-                <td style="white-space:nowrap;font-size:0.8rem;">{{ tutor.phone or '—' }}</td>
+                <td style="font-size:0.78rem;color:#6b7280;">{{ tutor.user_email or '—' }}</td>
+                <td style="font-size:0.78rem;">{{ tutor.cpf or '—' }}</td>
+                <td style="white-space:nowrap;font-size:0.78rem;">{{ tutor.phone or '—' }}</td>
                 <td style="white-space:nowrap;">{{ tutor.city or '—' }}{% if tutor.state %}/{{ tutor.state }}{% endif %}</td>
                 <td>
                     {% if tutor.pets_list %}
@@ -66,13 +87,35 @@
                         <span class="pet-tag">{{ pet.get('name', '?') }} ({{ pet.get('species', '?') }})</span>
                         {% endfor %}
                     {% else %}
-                        <span style="color:#9ca3af;font-size:0.8rem;">—</span>
+                        <span style="color:#9ca3af;font-size:0.78rem;">—</span>
                     {% endif %}
                 </td>
-                <td style="white-space:nowrap;font-size:0.8rem;">{{ tutor.created_at.strftime('%d/%m/%Y') }}</td>
+                <td style="white-space:nowrap;font-size:0.78rem;">{{ tutor.created_at.strftime('%d/%m/%Y') }}</td>
+                <td>
+                    <span class="status-badge status-{{ tstatus }}">
+                        {% if tstatus == 'ativo' %}✓ Ativo{% else %}⛔ Inativo{% endif %}
+                    </span>
+                </td>
+                <td style="white-space:nowrap;">
+                    {% if tutor.user_is_active %}
+                    <form class="action-form" method="post" action="/admin/users/{{ tutor.user_id }}/block">
+                        <input type="hidden" name="redirect_to" value="/admin/tutores">
+                        <button class="btn btn-gray" onclick="return confirm('Inativar {{ tutor.full_name }}?')">⛔ Inativar</button>
+                    </form>
+                    {% else %}
+                    <form class="action-form" method="post" action="/admin/users/{{ tutor.user_id }}/unblock">
+                        <input type="hidden" name="redirect_to" value="/admin/tutores">
+                        <button class="btn btn-green" onclick="return confirm('Reativar {{ tutor.full_name }}?')">✓ Reativar</button>
+                    </form>
+                    {% endif %}
+                    <form class="action-form" method="post" action="/admin/users/{{ tutor.user_id }}/delete">
+                        <input type="hidden" name="redirect_to" value="/admin/tutores">
+                        <button class="btn btn-red" onclick="return confirm('Excluir {{ tutor.full_name }} permanentemente? Esta ação não pode ser desfeita.')">🗑 Excluir</button>
+                    </form>
+                </td>
             </tr>
             {% else %}
-            <tr><td colspan="7" style="text-align:center;padding:32px;color:#9ca3af;font-style:italic;">Nenhum tutor cadastrado.</td></tr>
+            <tr><td colspan="9" style="text-align:center;padding:32px;color:#9ca3af;font-style:italic;">Nenhum tutor cadastrado.</td></tr>
             {% endfor %}
             </tbody>
         </table>
@@ -83,10 +126,12 @@
 <script>
 function filterTable() {
     var search = document.getElementById('search-input').value.toLowerCase();
-    var rows   = document.querySelectorAll('#tutors-table tbody tr[data-search]');
+    var status = document.getElementById('status-filter').value;
+    var rows   = document.querySelectorAll('#tutors-table tbody tr[data-status]');
     var visible = 0;
     rows.forEach(function(row) {
-        var show = !search || row.dataset.search.includes(search);
+        var show = (!search || row.dataset.search.includes(search)) &&
+                   (!status || row.dataset.status === status);
         row.style.display = show ? '' : 'none';
         if (show) visible++;
     });

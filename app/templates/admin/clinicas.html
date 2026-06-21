@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/css/components.css') }}?v={{ asset_v }}">
     <style>
         body { background:#f0f4f8; font-family:'Segoe UI',Arial,sans-serif; }
-        .wrap { max-width:1200px; margin:0 auto; padding:32px 16px 80px; }
+        .wrap { max-width:1300px; margin:0 auto; padding:32px 16px 80px; }
         .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
         .page-header h1 { font-size:1.4rem; margin:0; }
         .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
@@ -16,19 +16,39 @@
         .filters input { min-width:240px; }
         .filters input:focus, .filters select:focus { border-color:#0d9488; }
         .section { background:#fff; border-radius:12px; padding:24px; box-shadow:0 1px 4px rgba(0,0,0,.06); }
-        table { width:100%; border-collapse:collapse; font-size:0.875rem; }
-        th { text-align:left; padding:9px 12px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
-        td { padding:10px 12px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+        table { width:100%; border-collapse:collapse; font-size:0.825rem; }
+        th { text-align:left; padding:9px 10px; color:#6b7280; font-weight:600; border-bottom:2px solid #eee; white-space:nowrap; }
+        td { padding:9px 10px; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
         tr:last-child td { border-bottom:none; }
         tr:hover td { background:#fafafa; }
-        .status-badge { display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:99px; }
+        .status-badge { display:inline-block; font-size:0.72rem; font-weight:700; padding:2px 8px; border-radius:99px; white-space:nowrap; }
         .status-aprovado  { background:#d1fae5; color:#065f46; }
         .status-pendente  { background:#fef3c7; color:#92400e; }
         .status-reprovado { background:#fee2e2; color:#991b1b; }
-        .btn-doc { display:inline-block; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; text-decoration:none; border:none; }
-        .btn-profile { background:#1e293b; color:#fff; }
-        .btn-profile:hover { background:#0f172a; }
+        .status-inativo   { background:#f3f4f6; color:#6b7280; }
+        .btn { display:inline-block; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; text-decoration:none; cursor:pointer; border:none; white-space:nowrap; margin:2px 1px; }
+        .btn-dark   { background:#1e293b; color:#fff; }
+        .btn-dark:hover { background:#0f172a; }
+        .btn-green  { background:#059669; color:#fff; }
+        .btn-green:hover { background:#047857; }
+        .btn-red    { background:#dc2626; color:#fff; }
+        .btn-red:hover { background:#b91c1c; }
+        .btn-gray   { background:#e5e7eb; color:#374151; }
+        .btn-gray:hover { background:#d1d5db; }
+        .btn-orange { background:#ea580c; color:#fff; }
+        .btn-orange:hover { background:#c2410c; }
+        .action-form { display:inline; }
         .count-label { font-size:0.8rem; color:#6b7280; margin-bottom:16px; }
+        dialog { border:none; border-radius:12px; padding:28px; box-shadow:0 8px 32px rgba(0,0,0,.18); max-width:420px; width:90%; }
+        dialog::backdrop { background:rgba(0,0,0,.45); }
+        dialog h3 { margin:0 0 16px; font-size:1rem; }
+        .reason-presets { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+        .reason-presets label { display:flex; align-items:flex-start; gap:8px; cursor:pointer; font-size:0.875rem; }
+        textarea { width:100%; box-sizing:border-box; border:1px solid #d1d5db; border-radius:8px; padding:8px; font-size:0.875rem; resize:vertical; }
+        .dialog-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:16px; }
+        .dialog-actions button { padding:8px 18px; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; border:none; }
+        .btn-cancel-dlg { background:#f3f4f6; color:#374151; }
+        .btn-reject-dlg { background:#dc2626; color:#fff; }
     </style>
 </head>
 <body>
@@ -47,6 +67,7 @@
             <option value="aprovado">Aprovada</option>
             <option value="pendente">Pendente</option>
             <option value="reprovado">Reprovada</option>
+            <option value="inativo">Inativa</option>
         </select>
     </div>
 
@@ -68,8 +89,8 @@
             </thead>
             <tbody>
             {% for clinic in all_clinics %}
-            {% set status = 'aprovado' if clinic.is_approved else ('reprovado' if clinic.is_rejected else 'pendente') %}
-            <tr data-status="{{ status }}"
+            {% set cstatus = 'inativo' if not clinic.user_is_active else ('aprovado' if clinic.is_approved else ('reprovado' if clinic.is_rejected else 'pendente')) %}
+            <tr data-status="{{ cstatus }}"
                 data-search="{{ (clinic.name ~ ' ' ~ (clinic.cnpj or '') ~ ' ' ~ (clinic.city or '') ~ ' ' ~ (clinic.email or '') ~ ' ' ~ (clinic.user_email or '')).lower() }}">
                 <td>
                     <strong>{{ clinic.name }}</strong>
@@ -77,20 +98,52 @@
                     <br><span style="font-size:0.75rem;color:#9ca3af;">{{ clinic.razao_social }}</span>
                     {% endif %}
                 </td>
-                <td style="font-size:0.8rem;">{{ clinic.cnpj or '—' }}</td>
-                <td style="font-size:0.8rem;color:#6b7280;">{{ clinic.user_email or clinic.email or '—' }}</td>
-                <td style="white-space:nowrap;font-size:0.8rem;">{{ clinic.phone or '—' }}</td>
+                <td style="font-size:0.78rem;">{{ clinic.cnpj or '—' }}</td>
+                <td style="font-size:0.78rem;color:#6b7280;">{{ clinic.user_email or clinic.email or '—' }}</td>
+                <td style="white-space:nowrap;font-size:0.78rem;">{{ clinic.phone or '—' }}</td>
                 <td style="white-space:nowrap;">{{ clinic.city or '—' }}{% if clinic.state %}/{{ clinic.state }}{% endif %}</td>
-                <td style="white-space:nowrap;font-size:0.8rem;">{{ clinic.created_at.strftime('%d/%m/%Y') }}</td>
+                <td style="white-space:nowrap;font-size:0.78rem;">{{ clinic.created_at.strftime('%d/%m/%Y') }}</td>
                 <td>
-                    <span class="status-badge status-{{ status }}">
-                        {% if status == 'aprovado' %}✓ Aprovada
-                        {% elif status == 'pendente' %}⏳ Pendente
-                        {% else %}✗ Reprovada{% endif %}
+                    <span class="status-badge status-{{ cstatus }}">
+                        {% if cstatus == 'aprovado' %}✓ Aprovada
+                        {% elif cstatus == 'pendente' %}⏳ Pendente
+                        {% elif cstatus == 'reprovado' %}✗ Reprovada
+                        {% else %}⛔ Inativa{% endif %}
                     </span>
                 </td>
                 <td style="white-space:nowrap;">
-                    <a href="/clinica/{{ clinic.slug }}" target="_blank" class="btn-doc btn-profile">👁 Perfil</a>
+                    <a href="/clinica/{{ clinic.slug }}" target="_blank" class="btn btn-dark">👁 Perfil</a>
+                    <br>
+                    {% if cstatus == 'pendente' or cstatus == 'reprovado' %}
+                    <form class="action-form" method="post" action="/admin/clinics/{{ clinic.id }}/approve">
+                        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+                        <button class="btn btn-green">✓ Aprovar</button>
+                    </form>
+                    {% endif %}
+                    {% if cstatus == 'pendente' or cstatus == 'aprovado' %}
+                    <button class="btn btn-orange" onclick="openRejectDialog('{{ clinic.id }}', '{{ clinic.name | replace("'","\\'") }}')">✗ Reprovar</button>
+                    {% endif %}
+                    {% if cstatus == 'reprovado' %}
+                    <form class="action-form" method="post" action="/admin/clinics/{{ clinic.id }}/restore">
+                        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+                        <button class="btn btn-gray">↩ Restaurar</button>
+                    </form>
+                    {% endif %}
+                    {% if clinic.user_is_active %}
+                    <form class="action-form" method="post" action="/admin/users/{{ clinic.user_id }}/block">
+                        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+                        <button class="btn btn-gray" onclick="return confirm('Inativar {{ clinic.name }}?')">⛔ Inativar</button>
+                    </form>
+                    {% else %}
+                    <form class="action-form" method="post" action="/admin/users/{{ clinic.user_id }}/unblock">
+                        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+                        <button class="btn btn-green" onclick="return confirm('Reativar {{ clinic.name }}?')">✓ Reativar</button>
+                    </form>
+                    {% endif %}
+                    <form class="action-form" method="post" action="/admin/users/{{ clinic.user_id }}/delete">
+                        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+                        <button class="btn btn-red" onclick="return confirm('Excluir {{ clinic.name }} permanentemente? Esta ação não pode ser desfeita.')">🗑 Excluir</button>
+                    </form>
                 </td>
             </tr>
             {% else %}
@@ -102,7 +155,46 @@
     </div>
 </div>
 
+<!-- Dialog de reprovação -->
+<dialog id="reject-dialog">
+    <h3>Reprovar clínica</h3>
+    <p id="reject-dialog-name" style="font-weight:600;margin:0 0 14px;color:#374151;"></p>
+    <form id="reject-form" method="post">
+        <input type="hidden" name="redirect_to" value="/admin/clinicas">
+        <div class="reason-presets">
+            <label><input type="radio" name="reason" value="Documentação incompleta ou inválida"> Documentação incompleta ou inválida</label>
+            <label><input type="radio" name="reason" value="CNPJ inativo ou não encontrado"> CNPJ inativo ou não encontrado</label>
+            <label><input type="radio" name="reason" value="Informações divergentes com os documentos"> Informações divergentes com os documentos</label>
+            <label><input type="radio" name="reason" value="Outro (ver campo abaixo)"> Outro (ver campo abaixo)</label>
+        </div>
+        <textarea name="reason_free" rows="3" placeholder="Motivo adicional ou detalhes (opcional)…"></textarea>
+        <div class="dialog-actions">
+            <button type="button" class="btn-cancel-dlg" onclick="document.getElementById('reject-dialog').close()">Cancelar</button>
+            <button type="submit" class="btn-reject-dlg">Reprovar</button>
+        </div>
+    </form>
+</dialog>
+
 <script>
+function openRejectDialog(clinicId, clinicName) {
+    document.getElementById('reject-dialog-name').textContent = clinicName;
+    document.getElementById('reject-form').action = '/admin/clinics/' + clinicId + '/reject';
+    document.querySelectorAll('#reject-form input[type=radio]').forEach(r => r.checked = false);
+    document.querySelector('#reject-form textarea').value = '';
+    document.getElementById('reject-dialog').showModal();
+}
+
+document.getElementById('reject-form').addEventListener('submit', function(e) {
+    var radio = document.querySelector('#reject-form input[type=radio]:checked');
+    var free  = document.querySelector('#reject-form textarea').value.trim();
+    if (!radio && !free) {
+        e.preventDefault();
+        alert('Selecione ou informe o motivo da reprovação.');
+    } else if (radio && radio.value !== 'Outro (ver campo abaixo)') {
+        document.querySelector('#reject-form textarea').name = '_reason_free_ignore';
+    }
+});
+
 function filterTable() {
     var search = document.getElementById('search-input').value.toLowerCase();
     var status = document.getElementById('status-filter').value;
