@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Esqueci minha senha - VetLândia{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="container-narrow">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Esqueci minha senha</h1>
+                <p>Informe seu e-mail e enviaremos um link para redefinir sua senha.</p>
+            </div>
+
+            <div id="successBox" class="hidden" style="padding:16px;background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:10px;color:#065f46;font-size:0.95rem;margin-bottom:20px;text-align:center;">
+                ✅ Se esse e-mail estiver cadastrado, você receberá o link em instantes. Verifique também sua caixa de spam.
+            </div>
+
+            <form id="forgotForm" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label form-label-required">E-mail cadastrado</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="emailInput"
+                        class="form-input"
+                        placeholder="seu@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div id="errorMessage" class="login-error hidden"></div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-full btn-lg">
+                    Enviar link de redefinição
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p><a href="/login">← Voltar para o login</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.auth-page { min-height:calc(100vh - 72px - 400px); display:flex; align-items:center; padding:var(--space-12) 0; }
+.auth-card { background:#fff; border-radius:var(--radius-xl); padding:var(--space-12); box-shadow:var(--shadow-lg); max-width:480px; margin:0 auto; }
+.auth-header { text-align:center; margin-bottom:var(--space-8); }
+.auth-header h1 { font-size:1.8rem; margin-bottom:var(--space-3); }
+.auth-header p { color:var(--text-secondary); margin:0; }
+.auth-form { margin-bottom:var(--space-6); }
+.auth-footer { text-align:center; padding-top:var(--space-6); border-top:1px solid var(--border-light); }
+.auth-footer a { color:var(--laranja-vibrante); font-weight:600; text-decoration:none; }
+.login-error { padding:12px 16px; border-radius:var(--radius); background:#FEE2E2; color:#991B1B; border:1.5px solid #FCA5A5; font-size:0.9rem; font-weight:500; margin-bottom:var(--space-4); }
+</style>
+
+<script>
+(function () {
+    const form = document.getElementById('forgotForm');
+    const errorDiv = document.getElementById('errorMessage');
+    const successBox = document.getElementById('successBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorDiv.classList.add('hidden');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+
+        try {
+            const resp = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: document.getElementById('emailInput').value.trim() })
+            });
+            if (!resp.ok) throw new Error('Erro ao processar. Tente novamente.');
+            form.style.display = 'none';
+            successBox.classList.remove('hidden');
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar link de redefinição';
+        }
+    });
+})();
+</script>
+{% endblock %}

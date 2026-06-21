@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Redefinir senha - VetLândia{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+    <div class="container-narrow">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Redefinir senha</h1>
+                <p>Crie uma nova senha para sua conta.</p>
+            </div>
+
+            {% if not token %}
+            <div style="padding:16px;background:#fee2e2;border:1.5px solid #fca5a5;border-radius:10px;color:#991b1b;font-size:0.95rem;text-align:center;">
+                Link inválido. <a href="/esqueci-senha" style="color:#991b1b;font-weight:700;">Solicite um novo link</a>.
+            </div>
+            {% else %}
+
+            <div id="successBox" class="hidden" style="padding:16px;background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:10px;color:#065f46;font-size:0.95rem;margin-bottom:20px;text-align:center;">
+                ✅ Senha redefinida com sucesso! <a href="/login" style="color:#065f46;font-weight:700;">Entrar agora</a>.
+            </div>
+
+            <form id="resetForm" class="auth-form">
+                <input type="hidden" id="tokenInput" value="{{ token }}">
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Nova senha</label>
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-input"
+                        placeholder="Mínimo 6 caracteres"
+                        required
+                        minlength="6"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label form-label-required">Confirmar nova senha</label>
+                    <input
+                        type="password"
+                        id="password2"
+                        class="form-input"
+                        placeholder="Repita a senha"
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <div id="errorMessage" class="login-error hidden"></div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-full btn-lg">
+                    Redefinir senha
+                </button>
+            </form>
+
+            {% endif %}
+
+            <div class="auth-footer">
+                <p><a href="/login">← Voltar para o login</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.auth-page { min-height:calc(100vh - 72px - 400px); display:flex; align-items:center; padding:var(--space-12) 0; }
+.auth-card { background:#fff; border-radius:var(--radius-xl); padding:var(--space-12); box-shadow:var(--shadow-lg); max-width:480px; margin:0 auto; }
+.auth-header { text-align:center; margin-bottom:var(--space-8); }
+.auth-header h1 { font-size:1.8rem; margin-bottom:var(--space-3); }
+.auth-header p { color:var(--text-secondary); margin:0; }
+.auth-form { margin-bottom:var(--space-6); }
+.auth-footer { text-align:center; padding-top:var(--space-6); border-top:1px solid var(--border-light); }
+.auth-footer a { color:var(--laranja-vibrante); font-weight:600; text-decoration:none; }
+.login-error { padding:12px 16px; border-radius:var(--radius); background:#FEE2E2; color:#991B1B; border:1.5px solid #FCA5A5; font-size:0.9rem; font-weight:500; margin-bottom:var(--space-4); }
+</style>
+
+<script>
+(function () {
+    const form = document.getElementById('resetForm');
+    if (!form) return;
+    const errorDiv = document.getElementById('errorMessage');
+    const successBox = document.getElementById('successBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorDiv.classList.add('hidden');
+
+        const pwd  = document.getElementById('password').value;
+        const pwd2 = document.getElementById('password2').value;
+        if (pwd !== pwd2) {
+            errorDiv.textContent = 'As senhas não coincidem.';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+        if (pwd.length < 6) {
+            errorDiv.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Redefinindo...';
+
+        try {
+            const resp = await fetch('/api/auth/reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: document.getElementById('tokenInput').value,
+                    password: pwd
+                })
+            });
+            const data = await resp.json().catch(() => ({}));
+            if (!resp.ok) throw new Error(data.detail || 'Erro ao redefinir senha.');
+            form.style.display = 'none';
+            successBox.classList.remove('hidden');
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Redefinir senha';
+        }
+    });
+})();
+</script>
+{% endblock %}

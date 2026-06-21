@@ -315,3 +315,17 @@ def tpl_recomendacao_rejeitada_target(target_name: str, reason: str = "") -> str
         + _btn("Ver meu perfil", _SITE_URL)
     )
     return _wrap(body, preview="Uma recomendação recebida foi reprovada pela moderação.")
+
+
+def tpl_reset_senha(name: str, reset_url: str) -> str:
+    body = (
+        _h1("Redefinição de senha")
+        + _p(f"Olá, <strong>{name.split()[0]}</strong>.")
+        + _p("Recebemos uma solicitação para redefinir a senha da sua conta no VetLândia.")
+        + _p("Clique no botão abaixo para criar uma nova senha. O link é válido por <strong>1 hora</strong>.")
+        + _btn("Redefinir minha senha", reset_url)
+        + _p('Se você não solicitou a redefinição de senha, ignore este e-mail. Sua conta continua segura.')
+        + f'<p style="margin:16px 0 0;font-size:0.8rem;color:#9ca3af;">Se o botão não funcionar, copie e cole este link no navegador:<br>'
+        f'<a href="{reset_url}" style="color:#0d9488;word-break:break-all;">{reset_url}</a></p>'
+    )
+    return _wrap(body, preview="Você solicitou a redefinição de senha no VetLândia.")

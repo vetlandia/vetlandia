@@ -186,6 +186,20 @@ def cadastro_page(request: Request, current_user: Optional[User] = Depends(get_c
     return templates.TemplateResponse("auth/cadastro.html", {"request": request, "current_user": None})
 
 
+@router.get("/esqueci-senha", response_class=HTMLResponse)
+def esqueci_senha_page(request: Request, current_user: Optional[User] = Depends(get_current_user)):
+    if current_user:
+        return RedirectResponse("/")
+    return templates.TemplateResponse("auth/esqueci-senha.html", {"request": request, "current_user": None})
+
+
+@router.get("/redefinir-senha", response_class=HTMLResponse)
+def redefinir_senha_page(request: Request, token: str = "", current_user: Optional[User] = Depends(get_current_user)):
+    if current_user:
+        return RedirectResponse("/")
+    return templates.TemplateResponse("auth/redefinir-senha.html", {"request": request, "current_user": None, "token": token})
+
+
 @router.get("/buscar", response_class=HTMLResponse)
 def buscar(
     request: Request,
