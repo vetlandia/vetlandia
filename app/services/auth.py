@@ -159,6 +159,7 @@ def register_veterinarian(db: Session, data: VeterinarianCreate) -> Token:
         disp_estagio=data.disp_estagio,
         slug=slug,
         clinic_id=data.clinic_id,
+        crmv_card_url=data.crmv_card_url,
     )
     db.add(veterinarian)
     db.commit()
