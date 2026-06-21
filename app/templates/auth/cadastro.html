@@ -541,6 +541,23 @@
                             <span class="field-error" id="err-vet-crmv">⚠ Formato inválido. Ex: CRMV-SP 12345</span>
                         </div>
                     </div>
+                    <div class="form-group" id="vet-grp-carteirinha">
+                        <label class="form-label form-label-required">Carteirinha do CRMV</label>
+                        <div class="photo-upload-widget" id="vet-crmv-card-widget">
+                            <div class="photo-preview" id="vet-crmv-card-preview" style="border-radius:6px;width:120px;height:76px">
+                                <span class="photo-preview-placeholder">🪪</span>
+                            </div>
+                            <div class="photo-upload-actions">
+                                <label class="btn btn-secondary btn-sm photo-upload-btn" for="vet-crmv-card-input">
+                                    🪪 Enviar carteirinha
+                                </label>
+                                <input type="file" id="vet-crmv-card-input" accept="image/*" class="photo-file-input">
+                                <input type="hidden" name="crmv_card_url" id="vet-crmv-card-data">
+                                <p class="form-help">Foto da carteirinha do CRMV. Obrigatória para validação do perfil.</p>
+                            </div>
+                        </div>
+                        <span class="field-error" id="err-vet-carteirinha">⚠ Envie a foto da carteirinha do CRMV</span>
+                    </div>
                     <div class="form-group" style="margin-top:6px">
                         <label class="form-label">Você é</label>
                         <div style="display:flex;gap:14px;flex-wrap:wrap;">
@@ -1020,6 +1037,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
     setupPhotoUpload('tutor-photo-input',   'tutor-photo-preview',   'tutor-photo-data');
     setupPhotoUpload('vet-photo-input',     'vet-photo-preview',     'vet-photo-data');
     setupPhotoUpload('vet-cover-input',     'vet-cover-preview',     'vet-cover-data');
+    setupPhotoUpload('vet-crmv-card-input', 'vet-crmv-card-preview', 'vet-crmv-card-data');
     setupPhotoUpload('clinic-photo-input',  'clinic-photo-preview',  'clinic-photo-data');
     setupPhotoUpload('clinic-cover-input',  'clinic-cover-preview',  'clinic-cover-data');
 })();
@@ -1348,7 +1366,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         const studentCb = document.getElementById('vet-is-student');
         const instGroup = document.getElementById('vet-institution-group');
         const crmvLabel = document.getElementById('vet-crmv-label');
-        const hideForStudent = ['vet-grp-specialty', 'vet-grp-species', 'vet-grp-atendimento'];
+        const hideForStudent = ['vet-grp-specialty', 'vet-grp-species', 'vet-grp-atendimento', 'vet-grp-carteirinha'];
         function applyTipo() {
             const s = studentCb && studentCb.checked;
             if (instGroup) instGroup.style.display = s ? '' : 'none';
@@ -1378,6 +1396,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 if (!photoData || !photoData.value) { showFieldError('err-vet-photo', true); ok = false; }
                 const coverData = document.getElementById('vet-cover-data');
                 if (!coverData || !coverData.value) { showFieldError('err-vet-cover', true); ok = false; }
+                const crmvCardData = document.getElementById('vet-crmv-card-data');
+                if (!crmvCardData || !crmvCardData.value) { showFieldError('err-vet-carteirinha', true); ok = false; }
                 if (!isValidPhone(phoneEl.value)) { markField(phoneEl, false); showFieldError('err-vet-phone', true); ok = false; }
                 if (!isValidMobile(whatsappEl.value)) { markField(whatsappEl, false); showFieldError('err-vet-whatsapp', true); ok = false; }
             }
@@ -1413,6 +1433,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 animal_species: species.length ? JSON.stringify(species) : null,
                 photo_url: form.querySelector('[name="photo_url"]').value || null,
                 cover_photo_url: form.querySelector('[name="cover_photo_url"]').value || null,
+                crmv_card_url: document.getElementById('vet-crmv-card-data')?.value || null,
                 is_24h: document.getElementById('vet-is-24h').checked,
                 aplica_vacinas: document.getElementById('vet-aplica-vacinas').checked,
                 disp_plantao: document.getElementById('vet-disp-plantao').checked,

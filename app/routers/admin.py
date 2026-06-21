@@ -150,6 +150,8 @@ def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(requir
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
+    if not vet.is_student and not vet.is_verified:
+        raise HTTPException(status_code=400, detail="Valide o CRMV antes de aprovar este veterinário.")
     vet.is_approved = True
     vet.is_rejected = False
     log_action(db, admin, "approve", "veterinarian", vet_id, f"Aprovou veterinário(a) {vet.full_name}")
