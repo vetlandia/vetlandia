@@ -16,7 +16,13 @@ from app.services.email import (
     tpl_aprovacao,
     tpl_reprovacao,
     tpl_avaliacao_publicada,
+    tpl_avaliacao_publicada_reviewee,
+    tpl_avaliacao_rejeitada,
+    tpl_avaliacao_rejeitada_reviewee,
     tpl_recomendacao_publicada,
+    tpl_recomendacao_publicada_target,
+    tpl_recomendacao_rejeitada,
+    tpl_recomendacao_rejeitada_target,
 )
 from app.models.case import CaseComment, CaseStatus, ClinicalCase
 from app.models.clinic import Clinic
@@ -164,18 +170,18 @@ def approve_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(requir
 
 
 @router.post("/vets/{vet_id}/reject")
-def reject_vet(vet_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def reject_vet(vet_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reprova de forma REVERSÍVEL (Módulo 9): marca is_rejected, não apaga."""
     vet = db.query(Veterinarian).filter(Veterinarian.id == vet_id).first()
     if not vet:
         raise HTTPException(status_code=404, detail="Veterinário(a) não encontrado(a)")
     vet.is_rejected = True
     vet.is_approved = False
-    log_action(db, admin, "reject", "veterinarian", vet_id, f"Reprovou veterinário(a) {vet.full_name}")
+    log_action(db, admin, "reject", "veterinarian", vet_id, f"Reprovou veterinário(a) {vet.full_name}" + (f" — Motivo: {reason}" if reason else ""))
     db.commit()
     user = db.query(User).filter(User.id == vet.user_id).first()
     if user:
-        send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(vet.full_name, "veterinarian"))
+        send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(vet.full_name, "veterinarian", reason))
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -347,18 +353,18 @@ def delete_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(r
 
 
 @router.post("/clinics/{clinic_id}/reject")
-def reject_clinic(clinic_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def reject_clinic(clinic_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
     """Reprova de forma REVERSÍVEL (Módulo 9): marca is_rejected, não apaga."""
     clinic = db.query(Clinic).filter(Clinic.id == clinic_id).first()
     if not clinic:
         raise HTTPException(status_code=404, detail="Clínica não encontrada")
     clinic.is_rejected = True
     clinic.is_approved = False
-    log_action(db, admin, "reject", "clinic", clinic_id, f"Reprovou clínica {clinic.name}")
+    log_action(db, admin, "reject", "clinic", clinic_id, f"Reprovou clínica {clinic.name}" + (f" — Motivo: {reason}" if reason else ""))
     db.commit()
     user = db.query(User).filter(User.id == clinic.user_id).first()
     if user:
-        send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(clinic.name, "clinic"))
+        send_email(user.email, "Informação sobre seu cadastro — VetLândia", tpl_reprovacao(clinic.name, "clinic", reason))
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -382,34 +388,54 @@ def approve_review(review_id: str, db: Session = Depends(get_db), admin=Depends(
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
     review.status = ReviewStatus.APPROVED
+    if review.reviewee_type == RevieweeType.VETERINARIAN:
+        reviewee = db.query(Veterinarian).filter(Veterinarian.id == review.reviewee_id).first()
+        reviewee_name = reviewee.full_name if reviewee else "o veterinário"
+        profile_url = f"https://vetlandia.com.br/veterinario/{reviewee.slug}" if reviewee else "https://vetlandia.com.br"
+        reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first() if reviewee else None
+    else:
+        reviewee = db.query(Clinic).filter(Clinic.id == review.reviewee_id).first()
+        reviewee_name = reviewee.name if reviewee else "a clínica"
+        profile_url = f"https://vetlandia.com.br/clinica/{reviewee.slug}" if reviewee else "https://vetlandia.com.br"
+        reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first() if reviewee else None
+    log_action(db, admin, "approve", "review", review_id, f"Aprovou avaliação de {review.rating}⭐ sobre {reviewee_name}")
     db.commit()
     # Notifica o autor (tutor) que a avaliação foi publicada
     author_user = db.query(User).filter(User.id == review.author_id).first()
     if author_user:
-        if review.reviewee_type == RevieweeType.VETERINARIAN:
-            reviewee = db.query(Veterinarian).filter(Veterinarian.id == review.reviewee_id).first()
-            reviewee_name = reviewee.full_name if reviewee else "o veterinário"
-            profile_url = f"https://vetlandia.com.br/veterinario/{reviewee.slug}" if reviewee else "https://vetlandia.com.br"
-        else:
-            reviewee = db.query(Clinic).filter(Clinic.id == review.reviewee_id).first()
-            reviewee_name = reviewee.name if reviewee else "a clínica"
-            profile_url = f"https://vetlandia.com.br/clinica/{reviewee.slug}" if reviewee else "https://vetlandia.com.br"
-        send_email(
-            author_user.email,
-            "Sua avaliação foi publicada — VetLândia",
-            tpl_avaliacao_publicada(author_user.display_name or author_user.email, reviewee_name, profile_url),
-        )
+        send_email(author_user.email, "Sua avaliação foi publicada — VetLândia",
+                   tpl_avaliacao_publicada(author_user.display_name or author_user.email, reviewee_name, profile_url))
+    # Notifica o reviewee (vet/clínica) que uma avaliação foi publicada no perfil dele
+    if reviewee_user:
+        send_email(reviewee_user.email, "Nova avaliação publicada no seu perfil — VetLândia",
+                   tpl_avaliacao_publicada_reviewee(reviewee_name, review.rating, review.comment, profile_url))
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/reviews/{review_id}/reject")
-def reject_review(review_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
+def reject_review(review_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    from app.models.review import RevieweeType
     review = db.query(Review).filter(Review.id == review_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Avaliação não encontrada")
     review.status = ReviewStatus.REJECTED
-    log_action(db, admin, "reject", "review", review_id, f"Reprovou avaliação (nota {review.rating})")
+    if review.reviewee_type == RevieweeType.VETERINARIAN:
+        reviewee = db.query(Veterinarian).filter(Veterinarian.id == review.reviewee_id).first()
+        reviewee_name = reviewee.full_name if reviewee else "o veterinário"
+        reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first() if reviewee else None
+    else:
+        reviewee = db.query(Clinic).filter(Clinic.id == review.reviewee_id).first()
+        reviewee_name = reviewee.name if reviewee else "a clínica"
+        reviewee_user = db.query(User).filter(User.id == reviewee.user_id).first() if reviewee else None
+    log_action(db, admin, "reject", "review", review_id, f"Reprovou avaliação (nota {review.rating}) sobre {reviewee_name}" + (f" — Motivo: {reason}" if reason else ""))
     db.commit()
+    author_user = db.query(User).filter(User.id == review.author_id).first()
+    if author_user:
+        send_email(author_user.email, "Avaliação não aprovada — VetLândia",
+                   tpl_avaliacao_rejeitada(author_user.display_name or author_user.email, reviewee_name, reason))
+    if reviewee_user:
+        send_email(reviewee_user.email, "Avaliação recebida não aprovada — VetLândia",
+                   tpl_avaliacao_rejeitada_reviewee(reviewee_name, reason))
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 
@@ -432,8 +458,44 @@ def approve_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Dep
     if not rec:
         raise HTTPException(status_code=404, detail="Recomendação não encontrada")
     rec.status = RecommendationStatus.APPROVED
+    # Resolve autor
+    if rec.author_type.value == "veterinarian":
+        author_profile = db.query(Veterinarian).filter(Veterinarian.id == rec.author_id).first()
+        author_name = author_profile.full_name if author_profile else "Veterinário(a)"
+        author_user = db.query(User).filter(User.id == author_profile.user_id).first() if author_profile else None
+    else:
+        author_profile = db.query(Clinic).filter(Clinic.id == rec.author_id).first()
+        author_name = author_profile.name if author_profile else "Clínica"
+        author_user = db.query(User).filter(User.id == author_profile.user_id).first() if author_profile else None
+    # Resolve alvo
+    if rec.target_type.value == "veterinarian":
+        target = db.query(Veterinarian).filter(Veterinarian.id == rec.target_id).first()
+        target_name = target.full_name if target else "o veterinário"
+        profile_url = f"https://vetlandia.com.br/veterinario/{target.slug}" if target else "https://vetlandia.com.br"
+        target_user = db.query(User).filter(User.id == target.user_id).first() if target else None
+    else:
+        target = db.query(Clinic).filter(Clinic.id == rec.target_id).first()
+        target_name = target.name if target else "a clínica"
+        profile_url = f"https://vetlandia.com.br/clinica/{target.slug}" if target else "https://vetlandia.com.br"
+        target_user = db.query(User).filter(User.id == target.user_id).first() if target else None
+    log_action(db, admin, "approve", "recommendation", rec_id, f"Aprovou recomendação de {author_name} sobre {target_name}")
     db.commit()
-    # Notifica o autor (vet ou clínica) que a recomendação foi publicada
+    if author_user:
+        send_email(author_user.email, "Sua recomendação foi publicada — VetLândia",
+                   tpl_recomendacao_publicada(author_name, target_name, profile_url))
+    if target_user:
+        send_email(target_user.email, "Nova recomendação publicada no seu perfil — VetLândia",
+                   tpl_recomendacao_publicada_target(target_name, author_name, rec.content or "", profile_url))
+    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.post("/recommendations/{rec_id}/reject")
+def reject_recommendation(rec_id: str, reason: str = Form(""), db: Session = Depends(get_db), admin=Depends(require_admin)):
+    rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
+    if not rec:
+        raise HTTPException(status_code=404, detail="Recomendação não encontrada")
+    rec.status = RecommendationStatus.REJECTED
+    # Resolve autor e alvo para email
     if rec.author_type.value == "veterinarian":
         author_profile = db.query(Veterinarian).filter(Veterinarian.id == rec.author_id).first()
         author_name = author_profile.full_name if author_profile else "Veterinário(a)"
@@ -445,27 +507,19 @@ def approve_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Dep
     if rec.target_type.value == "veterinarian":
         target = db.query(Veterinarian).filter(Veterinarian.id == rec.target_id).first()
         target_name = target.full_name if target else "o veterinário"
-        profile_url = f"https://vetlandia.com.br/veterinario/{target.slug}" if target else "https://vetlandia.com.br"
+        target_user = db.query(User).filter(User.id == target.user_id).first() if target else None
     else:
         target = db.query(Clinic).filter(Clinic.id == rec.target_id).first()
         target_name = target.name if target else "a clínica"
-        profile_url = f"https://vetlandia.com.br/clinica/{target.slug}" if target else "https://vetlandia.com.br"
-    if author_user:
-        send_email(
-            author_user.email,
-            "Sua recomendação foi publicada — VetLândia",
-            tpl_recomendacao_publicada(author_name, target_name, profile_url),
-        )
-    return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
-
-
-@router.post("/recommendations/{rec_id}/reject")
-def reject_recommendation(rec_id: str, db: Session = Depends(get_db), admin=Depends(require_admin)):
-    rec = db.query(Recommendation).filter(Recommendation.id == rec_id).first()
-    if not rec:
-        raise HTTPException(status_code=404, detail="Recomendação não encontrada")
-    rec.status = RecommendationStatus.REJECTED
+        target_user = db.query(User).filter(User.id == target.user_id).first() if target else None
+    log_action(db, admin, "reject", "recommendation", rec_id, f"Reprovou recomendação de {author_name} sobre {target_name}" + (f" — Motivo: {reason}" if reason else ""))
     db.commit()
+    if author_user:
+        send_email(author_user.email, "Recomendação não aprovada — VetLândia",
+                   tpl_recomendacao_rejeitada(author_name, target_name, reason))
+    if target_user:
+        send_email(target_user.email, "Recomendação recebida não aprovada — VetLândia",
+                   tpl_recomendacao_rejeitada_target(target_name, reason))
     return RedirectResponse("/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 

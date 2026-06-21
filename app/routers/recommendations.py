@@ -8,7 +8,7 @@ from app.models.recommendation import Recommendation, RecommenderType
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 from app.schemas.recommendation import RecommendationCreate
-from app.services.email import send_email, tpl_nova_recomendacao
+from app.services.email import send_email, tpl_nova_recomendacao, tpl_confirmacao_recomendacao
 
 router = APIRouter()
 
@@ -82,9 +82,9 @@ def submit_recommendation(
         target_display = target.name
         profile_url = f"https://vetlandia.com.br/clinica/{target.slug}"
     if target_user:
-        send_email(
-            target_user.email,
-            f"Você recebeu uma recomendação — VetLândia",
-            tpl_nova_recomendacao(target_display, author_name, data.content, profile_url),
-        )
+        send_email(target_user.email, "Você recebeu uma recomendação — VetLândia",
+                   tpl_nova_recomendacao(target_display, author_name, data.content, profile_url))
+    # Confirmação para o autor
+    send_email(current_user.email, "Recomendação enviada — VetLândia",
+               tpl_confirmacao_recomendacao(author_name, target_display))
     return {"ok": True}

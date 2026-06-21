@@ -171,9 +171,7 @@
                             {% else %}
                             <a href="/admin/vets/{{ vet.id }}/validar-crmv" target="_blank" class="btn-approve" style="background:#f59e0b;text-decoration:none;display:inline-block;margin-left:6px" title="Valide o CRMV antes de aprovar">🔎 Validar CRMV</a>
                             {% endif %}
-                            <form class="action-form" method="POST" action="/admin/vets/{{ vet.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject" onclick="return confirm('Reprovar {{ vet.full_name }}? (reversível)')">Reprovar</button>
-                            </form>
+                            <button class="btn-reject" onclick="openRejectDialog('/admin/vets/{{ vet.id }}/reject', '{{ vet.full_name | replace("'", "\\'") }}')" style="margin-left:6px">Reprovar</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -213,9 +211,7 @@
                             <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/approve" style="margin-left:6px">
                                 <button class="btn-approve" onclick="return confirm('Aprovar {{ clinic.name }}?')">Aprovar</button>
                             </form>
-                            <form class="action-form" method="POST" action="/admin/clinics/{{ clinic.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject" onclick="return confirm('Reprovar {{ clinic.name }}? (reversível)')">Reprovar</button>
-                            </form>
+                            <button class="btn-reject" onclick="openRejectDialog('/admin/clinics/{{ clinic.id }}/reject', '{{ clinic.name | replace("'", "\\'") }}')" style="margin-left:6px">Reprovar</button>
                         </td>
                     </tr>
                     {% endfor %}
@@ -294,9 +290,7 @@
                             <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/approve">
                                 <button class="btn-approve">Aprovar</button>
                             </form>
-                            <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject">Rejeitar</button>
-                            </form>
+                            <button class="btn-reject" onclick="openRejectDialog('/admin/reviews/{{ review.id }}/reject', 'avaliação')" style="margin-left:6px">Rejeitar</button>
                             <form class="action-form" method="POST" action="/admin/reviews/{{ review.id }}/delete" style="margin-left:6px">
                                 <button class="btn-delete" onclick="return confirm('Deletar esta avaliação permanentemente?')">Deletar</button>
                             </form>
@@ -336,9 +330,7 @@
                             <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/approve">
                                 <button class="btn-approve">Aprovar</button>
                             </form>
-                            <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/reject" style="margin-left:6px">
-                                <button class="btn-reject">Rejeitar</button>
-                            </form>
+                            <button class="btn-reject" onclick="openRejectDialog('/admin/recommendations/{{ rec.id }}/reject', 'recomendação')" style="margin-left:6px">Rejeitar</button>
                             <form class="action-form" method="POST" action="/admin/recommendations/{{ rec.id }}/delete" style="margin-left:6px">
                                 <button class="btn-delete" onclick="return confirm('Deletar esta recomendação permanentemente?')">Deletar</button>
                             </form>
@@ -731,5 +723,56 @@
     </div>
 
 </div>
+
+<!-- Dialog: motivo de reprovação -->
+<dialog id="reject-dialog" style="border:none;border-radius:14px;padding:0;box-shadow:0 8px 40px rgba(0,0,0,.18);max-width:480px;width:94%;">
+    <form id="reject-form" method="POST" style="padding:28px 28px 20px;">
+        <h2 style="margin:0 0 6px;font-size:1.1rem;font-weight:700;color:#111">Motivo da reprovação</h2>
+        <p id="reject-label" style="margin:0 0 16px;font-size:0.875rem;color:#6b7280;"></p>
+
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#374151;margin-bottom:6px;">Motivos predefinidos (opcional)</label>
+        <select id="reject-presets" style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:0.875rem;margin-bottom:14px;background:#fff;">
+            <option value="">— selecione ou escreva abaixo —</option>
+            <option value="Informações incompletas ou incorretas.">Informações incompletas ou incorretas</option>
+            <option value="Conteúdo inapropriado ou ofensivo.">Conteúdo inapropriado ou ofensivo</option>
+            <option value="Não atende às diretrizes da plataforma.">Não atende às diretrizes da plataforma</option>
+            <option value="Dados profissionais inválidos ou não verificados.">Dados profissionais inválidos ou não verificados</option>
+            <option value="Conflito de interesse identificado.">Conflito de interesse identificado</option>
+            <option value="Não está em conformidade com as regras e diretrizes estabelecidas.">Não está em conformidade com as regras e diretrizes</option>
+        </select>
+
+        <label style="display:block;font-size:0.82rem;font-weight:600;color:#374151;margin-bottom:6px;">Motivo personalizado <span style="font-weight:400;color:#9ca3af">(opcional)</span></label>
+        <textarea name="reason" id="reject-reason" rows="3" placeholder="Escreva aqui o motivo detalhado..."
+            style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:0.875rem;resize:vertical;font-family:inherit;"></textarea>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;">
+            <button type="button" onclick="document.getElementById('reject-dialog').close()"
+                style="padding:9px 20px;border:1px solid #d1d5db;background:#fff;border-radius:8px;cursor:pointer;font-size:0.875rem;font-weight:600;color:#374151;">
+                Cancelar
+            </button>
+            <button type="submit"
+                style="padding:9px 20px;background:#e74c3c;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.875rem;font-weight:700;">
+                Confirmar reprovação
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    window.openRejectDialog = function(url, name) {
+        var dlg = document.getElementById('reject-dialog');
+        var form = document.getElementById('reject-form');
+        var label = document.getElementById('reject-label');
+        var presets = document.getElementById('reject-presets');
+        var textarea = document.getElementById('reject-reason');
+        form.action = url;
+        label.textContent = 'Reprovar: ' + name;
+        presets.value = '';
+        textarea.value = '';
+        presets.onchange = function() { if (presets.value) textarea.value = presets.value; };
+        dlg.showModal();
+    };
+</script>
+
 </body>
 </html>

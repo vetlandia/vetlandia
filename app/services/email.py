@@ -158,14 +158,16 @@ def tpl_aprovacao(name: str, tipo: str, profile_url: str) -> str:
     return _wrap(body, preview="Seu perfil foi aprovado! Acesse e veja como está.")
 
 
-def tpl_reprovacao(name: str, tipo: str) -> str:
+def tpl_reprovacao(name: str, tipo: str, reason: str = "") -> str:
     tipo_label = "veterinário(a)" if tipo == "veterinarian" else "clínica"
+    motivo = _quote(reason) if reason else _p("Sua solicitação não está em conformidade com as regras e diretrizes estabelecidas.")
     body = (
         _h1("Cadastro não aprovado")
         + _p(f"Olá, <strong>{name.split()[0]}</strong>.")
-        + _p(f"Infelizmente, seu cadastro como <strong>{tipo_label}</strong> não foi aprovado nesta análise.")
-        + _p("Isso pode ocorrer por informações incompletas, inconsistentes ou que não atendem aos critérios da plataforma. Entre em contato com nosso suporte para mais detalhes.")
-        + _btn("Falar com o suporte", f"mailto:{settings.SMTP_USER}")
+        + _p(f"Infelizmente, seu cadastro como <strong>{tipo_label}</strong> não foi aprovado.")
+        + motivo
+        + _p("Em caso de dúvidas, entre em contato com nosso suporte.")
+        + _btn("Falar com o suporte", f"mailto:{settings.EMAIL_BCC}")
     )
     return _wrap(body, preview="Informações sobre seu cadastro no VetLândia.")
 
@@ -222,3 +224,94 @@ def tpl_recomendacao_publicada(author_name: str, target_name: str, profile_url: 
         + _btn("Ver perfil", profile_url)
     )
     return _wrap(body, preview=f"Sua recomendação sobre {target_name} foi publicada.")
+
+
+# ── Templates adicionais ───────────────────────────────────────────────────────
+
+def tpl_confirmacao_avaliacao(author_name: str, reviewee_name: str) -> str:
+    body = (
+        _h1("Avaliação recebida!")
+        + _p(f"Olá, <strong>{author_name.split()[0]}</strong>! Recebemos sua avaliação sobre <strong>{reviewee_name}</strong>.")
+        + _p("Ela passará por moderação e, se aprovada, ficará visível no perfil público em breve.")
+        + _btn("Acessar VetLândia", _SITE_URL)
+    )
+    return _wrap(body, preview=f"Sua avaliação sobre {reviewee_name} foi recebida e está em análise.")
+
+
+def tpl_avaliacao_publicada_reviewee(reviewee_name: str, rating: int, comment: str | None, profile_url: str) -> str:
+    stars = "⭐" * rating
+    body = (
+        _h1("Uma avaliação no seu perfil foi publicada!")
+        + _p(f"Olá, <strong>{reviewee_name.split()[0]}</strong>! Uma avaliação recebida foi aprovada pela moderação e já está visível no seu perfil.")
+        + _quote(f"{stars} &nbsp; {comment or '(sem comentário)'}")
+        + _btn("Ver meu perfil", profile_url)
+    )
+    return _wrap(body, preview=f"Nova avaliação publicada no seu perfil — {rating} estrela(s).")
+
+
+def tpl_avaliacao_rejeitada(author_name: str, reviewee_name: str, reason: str = "") -> str:
+    motivo = _quote(reason) if reason else _p("Sua solicitação não está em conformidade com as regras e diretrizes estabelecidas.")
+    body = (
+        _h1("Avaliação não aprovada")
+        + _p(f"Olá, <strong>{author_name.split()[0]}</strong>.")
+        + _p(f"Infelizmente, sua avaliação sobre <strong>{reviewee_name}</strong> não foi aprovada pela moderação.")
+        + motivo
+        + _btn("Voltar ao VetLândia", _SITE_URL)
+    )
+    return _wrap(body, preview=f"Sua avaliação sobre {reviewee_name} não foi aprovada.")
+
+
+def tpl_avaliacao_rejeitada_reviewee(reviewee_name: str, reason: str = "") -> str:
+    motivo = _quote(reason) if reason else _p("A avaliação não estava em conformidade com nossas diretrizes.")
+    body = (
+        _h1("Avaliação recebida não aprovada")
+        + _p(f"Olá, <strong>{reviewee_name.split()[0]}</strong>.")
+        + _p("Uma avaliação recebida no seu perfil não foi aprovada pela moderação e não aparecerá publicamente.")
+        + motivo
+        + _btn("Ver meu perfil", _SITE_URL)
+    )
+    return _wrap(body, preview="Uma avaliação recebida foi reprovada pela moderação.")
+
+
+def tpl_confirmacao_recomendacao(author_name: str, target_name: str) -> str:
+    body = (
+        _h1("Recomendação recebida!")
+        + _p(f"Olá, <strong>{author_name.split()[0]}</strong>! Recebemos sua recomendação sobre <strong>{target_name}</strong>.")
+        + _p("Ela passará por moderação e, se aprovada, ficará visível no perfil público em breve.")
+        + _btn("Acessar VetLândia", _SITE_URL)
+    )
+    return _wrap(body, preview=f"Sua recomendação sobre {target_name} foi recebida e está em análise.")
+
+
+def tpl_recomendacao_publicada_target(target_name: str, author_name: str, content: str, profile_url: str) -> str:
+    body = (
+        _h1("Uma recomendação no seu perfil foi publicada!")
+        + _p(f"Olá, <strong>{target_name.split()[0]}</strong>! Uma recomendação sobre você foi aprovada e já está visível no seu perfil.")
+        + _quote(content)
+        + _btn("Ver meu perfil", profile_url)
+    )
+    return _wrap(body, preview=f"{author_name} escreveu uma recomendação publicada no seu perfil.")
+
+
+def tpl_recomendacao_rejeitada(author_name: str, target_name: str, reason: str = "") -> str:
+    motivo = _quote(reason) if reason else _p("Sua solicitação não está em conformidade com as regras e diretrizes estabelecidas.")
+    body = (
+        _h1("Recomendação não aprovada")
+        + _p(f"Olá, <strong>{author_name.split()[0]}</strong>.")
+        + _p(f"Infelizmente, sua recomendação sobre <strong>{target_name}</strong> não foi aprovada pela moderação.")
+        + motivo
+        + _btn("Voltar ao VetLândia", _SITE_URL)
+    )
+    return _wrap(body, preview=f"Sua recomendação sobre {target_name} não foi aprovada.")
+
+
+def tpl_recomendacao_rejeitada_target(target_name: str, reason: str = "") -> str:
+    motivo = _quote(reason) if reason else _p("A recomendação não estava em conformidade com nossas diretrizes.")
+    body = (
+        _h1("Recomendação recebida não aprovada")
+        + _p(f"Olá, <strong>{target_name.split()[0]}</strong>.")
+        + _p("Uma recomendação recebida no seu perfil não foi aprovada pela moderação e não aparecerá publicamente.")
+        + motivo
+        + _btn("Ver meu perfil", _SITE_URL)
+    )
+    return _wrap(body, preview="Uma recomendação recebida foi reprovada pela moderação.")
