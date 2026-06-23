@@ -192,6 +192,7 @@
 .photo-file-input { display: none; }
 
 @media (max-width: 768px) {
+    #mobile-tabs { display:flex !important; }
     .profile-grid { grid-template-columns: 1fr; }
     .profile-sidebar { display: none; }
     .form-row { grid-template-columns: 1fr; }
@@ -266,6 +267,12 @@
             </div>
 
             <div>
+                <!-- Tabs mobile (sidebar fica oculto em ≤768px) -->
+                <div id="mobile-tabs" style="display:none;margin-bottom:16px;border-radius:12px;overflow:hidden;border:1.5px solid #e5e7eb;">
+                    <button id="mtab-dados" onclick="switchView('dados')" style="width:50%;padding:11px 8px;border:none;background:#fff;font-size:0.875rem;font-weight:700;color:#0d9488;cursor:pointer;border-right:1.5px solid #e5e7eb;">Meus dados</button>
+                    <button id="mtab-senha" onclick="switchView('senha')" style="width:50%;padding:11px 8px;border:none;background:#fff;font-size:0.875rem;font-weight:600;color:#6b7280;cursor:pointer;">🔒 Alterar Senha</button>
+                </div>
+
                 <!-- View: Meus dados -->
                 <div id="view-dados">
                 <div class="profile-card">
@@ -785,8 +792,20 @@
 function switchView(name) {
     document.getElementById('view-dados').style.display = name === 'dados' ? '' : 'none';
     document.getElementById('view-senha').style.display = name === 'senha' ? '' : 'none';
+    // sidebar desktop
     document.getElementById('nav-dados').classList.toggle('active', name === 'dados');
     document.getElementById('nav-senha').classList.toggle('active', name === 'senha');
+    // tabs mobile
+    var td = document.getElementById('mtab-dados');
+    var ts = document.getElementById('mtab-senha');
+    if (td && ts) {
+        td.style.color      = name === 'dados' ? '#0d9488' : '#6b7280';
+        td.style.fontWeight = name === 'dados' ? '700' : '600';
+        td.style.background = name === 'dados' ? '#f0fdfa' : '#fff';
+        ts.style.color      = name === 'senha' ? '#0d9488' : '#6b7280';
+        ts.style.fontWeight = name === 'senha' ? '700' : '600';
+        ts.style.background = name === 'senha' ? '#f0fdfa' : '#fff';
+    }
 }
 
 async function submitChangePwd(e) {
