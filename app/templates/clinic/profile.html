@@ -81,29 +81,17 @@ body { background: #ffffff; }
 .cp-seal-green { color: #059669; }
 
 /* CTA */
-.cp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; flex-shrink: 0; }
-@media (min-width: 768px) { .cp-cta { flex-direction: column; align-items: flex-end; justify-content: flex-end; } }
-.cp-btn-wpp {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #25D366; color: #fff; border-radius: 999px;
-    padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
-    text-decoration: none; white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(37,211,102,.35); transition: background .13s;
-}
-.cp-btn-wpp:hover { background: #1DAA54; color: #fff; }
-.cp-btn-secondary {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #fff; color: #374151; border: 1px solid #D1D5DB;
-    border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; transition: border-color .13s, color .13s;
-}
-.cp-btn-secondary:hover { border-color: #088395; color: #088395; }
+.cp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; flex-shrink: 0; }
+@media (min-width: 768px) { .cp-cta { justify-content: flex-end; } }
 .cp-btn-icon {
-    width: 38px; height: 38px; border: 1px solid #D1D5DB; border-radius: 50%;
+    width: 40px; height: 40px; border: 1.5px solid #D1D5DB; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     background: #fff; cursor: pointer; color: #6B7280; transition: all .13s;
+    text-decoration: none; flex-shrink: 0;
 }
-.cp-btn-icon:hover { border-color: #088395; color: #088395; }
+.cp-btn-icon:hover { border-color: #0d9488; color: #0d9488; }
+.cp-btn-icon.cp-wpp { color: #25D366; border-color: #25D366; }
+.cp-btn-icon.cp-wpp:hover { background: #25D366; color: #fff; }
 
 /* stats strip */
 .cp-stats {
@@ -280,25 +268,22 @@ body { background: #ffffff; }
             {% endif %}
         </div>
 
-        {# CTA #}
+        {# CTA — ícones redondos #}
         <div class="cp-cta">
             {% if wpp %}
-            <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="cp-btn-wpp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-                WhatsApp
+            <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="cp-btn-icon cp-wpp" title="WhatsApp">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
             </a>
             {% endif %}
             {% if clinic.phone and clinic.phone != clinic.whatsapp %}
-            <a href="tel:{{ clinic.phone }}" class="cp-btn-secondary">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-                Ligar
+            <a href="tel:{{ clinic.phone }}" class="cp-btn-icon" title="Ligar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
             </a>
             {% endif %}
             {% if clinic.website %}
             {% set website_url = ('https://' + clinic.website) if not clinic.website.startswith('http') else clinic.website %}
-            <a href="{{ website_url }}" target="_blank" rel="noopener" class="cp-btn-secondary">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                Site
+            <a href="{{ website_url }}" target="_blank" rel="noopener nofollow" class="cp-btn-icon" title="Site">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             </a>
             {% endif %}
             <button type="button" class="cp-btn-icon" id="cp-share-btn" title="Compartilhar perfil">

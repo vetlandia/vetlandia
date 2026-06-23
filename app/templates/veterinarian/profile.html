@@ -99,29 +99,21 @@ body { background: #ffffff; }
 .vp-seal-green { color: #059669; }
 
 /* CTA */
-.vp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; flex-shrink: 0; }
-@media (min-width: 768px) { .vp-cta { flex-direction: column; align-items: flex-end; justify-content: flex-end; } }
-.vp-btn-wpp {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: #25D366; color: #fff; border-radius: 999px;
-    padding: 11px 22px; font-weight: 700; font-size: 0.9rem;
-    text-decoration: none; white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(37,211,102,.35); transition: background .13s;
-}
-.vp-btn-wpp:hover { background: #1DAA54; color: #fff; }
-.vp-btn-secondary {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #fff; color: #374151; border: 1px solid #D1D5DB;
-    border-radius: 999px; padding: 9px 18px; font-weight: 600; font-size: 0.82rem;
-    text-decoration: none; transition: border-color .13s, color .13s;
-}
-.vp-btn-secondary:hover { border-color: #088395; color: #088395; }
+.vp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; flex-shrink: 0; }
+@media (min-width: 768px) { .vp-cta { justify-content: flex-end; } }
 .vp-btn-icon {
-    width: 38px; height: 38px; border: 1px solid #D1D5DB; border-radius: 50%;
+    width: 40px; height: 40px; border: 1.5px solid #D1D5DB; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
     background: #fff; cursor: pointer; color: #6B7280; transition: all .13s;
+    text-decoration: none; flex-shrink: 0;
 }
-.vp-btn-icon:hover { border-color: #088395; color: #088395; }
+.vp-btn-icon:hover { border-color: #0d9488; color: #0d9488; }
+.vp-btn-icon.vp-wpp { color: #25D366; border-color: #25D366; }
+.vp-btn-icon.vp-wpp:hover { background: #25D366; color: #fff; }
+.vp-btn-icon.vp-insta { color: #E1306C; border-color: #E1306C; }
+.vp-btn-icon.vp-insta:hover { background: #E1306C; color: #fff; }
+.vp-btn-icon.vp-linkedin { color: #0A66C2; border-color: #0A66C2; }
+.vp-btn-icon.vp-linkedin:hover { background: #0A66C2; color: #fff; }
 
 /* ── stats strip (igual musicos.art) ── */
 .vp-stats {
@@ -299,18 +291,36 @@ body { background: #ffffff; }
             {% endif %}
         </div>
 
-        {# CTA — WhatsApp + Ligar + Share #}
+        {# CTA — ícones redondos de redes sociais #}
         <div class="vp-cta">
             {% if wpp %}
-            <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="vp-btn-wpp">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-                WhatsApp
+            <a href="https://wa.me/55{{ wpp_clean }}" target="_blank" rel="noopener" class="vp-btn-icon vp-wpp" title="WhatsApp">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.533 5.854L0 24l6.335-1.513A11.943 11.943 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.651-.498-5.177-1.37l-.371-.22-3.762.898.949-3.671-.242-.379A9.938 9.938 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
             </a>
             {% endif %}
             {% if veterinarian.phone and veterinarian.phone != veterinarian.whatsapp %}
-            <a href="tel:{{ veterinarian.phone }}" class="vp-btn-secondary">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
-                Ligar
+            <a href="tel:{{ veterinarian.phone }}" class="vp-btn-icon" title="Ligar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+            </a>
+            {% endif %}
+            {% if veterinarian.instagram %}
+            <a href="https://instagram.com/{{ veterinarian.instagram|replace('@','')|replace('https://instagram.com/','') }}" target="_blank" rel="noopener nofollow" class="vp-btn-icon vp-insta" title="Instagram">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            {% endif %}
+            {% if veterinarian.linkedin %}
+            <a href="{{ veterinarian.linkedin if '://' in veterinarian.linkedin else 'https://' + veterinarian.linkedin }}" target="_blank" rel="noopener nofollow" class="vp-btn-icon vp-linkedin" title="LinkedIn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            {% endif %}
+            {% if veterinarian.website %}
+            <a href="{{ veterinarian.website if '://' in veterinarian.website else 'https://' + veterinarian.website }}" target="_blank" rel="noopener nofollow" class="vp-btn-icon" title="Site">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </a>
+            {% endif %}
+            {% if veterinarian.lattes %}
+            <a href="{{ veterinarian.lattes if '://' in veterinarian.lattes else 'https://' + veterinarian.lattes }}" target="_blank" rel="noopener nofollow" class="vp-btn-icon" title="Lattes">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
             </a>
             {% endif %}
             <button type="button" class="vp-btn-icon" id="vp-share-btn" title="Compartilhar perfil">
@@ -468,14 +478,6 @@ body { background: #ffffff; }
         </div>
         {% endif %}
 
-        {% if veterinarian.website or veterinarian.linkedin or veterinarian.instagram or veterinarian.lattes %}
-        <div class="vp-links" style="margin-top:22px;display:flex;flex-wrap:wrap;gap:10px;">
-            {% if veterinarian.website %}<a href="{{ veterinarian.website if '://' in veterinarian.website else 'https://' + veterinarian.website }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🌐 Site</a>{% endif %}
-            {% if veterinarian.linkedin %}<a href="{{ veterinarian.linkedin if '://' in veterinarian.linkedin else 'https://' + veterinarian.linkedin }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">in LinkedIn</a>{% endif %}
-            {% if veterinarian.instagram %}<a href="https://instagram.com/{{ veterinarian.instagram|replace('@','')|replace('https://instagram.com/','') }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">📷 Instagram</a>{% endif %}
-            {% if veterinarian.lattes %}<a href="{{ veterinarian.lattes if '://' in veterinarian.lattes else 'https://' + veterinarian.lattes }}" target="_blank" rel="noopener nofollow" style="font-size:0.82rem;font-weight:600;color:#0d9488;text-decoration:none;border:1px solid #99f6e4;border-radius:8px;padding:7px 13px;">🎓 Lattes</a>{% endif %}
-        </div>
-        {% endif %}
     </div>
 
     {# ── PANE: ESPÉCIES ── #}
