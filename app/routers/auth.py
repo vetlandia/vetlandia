@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.core.security import get_password_hash
+from app.core.deps import get_current_user
+from app.core.security import get_password_hash, verify_password
 from app.models.password_reset import PasswordResetToken
 from app.models.user import User
 from app.schemas.clinic import ClinicCreate
@@ -133,5 +134,27 @@ def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
 
     user.password_hash = get_password_hash(data.password)
     prt.used = True
+    db.commit()
+    return {"ok": True}
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.post("/change-password")
+def change_password(
+    data: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Não autenticado.")
+    if not verify_password(data.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta.")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="A nova senha deve ter pelo menos 6 caracteres.")
+    current_user.password_hash = get_password_hash(data.new_password)
     db.commit()
     return {"ok": True}

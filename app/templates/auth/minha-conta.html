@@ -1182,4 +1182,68 @@ function collectContents() {
     });
 })();
 </script>
+
+<!-- Alterar Senha -->
+<div class="profile-card" style="margin-top:24px;">
+    <h2 class="card-title">🔒 Alterar Senha</h2>
+    <form id="change-pwd-form" style="max-width:400px;" onsubmit="submitChangePwd(event)">
+        <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Senha atual</label>
+            <input type="password" id="cp-current" class="form-input" placeholder="••••••" autocomplete="current-password" required>
+        </div>
+        <div class="form-group" style="margin-bottom:14px;">
+            <label class="form-label">Nova senha</label>
+            <input type="password" id="cp-new" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" required minlength="6">
+        </div>
+        <div class="form-group" style="margin-bottom:18px;">
+            <label class="form-label">Confirmar nova senha</label>
+            <input type="password" id="cp-confirm" class="form-input" placeholder="Repita a nova senha" autocomplete="new-password" required>
+        </div>
+        <div id="cp-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.875rem;margin-bottom:14px;font-weight:600;"></div>
+        <button type="submit" id="cp-btn" class="btn btn-primary">Salvar nova senha</button>
+    </form>
+</div>
+
+<script>
+async function submitChangePwd(e) {
+    e.preventDefault();
+    var cur  = document.getElementById('cp-current').value;
+    var nw   = document.getElementById('cp-new').value;
+    var conf = document.getElementById('cp-confirm').value;
+    var msg  = document.getElementById('cp-msg');
+    var btn  = document.getElementById('cp-btn');
+
+    function showMsg(text, ok) {
+        msg.textContent = text;
+        msg.style.display = 'block';
+        msg.style.background = ok ? '#d1fae5' : '#fee2e2';
+        msg.style.color      = ok ? '#065f46' : '#991b1b';
+    }
+
+    if (nw !== conf) { showMsg('As senhas não coincidem.', false); return; }
+    if (nw.length < 6) { showMsg('A nova senha deve ter pelo menos 6 caracteres.', false); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+    try {
+        var r = await fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ current_password: cur, new_password: nw }),
+        });
+        var d = await r.json().catch(function(){ return {}; });
+        if (r.ok) {
+            showMsg('✓ Senha alterada com sucesso!', true);
+            document.getElementById('change-pwd-form').reset();
+        } else {
+            showMsg(d.detail || 'Erro ao alterar senha.', false);
+        }
+    } catch(err) {
+        showMsg('Erro de conexão. Tente novamente.', false);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Salvar nova senha';
+    }
+}
+</script>
 {% endblock %}
