@@ -11,6 +11,7 @@ from app.core.assets import ASSET_VERSION
 from app.core.database import get_db
 from app.core.deps import require_admin
 from app.models.audit import AuditLog, log_action
+from app.models.site_config import get_config, set_config
 from app.services.email import (
     send_email,
     tpl_aprovacao,
@@ -107,6 +108,12 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
 
     audit_logs = db.query(AuditLog).order_by(AuditLog.created_at.desc()).limit(100).all()
 
+    popup_cfg = {
+        "enabled":      get_config(db, "popup_enabled", "true").lower() == "true",
+        "vet_limit":    int(get_config(db, "popup_vet_limit", "100")),
+        "clinic_limit": int(get_config(db, "popup_clinic_limit", "30")),
+    }
+
     return templates.TemplateResponse(
         "admin/dashboard.html",
         _admin_context(
@@ -122,6 +129,7 @@ def dashboard(request: Request, db: Session = Depends(get_db), admin=Depends(req
             clinic_products_catalog=CLINIC_PRODUCTS,
             audit_logs=audit_logs,
             admin=admin,
+            popup_cfg=popup_cfg,
         ),
     )
 
@@ -885,3 +893,19 @@ def all_tutores(request: Request, db: Session = Depends(get_db), admin=Depends(r
             t.pets_list = []
     ctx = _admin_context(request, db, all_tutors=tutors)
     return templates.TemplateResponse("admin/tutores.html", ctx)
+
+
+@router.post("/config/popup")
+def save_popup_config(
+    request: Request,
+    popup_enabled: str = Form("off"),
+    vet_limit: int = Form(100),
+    clinic_limit: int = Form(30),
+    db: Session = Depends(get_db),
+    admin=Depends(require_admin),
+):
+    set_config(db, "popup_enabled", "true" if popup_enabled == "on" else "false")
+    set_config(db, "popup_vet_limit", str(max(1, vet_limit)))
+    set_config(db, "popup_clinic_limit", str(max(1, clinic_limit)))
+    db.commit()
+    return RedirectResponse("/admin", status_code=303)

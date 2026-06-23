@@ -95,6 +95,30 @@
         </div>
     </div>
 
+    <!-- Popup de Lançamento — Config -->
+    <div class="admin-section" style="margin-bottom:20px;border-left:4px solid #0d9488;">
+        <h2 style="color:#0d9488;">🚀 Popup de Lançamento</h2>
+        <form method="POST" action="/admin/config/popup" style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end;">
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;font-weight:600;cursor:pointer;">
+                <input type="checkbox" name="popup_enabled" value="on" {% if popup_cfg.enabled %}checked{% endif %}
+                    style="width:18px;height:18px;accent-color:#0d9488;">
+                Popup ativo (exibir para visitantes não autenticados)
+            </label>
+            <div>
+                <label style="font-size:0.75rem;font-weight:700;color:#6b7280;display:block;margin-bottom:4px;">Limite de vagas — Veterinários</label>
+                <input type="number" name="vet_limit" value="{{ popup_cfg.vet_limit }}" min="1" max="9999"
+                    style="width:90px;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.875rem;">
+            </div>
+            <div>
+                <label style="font-size:0.75rem;font-weight:700;color:#6b7280;display:block;margin-bottom:4px;">Limite de vagas — Clínicas</label>
+                <input type="number" name="clinic_limit" value="{{ popup_cfg.clinic_limit }}" min="1" max="9999"
+                    style="width:90px;padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:0.875rem;">
+            </div>
+            <button type="submit" class="btn-approve" style="padding:8px 20px;font-size:0.875rem;">Salvar</button>
+        </form>
+        <p style="margin:10px 0 0;font-size:0.78rem;color:#9ca3af;">O contador exibe vagas restantes (limite − perfis aprovados com selo de Parceiro Fundador). Desative o popup quando todas as vagas forem preenchidas.</p>
+    </div>
+
     <!-- Estatísticas -->
     <div class="admin-stats" style="grid-template-columns:repeat(4,1fr)">
         <div class="stat-card {% if pending_vets > 0 %}warn{% else %}ok{% endif %}">

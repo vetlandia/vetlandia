@@ -3,7 +3,7 @@ import unicodedata
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -16,6 +16,7 @@ from app.models.clinic import Clinic
 from app.models.entitlement import clinic_has_product
 from app.models.recommendation import Recommendation, RecommendationStatus, RecommenderType
 from app.models.review import Review, RevieweeType, ReviewStatus
+from app.models.site_config import get_config
 from app.models.user import User
 from app.models.veterinarian import Veterinarian
 
@@ -1168,3 +1169,27 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
         "case/detail.html",
         {"request": request, "current_user": current_user, "case": case, "comments": comments, "vet_profile": vet_profile},
     )
+
+
+@router.get("/api/popup-stats")
+def popup_stats(db: Session = Depends(get_db)):
+    enabled    = get_config(db, "popup_enabled", "true").lower() == "true"
+    vet_limit  = int(get_config(db, "popup_vet_limit", "100"))
+    cli_limit  = int(get_config(db, "popup_clinic_limit", "30"))
+
+    vet_count = db.query(Veterinarian).filter(
+        Veterinarian.is_approved == True, Veterinarian.is_founder == True
+    ).count()
+    cli_count = db.query(Clinic).filter(
+        Clinic.is_approved == True, Clinic.is_founder == True
+    ).count()
+
+    return JSONResponse({
+        "enabled":          enabled,
+        "vet_count":        vet_count,
+        "vet_limit":        vet_limit,
+        "vet_remaining":    max(0, vet_limit - vet_count),
+        "clinic_count":     cli_count,
+        "clinic_limit":     cli_limit,
+        "clinic_remaining": max(0, cli_limit - cli_count),
+    })

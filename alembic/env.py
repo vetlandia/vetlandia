@@ -6,7 +6,7 @@ from alembic import context
 
 from app.core.config import settings
 from app.core.database import Base
-from app.models import user, tutor, veterinarian, clinic, review, case, education, affiliation, content, recommendation, entitlement, audit, password_reset
+from app.models import user, tutor, veterinarian, clinic, review, case, education, affiliation, content, recommendation, entitlement, audit, password_reset, site_config
 
 config = context.config
 
