@@ -173,8 +173,7 @@
     {% block extra_js %}{% endblock %}
     {% block ga_events %}{% endblock %}
 
-    {% set _auth_paths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha', '/aguardando-aprovacao'] %}
-    {% if not current_user and request.url.path not in _auth_paths %}
+    {% if not current_user and request.url.path == '/' %}
     <!-- Popup de Lançamento — aparece via JS fetch assíncrono (não bloqueia render) -->
     <div id="vl-launch-popup" class="vlp-overlay" aria-modal="true" role="dialog" aria-labelledby="vlp-title" style="display:none">
         <div class="vlp-box">
