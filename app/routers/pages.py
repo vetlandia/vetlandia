@@ -1,4 +1,6 @@
 import json
+import threading
+import time
 import unicodedata
 from typing import Optional
 
@@ -1171,12 +1173,21 @@ def caso_clinico_detalhe(request: Request, case_id: str, db: Session = Depends(g
     )
 
 
+_popup_cache: dict = {}
+_popup_lock = threading.Lock()
+_POPUP_TTL = 60.0
+
+
 @router.get("/api/popup-stats")
 def popup_stats(db: Session = Depends(get_db)):
-    enabled    = get_config(db, "popup_enabled", "true").lower() == "true"
-    vet_limit  = int(get_config(db, "popup_vet_limit", "100"))
-    cli_limit  = int(get_config(db, "popup_clinic_limit", "30"))
+    now = time.monotonic()
+    with _popup_lock:
+        if _popup_cache.get("ts", 0) + _POPUP_TTL > now:
+            return JSONResponse(_popup_cache["data"])
 
+    enabled   = get_config(db, "popup_enabled", "true").lower() == "true"
+    vet_limit = int(get_config(db, "popup_vet_limit", "100"))
+    cli_limit = int(get_config(db, "popup_clinic_limit", "30"))
     vet_count = db.query(Veterinarian).filter(
         Veterinarian.is_approved == True, Veterinarian.is_founder == True
     ).count()
@@ -1184,7 +1195,7 @@ def popup_stats(db: Session = Depends(get_db)):
         Clinic.is_approved == True, Clinic.is_founder == True
     ).count()
 
-    return JSONResponse({
+    data = {
         "enabled":          enabled,
         "vet_count":        vet_count,
         "vet_limit":        vet_limit,
@@ -1192,4 +1203,8 @@ def popup_stats(db: Session = Depends(get_db)):
         "clinic_count":     cli_count,
         "clinic_limit":     cli_limit,
         "clinic_remaining": max(0, cli_limit - cli_count),
-    })
+    }
+    with _popup_lock:
+        _popup_cache["ts"] = now
+        _popup_cache["data"] = data
+    return JSONResponse(data)

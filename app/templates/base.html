@@ -175,163 +175,103 @@
 
     {% set _auth_paths = ['/login', '/cadastro', '/esqueci-senha', '/redefinir-senha', '/aguardando-aprovacao'] %}
     {% if not current_user and request.url.path not in _auth_paths %}
-    {% set _ps = get_popup_stats() %}
-    {% if _ps.enabled %}
-    <!-- Popup de Lançamento — stats inline (sem fetch extra) -->
+    <!-- Popup de Lançamento — aparece via JS fetch assíncrono (não bloqueia render) -->
     <div id="vl-launch-popup" class="vlp-overlay" aria-modal="true" role="dialog" aria-labelledby="vlp-title" style="display:none">
         <div class="vlp-box">
             <button class="vlp-close" onclick="vlpClose()" aria-label="Fechar">✕</button>
-
             <div class="vlp-header">
                 <div class="vlp-logo-text">🐾 VetLândia</div>
                 <h2 id="vlp-title">🚀 Benefícios Exclusivos de Lançamento</h2>
                 <p>Seja um dos primeiros parceiros da maior plataforma veterinária do Brasil</p>
             </div>
-
             <div class="vlp-cards">
-                <!-- Veterinários -->
                 <div class="vlp-card vlp-card-vet">
                     <div class="vlp-card-icon">🐾</div>
                     <h3>Veterinários</h3>
-                    {% if _ps.vet_remaining <= 0 %}
-                    <div class="vlp-counter"><span class="vlp-sold-out">Benefícios encerrados</span></div>
-                    {% else %}
-                    <div class="vlp-counter"><strong>{{ _ps.vet_remaining }}</strong> de {{ _ps.vet_limit }} vagas disponíveis</div>
-                    {% endif %}
+                    <div id="vlp-vet-counter" class="vlp-counter"><strong id="vlp-vet-rem">—</strong> de <span id="vlp-vet-lim">100</span> vagas disponíveis</div>
                     <ul class="vlp-benefits">
                         <li>✓ Selo Parceiro VetLândia</li>
                         <li>✓ Perfil em destaque por 12 meses</li>
                         <li>✓ Participação na evolução da plataforma</li>
                         <li>✓ Prioridade na definição e validação de novas funcionalidades</li>
                     </ul>
-                    {% if _ps.vet_remaining > 0 %}
-                    <a href="/cadastro?tipo=veterinarian" class="vlp-cta vlp-cta-vet" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=veterinarian')">Quero ser Parceiro VetLândia</a>
-                    {% endif %}
+                    <a href="/cadastro?tipo=veterinarian" class="vlp-cta vlp-cta-vet" id="vlp-cta-vet" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=veterinarian')">Quero ser Parceiro VetLândia</a>
                 </div>
-
-                <!-- Clínicas -->
                 <div class="vlp-card vlp-card-clinic">
                     <div class="vlp-card-icon">🏥</div>
                     <h3>Clínicas</h3>
-                    {% if _ps.clinic_remaining <= 0 %}
-                    <div class="vlp-counter"><span class="vlp-sold-out">Benefícios encerrados</span></div>
-                    {% else %}
-                    <div class="vlp-counter"><strong>{{ _ps.clinic_remaining }}</strong> de {{ _ps.clinic_limit }} vagas disponíveis</div>
-                    {% endif %}
+                    <div id="vlp-cli-counter" class="vlp-counter"><strong id="vlp-cli-rem">—</strong> de <span id="vlp-cli-lim">30</span> vagas disponíveis</div>
                     <ul class="vlp-benefits">
                         <li>✓ Selo Clínica Parceira VetLândia</li>
                         <li>✓ Perfil em destaque por 12 meses</li>
                         <li>✓ Participação na evolução da plataforma</li>
                         <li>✓ Prioridade na definição e validação de novas funcionalidades</li>
                     </ul>
-                    {% if _ps.clinic_remaining > 0 %}
-                    <a href="/cadastro?tipo=clinic" class="vlp-cta vlp-cta-clinic" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=clinic')">Quero ser Clínica Parceira</a>
-                    {% endif %}
+                    <a href="/cadastro?tipo=clinic" class="vlp-cta vlp-cta-clinic" id="vlp-cta-cli" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=clinic')">Quero ser Clínica Parceira</a>
                 </div>
             </div>
-
             <p class="vlp-footer-note">* Benefícios válidos exclusivamente para os primeiros participantes aprovados na plataforma.</p>
         </div>
     </div>
-
     <style>
-    .vlp-overlay {
-        position: fixed; inset: 0; z-index: 9999;
-        background: rgba(10,20,30,.78);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        display: flex; align-items: flex-start; justify-content: center;
-        padding: 24px 16px 40px;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-    }
-    .vlp-box {
-        background: #fff;
-        border-radius: 22px;
-        max-width: 680px; width: 100%;
-        position: relative;
-        box-shadow: 0 28px 80px rgba(0,0,0,.38);
-        animation: vlp-in .28s cubic-bezier(.22,1,.36,1);
-        margin: auto;
-        flex-shrink: 0;
-    }
-    @keyframes vlp-in {
-        from { opacity: 0; transform: scale(.93) translateY(22px); }
-        to   { opacity: 1; transform: none; }
-    }
-    .vlp-close {
-        position: absolute; top: 12px; right: 12px;
-        background: rgba(255,255,255,.22); border: none; cursor: pointer;
-        font-size: 1.1rem; color: #fff; width: 44px; height: 44px;
-        border-radius: 50%; display: flex; align-items: center; justify-content: center;
-        z-index: 10; transition: background .15s; line-height: 1;
-        -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-    }
-    .vlp-close:hover, .vlp-close:active { background: rgba(255,255,255,.38); }
-    .vlp-header {
-        background: linear-gradient(140deg, #0D9488 0%, #059669 55%, #065f46 100%);
-        border-radius: 22px 22px 0 0;
-        padding: 32px 28px 26px;
-        text-align: center; color: #fff;
-    }
-    .vlp-logo-text { font-size: 1.15rem; font-weight: 800; margin-bottom: 10px; opacity: .92; text-shadow: 0 1px 3px rgba(0,0,0,.15); }
-    .vlp-header h2 { font-size: 1.45rem; font-weight: 900; margin: 0 0 8px; line-height: 1.2; text-shadow: 0 1px 4px rgba(0,0,0,.15); }
-    .vlp-header p { font-size: .88rem; opacity: .9; margin: 0; }
-    .vlp-cards { display: grid; grid-template-columns: 1fr 1fr; padding: 22px 20px 12px; }
-    .vlp-card { padding: 18px 15px 16px; border-radius: 14px; margin: 4px; }
-    .vlp-card-vet   { background: #f0fdfa; border: 1.5px solid #99f6e4; }
-    .vlp-card-clinic { background: #fffbeb; border: 1.5px solid #fde68a; }
-    .vlp-card-icon { font-size: 1.8rem; margin-bottom: 6px; }
-    .vlp-card h3 { font-size: 1.05rem; font-weight: 800; margin: 0 0 9px; color: #0D9488; }
-    .vlp-card-clinic h3 { color: #b45309; }
-    .vlp-counter { font-size: 0.8rem; font-weight: 600; color: #374151; background: rgba(255,255,255,.85); border-radius: 99px; padding: 4px 12px; display: inline-block; margin-bottom: 13px; border: 1px solid rgba(0,0,0,.09); }
-    .vlp-counter strong { color: #0D9488; font-size: .95rem; font-weight: 800; }
-    .vlp-card-clinic .vlp-counter strong { color: #b45309; }
-    .vlp-sold-out { color: #ef4444; font-weight: 800; font-size: .85rem; }
-    .vlp-benefits { list-style: none; margin: 0 0 14px; padding: 0; font-size: 0.81rem; line-height: 1.65; color: #374151; }
-    .vlp-benefits li { padding: 1px 0; }
-    .vlp-cta { display: block; text-align: center; padding: 10px 12px; border-radius: 10px; font-weight: 700; font-size: .82rem; text-decoration: none; transition: filter .15s, transform .1s; line-height: 1.3; }
-    .vlp-cta:hover { filter: brightness(1.1); transform: translateY(-1px); }
-    .vlp-cta-vet    { background: #0D9488; color: #fff; }
-    .vlp-cta-clinic { background: #f59e0b; color: #fff; }
-    .vlp-footer-note { text-align: center; font-size: 0.7rem; color: #9ca3af; padding: 6px 24px 20px; margin: 0; }
-    @media (max-width: 560px) {
-        .vlp-overlay { padding: 16px 12px 32px; }
-        .vlp-header { padding: 32px 16px 18px; }
-        .vlp-header h2 { font-size: 1.1rem; }
-        .vlp-header p { font-size: .82rem; }
-        .vlp-cards { grid-template-columns: 1fr; padding: 12px 10px 6px; }
-        .vlp-card { margin: 4px 0; }
+    .vlp-overlay { position:fixed;inset:0;z-index:9999;background:rgba(10,20,30,.78);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px 40px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px); }
+    .vlp-box { background:#fff;border-radius:22px;max-width:680px;width:100%;position:relative;box-shadow:0 28px 80px rgba(0,0,0,.38);animation:vlp-in .28s cubic-bezier(.22,1,.36,1);margin:auto;flex-shrink:0; }
+    @keyframes vlp-in { from{opacity:0;transform:scale(.93) translateY(22px)} to{opacity:1;transform:none} }
+    .vlp-close { position:absolute;top:12px;right:12px;background:rgba(255,255,255,.22);border:none;cursor:pointer;font-size:1.1rem;color:#fff;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:10;transition:background .15s;line-height:1;-webkit-tap-highlight-color:transparent;touch-action:manipulation; }
+    .vlp-close:hover,.vlp-close:active { background:rgba(255,255,255,.38); }
+    .vlp-header { background:linear-gradient(140deg,#0D9488 0%,#059669 55%,#065f46 100%);border-radius:22px 22px 0 0;padding:32px 28px 26px;text-align:center;color:#fff; }
+    .vlp-logo-text { font-size:1.15rem;font-weight:800;margin-bottom:10px;opacity:.92;text-shadow:0 1px 3px rgba(0,0,0,.15); }
+    .vlp-header h2 { font-size:1.45rem;font-weight:900;margin:0 0 8px;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.15); }
+    .vlp-header p { font-size:.88rem;opacity:.9;margin:0; }
+    .vlp-cards { display:grid;grid-template-columns:1fr 1fr;padding:22px 20px 12px; }
+    .vlp-card { padding:18px 15px 16px;border-radius:14px;margin:4px; }
+    .vlp-card-vet { background:#f0fdfa;border:1.5px solid #99f6e4; }
+    .vlp-card-clinic { background:#fffbeb;border:1.5px solid #fde68a; }
+    .vlp-card-icon { font-size:1.8rem;margin-bottom:6px; }
+    .vlp-card h3 { font-size:1.05rem;font-weight:800;margin:0 0 9px;color:#0D9488; }
+    .vlp-card-clinic h3 { color:#b45309; }
+    .vlp-counter { font-size:0.8rem;font-weight:600;color:#374151;background:rgba(255,255,255,.85);border-radius:99px;padding:4px 12px;display:inline-block;margin-bottom:13px;border:1px solid rgba(0,0,0,.09); }
+    .vlp-counter strong { color:#0D9488;font-size:.95rem;font-weight:800; }
+    .vlp-card-clinic .vlp-counter strong { color:#b45309; }
+    .vlp-sold-out { color:#ef4444;font-weight:800;font-size:.85rem; }
+    .vlp-benefits { list-style:none;margin:0 0 14px;padding:0;font-size:0.81rem;line-height:1.65;color:#374151; }
+    .vlp-benefits li { padding:1px 0; }
+    .vlp-cta { display:block;text-align:center;padding:10px 12px;border-radius:10px;font-weight:700;font-size:.82rem;text-decoration:none;transition:filter .15s,transform .1s;line-height:1.3; }
+    .vlp-cta:hover { filter:brightness(1.1);transform:translateY(-1px); }
+    .vlp-cta-vet { background:#0D9488;color:#fff; }
+    .vlp-cta-clinic { background:#f59e0b;color:#fff; }
+    .vlp-footer-note { text-align:center;font-size:0.7rem;color:#9ca3af;padding:6px 24px 20px;margin:0; }
+    @media(max-width:560px){
+        .vlp-overlay{padding:16px 12px 32px;}
+        .vlp-header{padding:32px 16px 18px;}
+        .vlp-header h2{font-size:1.1rem;}
+        .vlp-header p{font-size:.82rem;}
+        .vlp-cards{grid-template-columns:1fr;padding:12px 10px 6px;}
+        .vlp-card{margin:4px 0;}
     }
     </style>
-
     <script>
     (function(){
-        var SKIP_KEY = 'vl_popup_skip_once';
-        window.vlpClose = function() {
-            var el = document.getElementById('vl-launch-popup');
-            if (el) el.style.display = 'none';
-        };
-        window.vlpGoTo = function(url) {
-            sessionStorage.setItem(SKIP_KEY, '1');
-            vlpClose();
-            window.location.href = url;
-        };
-        if (sessionStorage.getItem(SKIP_KEY)) {
-            sessionStorage.removeItem(SKIP_KEY);
-        } else {
-            document.getElementById('vl-launch-popup').style.display = 'flex';
+        var SKIP = 'vl_popup_skip_once';
+        window.vlpClose = function(){ var e=document.getElementById('vl-launch-popup'); if(e) e.style.display='none'; };
+        window.vlpGoTo  = function(u){ sessionStorage.setItem(SKIP,'1'); vlpClose(); window.location.href=u; };
+        function show(d){
+            if(!d.enabled) return;
+            if(d.vet_remaining<=0){ document.getElementById('vlp-vet-counter').innerHTML='<span class="vlp-sold-out">Benefícios encerrados</span>'; var cv=document.getElementById('vlp-cta-vet'); if(cv) cv.style.display='none'; }
+            else{ document.getElementById('vlp-vet-rem').textContent=d.vet_remaining; document.getElementById('vlp-vet-lim').textContent=d.vet_limit; }
+            if(d.clinic_remaining<=0){ document.getElementById('vlp-cli-counter').innerHTML='<span class="vlp-sold-out">Benefícios encerrados</span>'; var cc=document.getElementById('vlp-cta-cli'); if(cc) cc.style.display='none'; }
+            else{ document.getElementById('vlp-cli-rem').textContent=d.clinic_remaining; document.getElementById('vlp-cli-lim').textContent=d.clinic_limit; }
+            document.getElementById('vl-launch-popup').style.display='flex';
         }
-        document.addEventListener('click', function(e) {
-            var p = document.getElementById('vl-launch-popup');
-            if (p && e.target === p) window.vlpClose();
-        });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') window.vlpClose();
-        });
+        function init(){
+            if(sessionStorage.getItem(SKIP)){ sessionStorage.removeItem(SKIP); return; }
+            fetch('/api/popup-stats').then(function(r){return r.json();}).then(show).catch(function(){});
+        }
+        document.addEventListener('click',function(e){ var p=document.getElementById('vl-launch-popup'); if(p&&e.target===p) window.vlpClose(); });
+        document.addEventListener('keydown',function(e){ if(e.key==='Escape') window.vlpClose(); });
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
     })();
     </script>
-    {% endif %}
     {% endif %}
 </body>
 </html>
