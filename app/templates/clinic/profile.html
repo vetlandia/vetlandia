@@ -84,14 +84,13 @@ body { background: #ffffff; }
 .cp-cta { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; flex-shrink: 0; }
 @media (min-width: 768px) { .cp-cta { justify-content: flex-end; } }
 .cp-btn-icon {
-    width: 40px; height: 40px; border: 1.5px solid #D1D5DB; border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%; border: none;
     display: inline-flex; align-items: center; justify-content: center;
-    background: #fff; cursor: pointer; color: #6B7280; transition: all .13s;
+    background: #0d9488; cursor: pointer; color: #fff; transition: opacity .15s;
     text-decoration: none; flex-shrink: 0;
 }
-.cp-btn-icon:hover { border-color: #0d9488; color: #0d9488; }
-.cp-btn-icon.cp-wpp { color: #25D366; border-color: #25D366; }
-.cp-btn-icon.cp-wpp:hover { background: #25D366; color: #fff; }
+.cp-btn-icon:hover { opacity: .82; }
+.cp-btn-icon.cp-wpp { background: #25D366; }
 
 /* stats strip */
 .cp-stats {
