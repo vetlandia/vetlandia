@@ -199,7 +199,7 @@
                         <li>✓ Participação na evolução da plataforma</li>
                         <li>✓ Prioridade na definição e validação de novas funcionalidades</li>
                     </ul>
-                    <a href="/cadastro?tipo=veterinarian" class="vlp-cta vlp-cta-vet" id="vlp-cta-vet" onclick="vlpClose()">Quero ser Parceiro VetLândia</a>
+                    <a href="/cadastro?tipo=veterinarian" class="vlp-cta vlp-cta-vet" id="vlp-cta-vet" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=veterinarian')">Quero ser Parceiro VetLândia</a>
                 </div>
 
                 <!-- Clínicas -->
@@ -215,7 +215,7 @@
                         <li>✓ Participação na evolução da plataforma</li>
                         <li>✓ Prioridade na definição e validação de novas funcionalidades</li>
                     </ul>
-                    <a href="/cadastro?tipo=clinic" class="vlp-cta vlp-cta-clinic" id="vlp-cta-clinic" onclick="vlpClose()">Quero ser Clínica Parceira</a>
+                    <a href="/cadastro?tipo=clinic" class="vlp-cta vlp-cta-clinic" id="vlp-cta-clinic" onclick="event.preventDefault();vlpGoTo('/cadastro?tipo=clinic')">Quero ser Clínica Parceira</a>
                 </div>
             </div>
 
@@ -325,12 +325,24 @@
 
     <script>
     (function(){
+        var SKIP_KEY = 'vl_popup_skip_once';
+
         window.vlpClose = function() {
             var el = document.getElementById('vl-launch-popup');
             if (el) el.style.display = 'none';
         };
 
+        window.vlpGoTo = function(url) {
+            sessionStorage.setItem(SKIP_KEY, '1');
+            vlpClose();
+            window.location.href = url;
+        };
+
         function initPopup() {
+            if (sessionStorage.getItem(SKIP_KEY)) {
+                sessionStorage.removeItem(SKIP_KEY);
+                return;
+            }
             fetch('/api/popup-stats')
                 .then(function(r){ return r.json(); })
                 .then(function(d) {
