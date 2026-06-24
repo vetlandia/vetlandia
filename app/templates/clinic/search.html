@@ -31,9 +31,9 @@
                 <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if aplica_vacinas == '1' %}aplica_vacinas=1&{% endif %}somente_24h=1" class="chip">🕐 Atendimento 24h</a>
                 {% endif %}
                 {% if aplica_vacinas == '1' %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1{% endif %}" class="chip active">💉 Aplica vacinas ✕</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1{% endif %}" class="chip active">💉 Vacinação ✕</a>
                 {% else %}
-                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1&{% endif %}aplica_vacinas=1" class="chip">💉 Aplica vacinas</a>
+                <a href="?{% if query %}query={{ query }}&{% endif %}{% if cidade %}cidade={{ cidade }}&{% endif %}{% if somente_24h == '1' %}somente_24h=1&{% endif %}aplica_vacinas=1" class="chip">💉 Vacinação</a>
                 {% endif %}
                 {% if viewer_is_recruiter %}
                 {% set base = '?' ~ ('query=' ~ query ~ '&' if query else '') ~ ('cidade=' ~ cidade ~ '&' if cidade else '') %}

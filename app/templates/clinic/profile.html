@@ -253,7 +253,7 @@ body { background: #ffffff; }
                 </span>
                 {% endif %}
                 {% if clinic.is_24h %}<span class="cp-meta-item cp-badge-24h">Atendimento 24h</span>{% endif %}
-                {% if clinic.aplica_vacinas %}<span class="cp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
+                {% if clinic.aplica_vacinas %}<span class="cp-meta-item" style="color:#059669;font-weight:600">Vacinação</span>{% endif %}
                 {% if clinic_recommendations %}<span class="cp-meta-item" style="color:#7c3aed;font-weight:700">👍 {{ clinic_recommendations|length }} indicaç{{ 'ões' if clinic_recommendations|length != 1 else 'ão' }}</span>{% endif %}
                 {% if viewer_is_recruiter and clinic.open_hiring %}<span class="cp-meta-item" style="color:#0d9488;font-weight:700">💼 Contratando efetivo</span>{% endif %}
                 {% if viewer_is_recruiter and clinic.open_internship %}<span class="cp-meta-item" style="color:#7c3aed;font-weight:700">🎓 Aberta para estágio</span>{% endif %}
@@ -419,7 +419,7 @@ body { background: #ffffff; }
                 </div>
                 <div>
                     <div class="cp-info-card-lbl">Vacinação</div>
-                    <div class="cp-info-card-val" style="color:#059669">Aplica vacinas</div>
+                    <div class="cp-info-card-val" style="color:#059669">Vacinação</div>
                 </div>
             </div>
             {% endif %}

@@ -276,7 +276,7 @@ body { background: #ffffff; }
                 {% if veterinarian.crmv %}<span class="vp-meta-item">{{ veterinarian.crmv }}</span>{% endif %}
                 {% if veterinarian.is_student %}<span class="vp-meta-item" style="color:#7c3aed;font-weight:700">🎓 Estudante de Veterinária{% if veterinarian.student_institution %} · {{ veterinarian.student_institution }}{% endif %}</span>{% endif %}
                 {% if veterinarian.is_24h and not veterinarian.is_student %}<span class="vp-meta-item vp-badge-24h">Atendimento 24h</span>{% endif %}
-                {% if veterinarian.aplica_vacinas and not veterinarian.is_student %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Aplica vacinas</span>{% endif %}
+                {% if veterinarian.aplica_vacinas and not veterinarian.is_student %}<span class="vp-meta-item" style="color:#059669;font-weight:600">Vacinação</span>{% endif %}
                 {% if vet_recommendations %}<span class="vp-meta-item" style="color:#7c3aed;font-weight:700">👍 {{ vet_recommendations|length }} indicaç{{ 'ões' if vet_recommendations|length != 1 else 'ão' }}</span>{% endif %}
             </div>
             {% if veterinarian.avg_rating > 0 %}
@@ -440,7 +440,7 @@ body { background: #ffffff; }
                 </div>
                 <div>
                     <div class="vp-info-card-lbl">Vacinação</div>
-                    <div class="vp-info-card-val" style="color:#059669">Aplica vacinas</div>
+                    <div class="vp-info-card-val" style="color:#059669">Vacinação</div>
                 </div>
             </div>
             {% endif %}

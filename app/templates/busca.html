@@ -372,9 +372,9 @@
         {% set qs_vac_on  = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ ('&somente_24h=1' if somente_24h == '1' else '') ~ '&aplica_vacinas=1' %}
         {% set qs_vac_off = 'tipo=' ~ tipo ~ ('&query=' ~ query if query else '') ~ ('&especialidade=' ~ especialidade if especialidade else '') ~ ('&cidade=' ~ cidade if cidade else '') ~ ('&somente_24h=1' if somente_24h == '1' else '') %}
         {% if aplica_vacinas == '1' %}
-        <a href="/buscar?{{ qs_vac_off }}" class="bchip active">💉 Aplica vacinas ✕</a>
+        <a href="/buscar?{{ qs_vac_off }}" class="bchip active">💉 Vacinação ✕</a>
         {% else %}
-        <a href="/buscar?{{ qs_vac_on }}" class="bchip">💉 Aplica vacinas</a>
+        <a href="/buscar?{{ qs_vac_on }}" class="bchip">💉 Vacinação</a>
         {% endif %}
       </div>
     </form>
