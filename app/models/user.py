@@ -46,3 +46,24 @@ class User(Base):
             return clinic.name
 
         return self.email
+
+    @property
+    def photo_url(self):
+        """Foto de perfil resolvida a partir do perfil relacionado."""
+
+        def _first(rel):
+            value = getattr(self, rel, None)
+            if isinstance(value, list):
+                return value[0] if value else None
+            return value
+
+        for rel in ("tutor", "veterinarian"):
+            profile = _first(rel)
+            if profile and getattr(profile, "photo_url", None):
+                return profile.photo_url
+
+        clinic = _first("clinic")
+        if clinic:
+            return getattr(clinic, "photo_url", None) or getattr(clinic, "logo_url", None)
+
+        return None

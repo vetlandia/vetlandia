@@ -305,6 +305,7 @@
             <thead>
                 <tr>
                     <th>Nota</th>
+                    <th>De</th>
                     <th>Comentário</th>
                     <th>Para</th>
                     <th>Data</th>
@@ -316,7 +317,8 @@
                     {% for review in reviews %}
                     <tr>
                         <td>{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</td>
-                        <td style="max-width:300px">{{ review.comment[:100] }}{% if review.comment|length > 100 %}...{% endif %}</td>
+                        <td style="white-space:nowrap;font-size:0.8rem">{{ review.author.display_name }}</td>
+                        <td style="max-width:340px;font-size:0.82rem;white-space:pre-wrap">{{ review.comment }}</td>
                         <td>{{ tipo_pt.get(review.reviewee_type.value, review.reviewee_type.value) }}</td>
                         <td>{{ review.created_at.strftime('%d/%m/%Y') }}</td>
                         <td style="white-space:nowrap">

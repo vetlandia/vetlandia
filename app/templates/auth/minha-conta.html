@@ -198,7 +198,15 @@
     .form-row { grid-template-columns: 1fr; }
     .profile-card { padding: var(--space-5); }
 }
+/* crop modal */
+#crop-modal { display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.82);align-items:center;justify-content:center; }
+#crop-modal-box { background:#fff;border-radius:16px;padding:24px;max-width:520px;width:92%;max-height:90vh;display:flex;flex-direction:column;gap:16px; }
+#crop-modal-box h3 { margin:0;font-size:1rem;font-weight:700;color:#0f172a; }
+#crop-image-wrap { overflow:hidden;max-height:360px;border-radius:8px;background:#000; }
+#crop-image { display:block;max-width:100%;max-height:360px; }
+#crop-modal-actions { display:flex;gap:10px;justify-content:flex-end; }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 {% endblock %}
 
 {% block content %}
@@ -787,7 +795,20 @@
 </div>
 {% endblock %}
 
+<!-- Crop modal (fora do fluxo de layout) -->
+<div id="crop-modal">
+  <div id="crop-modal-box">
+    <h3>Ajustar foto</h3>
+    <div id="crop-image-wrap"><img id="crop-image" alt=""></div>
+    <div id="crop-modal-actions">
+      <button type="button" onclick="closeCropModal()" style="padding:9px 20px;border:1px solid #D1D5DB;border-radius:8px;background:#fff;cursor:pointer;font-weight:600">Cancelar</button>
+      <button type="button" onclick="confirmCrop()" style="padding:9px 20px;border:none;border-radius:8px;background:#0d9488;color:#fff;cursor:pointer;font-weight:700">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 <script>
 function switchView(name) {
     document.getElementById('view-dados').style.display = name === 'dados' ? '' : 'none';
@@ -844,10 +865,61 @@ async function submitChangePwd(e) {
     }
 }
 
+/* ── Crop modal ── */
+let _cropper = null, _cropCb = null;
+function openCropModal(src, ratio, cb) {
+    _cropCb = cb;
+    const modal = document.getElementById('crop-modal');
+    const img = document.getElementById('crop-image');
+    if (_cropper) { _cropper.destroy(); _cropper = null; }
+    img.src = src;
+    modal.style.display = 'flex';
+    img.onload = function() {
+        _cropper = new Cropper(img, {
+            aspectRatio: ratio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            responsive: true,
+            checkCrossOrigin: false,
+        });
+    };
+}
+function closeCropModal() {
+    document.getElementById('crop-modal').style.display = 'none';
+    if (_cropper) { _cropper.destroy(); _cropper = null; }
+    _cropCb = null;
+}
+function confirmCrop() {
+    if (!_cropper || !_cropCb) return;
+    const canvas = _cropper.getCroppedCanvas({ maxWidth: 800, maxHeight: 800, fillColor: '#fff' });
+    _cropCb(canvas.toDataURL('image/jpeg', 0.85));
+    closeCropModal();
+}
+
+function setupPhotoCrop(inputId, previewId, hiddenId, ratio) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('change', function() {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            openCropModal(e.target.result, ratio, function(dataUrl) {
+                if (hiddenId) document.getElementById(hiddenId).value = dataUrl;
+                const preview = document.getElementById(previewId);
+                if (preview) preview.innerHTML = '<img src="' + dataUrl + '" alt="Preview">';
+            });
+            input.value = '';
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function setupPhotoUpload(inputId, previewId, hiddenId) {
     const input = document.getElementById(inputId);
     const preview = document.getElementById(previewId);
-    const hidden = document.getElementById(hiddenId);
+    const hidden = hiddenId ? document.getElementById(hiddenId) : null;
     if (!input) return;
     input.addEventListener('change', () => {
         const file = input.files[0];
@@ -856,7 +928,7 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
         reader.onload = (e) => {
             const img = new Image();
             img.onload = () => {
-                const MAX = 400;
+                const MAX = 800;
                 let w = img.width, h = img.height;
                 if (w > MAX || h > MAX) {
                     if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
@@ -866,8 +938,8 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
                 canvas.width = w; canvas.height = h;
                 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
                 const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
-                hidden.value = dataUrl;
-                preview.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
+                if (hidden) hidden.value = dataUrl;
+                if (preview) preview.innerHTML = `<img src="${dataUrl}" alt="Preview">`;
             };
             img.src = e.target.result;
         };
@@ -875,12 +947,12 @@ function setupPhotoUpload(inputId, previewId, hiddenId) {
     });
 }
 
-setupPhotoUpload('pc-tutor-photo-input',  'pc-tutor-preview',  'pc-tutor-photo-data');
-setupPhotoUpload('pc-vet-photo-input',    'pc-vet-preview',    'pc-vet-photo-data');
-setupPhotoUpload('pc-clinic-photo-input', 'pc-clinic-preview', 'pc-clinic-photo-data');
-setupPhotoUpload('pc-vet-cover-input',    'pc-vet-cover-preview',    'pc-vet-cover-data');
-setupPhotoUpload('pc-clinic-cover-input', 'pc-clinic-cover-preview', 'pc-clinic-cover-data');
-setupPhotoUpload('pc-vet-crmv-input',     'pc-vet-crmv-preview',     'pc-vet-crmv-data');
+setupPhotoCrop('pc-tutor-photo-input',   'pc-tutor-preview',       'pc-tutor-photo-data',   1);
+setupPhotoCrop('pc-vet-photo-input',     'pc-vet-preview',         'pc-vet-photo-data',     1);
+setupPhotoCrop('pc-clinic-photo-input',  'pc-clinic-preview',      'pc-clinic-photo-data',  1);
+setupPhotoCrop('pc-vet-cover-input',     'pc-vet-cover-preview',   'pc-vet-cover-data',     16/9);
+setupPhotoCrop('pc-clinic-cover-input',  'pc-clinic-cover-preview','pc-clinic-cover-data',  16/9);
+setupPhotoUpload('pc-vet-crmv-input',    'pc-vet-crmv-preview',    'pc-vet-crmv-data');
 
 // Estudante x Formado: mostra/oculta CRMV, carteira, especialidades, 24h/vacinas
 (function () {

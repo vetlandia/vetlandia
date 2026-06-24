@@ -571,7 +571,11 @@ body { background: #ffffff; }
             <div class="cp-review-card">
                 <div class="cp-review-top">
                     <div class="cp-review-author-row">
-                        <div class="cp-review-avatar">{{ review.author.display_name[0] }}</div>
+                        <div class="cp-review-avatar" style="overflow:hidden;padding:0">
+                            {% if review.author.photo_url %}
+                            <img src="{{ review.author.photo_url }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block">
+                            {% else %}{{ review.author.display_name[0] }}{% endif %}
+                        </div>
                         <div>
                             <div class="cp-review-author">{{ review.author.display_name }}</div>
                             <div class="cp-review-stars">{% for i in range(review.rating) %}★{% endfor %}</div>
