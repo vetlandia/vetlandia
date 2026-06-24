@@ -174,7 +174,11 @@
           {% if clinics %}
             {% for clinic in clinics[:4] %}
             <a href="/clinica/{{ clinic.slug }}" class="clinic-item">
-              <div class="clinic-icon">🏥</div>
+              <div class="clinic-icon">
+                {% if clinic.photo_url or clinic.logo_url %}
+                <img src="{{ clinic.photo_url or clinic.logo_url }}" alt="{{ clinic.name }}">
+                {% else %}🏥{% endif %}
+              </div>
               <div class="clinic-info">
                 <div class="clinic-name">{{ clinic.name }}</div>
                 <div class="clinic-meta">{% if clinic.review_count %}⭐ {{ clinic.avg_rating }} · {% endif %}{{ clinic.city }}{% if clinic.state %}, {{ clinic.state }}{% endif %}</div>
