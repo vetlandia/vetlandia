@@ -1189,10 +1189,10 @@ def popup_stats(db: Session = Depends(get_db)):
     vet_limit = int(get_config(db, "popup_vet_limit", "100"))
     cli_limit = int(get_config(db, "popup_clinic_limit", "30"))
     vet_count = db.query(Veterinarian).filter(
-        Veterinarian.is_approved == True, Veterinarian.is_founder == True
+        Veterinarian.is_approved == True
     ).count()
     cli_count = db.query(Clinic).filter(
-        Clinic.is_approved == True, Clinic.is_founder == True
+        Clinic.is_approved == True
     ).count()
 
     data = {
